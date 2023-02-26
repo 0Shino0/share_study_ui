@@ -16,7 +16,7 @@ import '@/icons' // icon
 import '@/permission' // permission control
 
 // 通用表格组件
-import Table from "@/components/Table"
+// import Table from "@/components/Table" /* 废弃 */
 
 /**
  * If you don't want to use mock-server
@@ -41,7 +41,7 @@ Vue.use(ElementUI)
 // 全局方法
 
 // 全局组件
-Vue.component("Table",Table);
+// Vue.component("Table", Table); /* 废弃 */
 
 
 Vue.config.productionTip = false;

@@ -35,10 +35,36 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <el-dialog
+      title="标题"
+      :visible.sync="dialogShow"
+      :width="dialogWidth"
+      :top="dialogTop"
+    >
+      <el-form :model="dialogForm">
+        <el-form-item
+          v-for="col in tableColumn"
+          :label="col.label"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            autocomplete="off"
+            size="small"
+            v-model="col.prop"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="dialogShow = false">取 消</el-button>
+        <el-button type="primary" @click="dialogShow = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+/* 废弃 */
 export default {
   name: "Table",
   props: {
@@ -54,16 +80,36 @@ export default {
   data() {
     return {
       search: "",
+      dialogShow: false,
+      // 表单相关
+      dialogForm: {},
+      currentFormData: {},
+      formLabelWidth: "120px",
+      // 对话框dialog相关
+      dialogWidth: "600px",
+      dialogTop: "30px",
     };
   },
   methods: {
+    // 表格相关
+    // 编辑操作
     handleEdit(index, row) {
+      // 展示信息
       console.log(index, row);
+      this.currentFormData = row;
+      console.log(this.currentFormData);
+      this.dialogShow = true;
+      // 修改信息
+
+      // 调用接口
     },
+    // 删除操作
     handleDelete(index, row) {
       console.log(index, row);
     },
+    // dialog对话框相关
   },
+  computed: {},
 };
 </script>
 

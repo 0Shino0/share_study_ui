@@ -68,9 +68,8 @@ export const constantRoutes = [
   },
 
   {
-    path: '/',
+    path: '/teacher',
     component: Layout,
-    redirect: '/teacher',
     children: [{
       path: 'teacher',
       name: 'Teacher',
@@ -128,6 +127,21 @@ export const constantRoutes = [
         name: 'Tree',
         component: () => import('@/views/tree/index'),
         meta: { title: '菜单管理', icon: 'tree' }
+      }
+    ]
+  },
+
+  {
+    path: '/about',
+    component: Layout,
+    redirect: '/about/index',
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/about/index'),
+        name: 'Profile',
+        meta: { title: 'Profile', icon: 'user', noCache: true }
       }
     ]
   },
