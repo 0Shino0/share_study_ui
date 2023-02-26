@@ -4,12 +4,11 @@
 
 ## 基于区块链的教育资源共享平台——后台管理系统
 
-<<<<<<< HEAD
-=======
+
 ## 项目启动
 - 克隆项目 `git clone https://github.com/0Shino0/share_study_admin.git`
 
 - 安装依赖 `npm i` or `yarn`
 
 - 本地运行 `npm run dev`
->>>>>>> df8faeb0f8dfba352bd4caf3a262267b59f33ce1
+
