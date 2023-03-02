@@ -67,8 +67,8 @@ export default {
   name: "Login",
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error("请输入正确的用户名"));
+      if (value.length < 5) {
+        callback(new Error("密码不能少于6位"));
       } else {
         callback();
       }
@@ -82,8 +82,8 @@ export default {
     };
     return {
       loginForm: {
-        account: "admin",
-        password: "admin",
+        account: "super",
+        password: "super",
       },
       loginRules: {
         account: [

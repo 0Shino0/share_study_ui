@@ -61,17 +61,14 @@
         :top="dialogTop"
       >
         <el-form :model="dialogForm">
-          <el-form-item label="用户ID" :label-width="formLabelWidth">
+          <!-- <el-form-item label="用户ID" :label-width="formLabelWidth">
             <el-input v-model="dialogForm.id" autocomplete="off"></el-input>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="老师姓名" :label-width="formLabelWidth">
             <el-input v-model="dialogForm.name" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="所属高校" :label-width="formLabelWidth">
-            <el-input
-              v-model="dialogForm.belong_id"
-              autocomplete="off"
-            ></el-input>
+            <el-input v-model="dialogForm.belong" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="贡献度" :label-width="formLabelWidth">
             <el-input v-model="dialogForm.score" autocomplete="off"></el-input>
@@ -84,16 +81,16 @@
           </el-form-item>
           <el-form-item label="录入时间" :label-width="formLabelWidth">
             <el-input
-              v-model="dialogForm.create_time"
+              v-model="dialogForm.createTime"
               autocomplete="off"
             ></el-input>
           </el-form-item>
-          <el-form-item label="修改时间" :label-width="formLabelWidth">
+          <!-- <el-form-item label="修改时间" :label-width="formLabelWidth">
             <el-input
               v-model="dialogForm.update_time"
               autocomplete="off"
             ></el-input>
-          </el-form-item>
+          </el-form-item> -->
         </el-form>
         <div slot="footer">
           <el-button @click="dialogShow = false">取 消</el-button>
@@ -105,21 +102,23 @@
 </template>
 
 <script>
+import { getTeacherPageInfo } from "@/api/user";
+
 export default {
   name: "Teacher",
   data() {
     return {
       tableTeacherCol: [
-        {
-          prop: "id",
-          label: "用户ID",
-        },
+        // {
+        //   prop: "id",
+        //   label: "用户ID",
+        // },
         {
           prop: "name",
           label: "老师姓名",
         },
         {
-          prop: "belong_id",
+          prop: "belong",
           label: "所属高校",
         },
         {
@@ -135,14 +134,15 @@ export default {
           label: "状态",
         },
         {
-          prop: "create_time",
+          prop: "createTime",
           label: "录入时间",
         },
-        {
-          prop: "update_time",
-          label: "修改时间",
-        },
+        // {
+        //   prop: "update_time",
+        //   label: "修改时间",
+        // },
       ],
+      /*       
       tableTeacherData: [
         {
           id: "test",
@@ -204,20 +204,21 @@ export default {
           create_time: "6",
           update_time: "7",
         },
-      ],
+      ], */
+      tableTeacherData: [],
       // 表格相关
       search: "",
       dialogShow: false,
       // 表单相关
       dialogForm: {
-        id: "",
+        // id: "",
         name: "",
         belong_id: "",
         score: "",
         role: "",
         status: "",
         create_time: "",
-        update_time: "",
+        // update_time: "",
       },
       formLabelWidth: "120px", // 输入框宽度
       // 对话框dialog相关
@@ -226,7 +227,47 @@ export default {
       isAdd: true, // 标识新增操作 | true表示新增 - false表示编辑
     };
   },
+  created() {
+    this.getTeacherPage(1, 10);
+  },
+  mounted() {},
   methods: {
+    /* 请求数据 */
+    // 管理员分页查询
+    async getTeacherPage(current, pageSize) {
+      try {
+        const { data } = await getTeacherPageInfo(current, pageSize);
+        // console.log(data);
+        /* 加工数组
+          所属高校 => 字符串
+          角色状态 0-普通用户 1-管理员 2-超级管理员
+          状态 0-未禁用 1-禁用
+          时间 数组-字符串
+        */
+        // 过滤数组
+        let filterArr = data.records.filter((c) => c.role === 0);
+
+        filterArr.forEach((current) => {
+          // 所属高校 (会有延迟问题)待定
+          // let belong = await getCollegeName(current.belong);
+          // current.belong = belong.data.name;
+
+          current.role = "普通用户";
+          // 状态
+          current.status = current.status === 0 ? "正常" : "禁用";
+          // 时间
+          current.createTime = current.createTime
+            .splice(0, 3)
+            .toString()
+            .replace(/,/g, "-");
+        });
+
+        this.tableTeacherData = filterArr;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
     /* 表格相关 */
     // 编辑操作
     handleEdit(index, row) {

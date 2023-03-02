@@ -15,12 +15,15 @@ service.interceptors.request.use(
   config => {
     // do something before request is sent
 
-    if (store.getters.token) {
-      // let each request carry token
-      // ['X-Token'] is a custom headers key
-      // please modify it according to the actual situation
-      config.headers['X-Token'] = getToken()
-    }
+    // session鉴权
+
+    // token鉴权
+    /*     if (store.getters.token) {
+          // let each request carry token
+          // ['X-Token'] is a custom headers key
+          // please modify it according to the actual situation
+          config.headers['userLoginState'] = getToken()
+        } */
     return config
   },
   error => {
@@ -30,7 +33,7 @@ service.interceptors.request.use(
   }
 )
 
-// response interceptor
+// 响应拦截器
 service.interceptors.response.use(
   /**
    * If you want to get http information such as headers or status
@@ -46,8 +49,8 @@ service.interceptors.response.use(
     const res = response.data
 
     // if the custom code is not 20000, it is judged as an error.
-    // if (res.code !== "00000") {
-    if (res.code !== 20000) {
+    if (res.code !== "00000") {
+      // if (res.code !== 20000) {
       Message({
         message: res.message || 'Error',
         type: 'error',
@@ -62,6 +65,7 @@ service.interceptors.response.use(
           cancelButtonText: 'Cancel',
           type: 'warning'
         }).then(() => {
+          // token鉴权-清除token
           store.dispatch('user/resetToken').then(() => {
             location.reload()
           })

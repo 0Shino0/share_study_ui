@@ -11,7 +11,11 @@
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="avatar + '?imageView2/1/w/80/h/80'" class="user-avatar" />
+          <img :src="userInfo.avatar" class="user-avatar" />
+          <!-- <img
+            :src="userInfo.avatar + '?imageView2/1/w/80/h/80'"
+            class="user-avatar"
+          /> -->
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
@@ -38,6 +42,7 @@
 
 <script>
 import { mapGetters } from "vuex";
+import { getToken } from "@/utils/auth";
 import Breadcrumb from "@/components/Breadcrumb";
 import Hamburger from "@/components/Hamburger";
 
@@ -47,7 +52,13 @@ export default {
     Hamburger,
   },
   computed: {
-    ...mapGetters(["sidebar", "avatar"]),
+    // ...mapGetters(["sidebar", "userInfo"]),
+    ...mapGetters(["sidebar"]),
+    userInfo: () => {
+      let token = getToken();
+      let data = JSON.parse(token);
+      return data;
+    },
   },
   methods: {
     toggleSideBar() {

@@ -30,30 +30,30 @@ module.exports = {
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
   // 测试环境
-  devServer: {
-    port: port,
-    open: true,
-    overlay: {
-      warnings: false,
-      errors: true
-    },
-    before: require('./mock/mock-server.js')
-  },
   /*   devServer: {
       port: port,
       open: true,
-      proxy: {
-        // detail: https://cli.vuejs.org/config/#devserver-proxy
-        [process.env.VUE_APP_BASE_API]: {
-          target: `http://localhost:8080`,
-          changeOrigin: true,
-          pathRewrite: {
-            ['^' + 'api']: ''
-          }
-        }
+      overlay: {
+        warnings: false,
+        errors: true
       },
-      disableHostCheck: true
+      before: require('./mock/mock-server.js')
     }, */
+  devServer: {
+    port: port,
+    open: true,
+    proxy: {
+      // detail: https://cli.vuejs.org/config/#devserver-proxy
+      [process.env.VUE_APP_BASE_API]: {
+        target: `http://localhost:8080`,
+        changeOrigin: true,
+        pathRewrite: {
+          ['^' + 'api']: ''
+        }
+      }
+    },
+    disableHostCheck: true
+  },
   configureWebpack: {
     // provide the app's title in webpack's name field, so that
     // it can be accessed in index.html to inject the correct title.

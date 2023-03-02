@@ -37,10 +37,10 @@
             <el-input
               v-model="search"
               size="mini"
-              placeholder="输入资料名搜索"
+              placeholder="输入管理员名称搜索"
             />
           </template>
-          <template slot-scope="scope">
+          <template slot-scope="scope" v-if="scope.row.role === '管理员'">
             <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
               >编辑</el-button
             >
@@ -60,43 +60,53 @@
         :width="dialogWidth"
         :top="dialogTop"
       >
-        <el-form :model="dialogForm">
-          <el-form-item label="用户ID" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.id" autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="老师姓名" :label-width="formLabelWidth">
+        <el-form :model="dialogForm" :rules="dialogFormRules">
+          <!-- <el-form-item label="用户ID" :label-width="formLabelWidth">
+            <el-input
+              v-model="dialogForm.id"
+              autocomplete="off"
+              :disabled="true"
+            ></el-input>
+          </el-form-item> -->
+          <el-form-item label="管理员名" :label-width="formLabelWidth">
             <el-input v-model="dialogForm.name" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="所属高校" :label-width="formLabelWidth">
-            <el-input
-              v-model="dialogForm.belong_id"
-              autocomplete="off"
-            ></el-input>
+            <el-input v-model="dialogForm.belong" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="贡献度" :label-width="formLabelWidth">
             <el-input v-model="dialogForm.score" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="角色状态" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.role" autocomplete="off"></el-input>
+            <!-- <el-input v-model="dialogForm.role" autocomplete="off"></el-input> -->
+            <el-select v-model="dialogForm.role" placeholder="请选择">
+              <el-option label="普通用户" value="普通用户"></el-option>
+              <el-option label="管理员" value="管理员"></el-option>
+              <!-- <el-option label="超级管理员" value="2"></el-option> -->
+            </el-select>
           </el-form-item>
           <el-form-item label="状态" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.status" autocomplete="off"></el-input>
+            <el-select v-model="dialogForm.status" placeholder="请选择">
+              <el-option label="正常" value="正常"></el-option>
+              <el-option label="禁用" value="禁用"></el-option>
+            </el-select>
           </el-form-item>
           <el-form-item label="录入时间" :label-width="formLabelWidth">
             <el-input
-              v-model="dialogForm.create_time"
+              v-model="dialogForm.createTime"
               autocomplete="off"
+              :disabled="true"
             ></el-input>
           </el-form-item>
-          <el-form-item label="修改时间" :label-width="formLabelWidth">
+          <!-- <el-form-item label="修改时间" :label-width="formLabelWidth">
             <el-input
               v-model="dialogForm.update_time"
               autocomplete="off"
             ></el-input>
-          </el-form-item>
+          </el-form-item> -->
         </el-form>
         <div slot="footer">
-          <el-button @click="dialogShow = false">取 消</el-button>
+          <el-button @click="dialogCancel()">取 消</el-button>
           <el-button type="primary" @click="dialogSubmit()">确 定</el-button>
         </div>
       </el-dialog>
@@ -105,21 +115,25 @@
 </template>
 
 <script>
+import { getAdminPageInfo, getAdminExcel, getInfoAdminId } from "@/api/user";
+// import { getCollegeName } from "@/api/college";
+
 export default {
   name: "Admin",
   data() {
     return {
+      /* mock数据 */
       tableAdminCol: [
-        {
-          prop: "id",
-          label: "用户ID",
-        },
+        // {
+        //   prop: "id",
+        //   label: "用户ID",
+        // },
         {
           prop: "name",
-          label: "老师姓名",
+          label: "管理员名",
         },
         {
-          prop: "belong_id",
+          prop: "belong",
           label: "所属高校",
         },
         {
@@ -135,15 +149,15 @@ export default {
           label: "状态",
         },
         {
-          prop: "create_time",
+          prop: "createTime",
           label: "录入时间",
         },
-        {
-          prop: "update_time",
-          label: "修改时间",
-        },
+        // {
+        //   prop: "update_time",
+        //   label: "修改时间",
+        // },
       ],
-      tableAdminData: [
+      /*       tableAdminData: [
         {
           id: "test",
           name: "test",
@@ -164,20 +178,31 @@ export default {
           create_time: "0",
           update_time: "0",
         },
-      ],
+      ], */
+      tableAdminData: [],
+      testData: [],
       // 表格相关
       search: "",
       dialogShow: false,
       // 表单相关
       dialogForm: {
-        id: "",
-        name: "",
-        belong_id: "",
-        score: "",
-        role: "",
-        status: "",
-        create_time: "",
-        update_time: "",
+        // id: undefined,
+        name: undefined,
+        belong: undefined,
+        score: undefined,
+        role: undefined,
+        status: undefined,
+        create_time: undefined,
+        // update_time: undefined,
+      },
+      dialogFormRules: {
+        // id: [{ required: true, trigger: "blur" }],
+        name: [{ required: true, trigger: "blur" }],
+        belong: [{ required: true, trigger: "blur" }],
+        score: [{ required: true, trigger: "blur" }],
+        role: [{ required: true, trigger: "blur" }],
+        status: [{ required: true, trigger: "blur" }],
+        create_time: [{ required: true, trigger: "blur" }],
       },
       formLabelWidth: "120px", // 输入框宽度
       // 对话框dialog相关
@@ -186,18 +211,55 @@ export default {
       isAdd: true, // 标识新增操作 | true表示新增 - false表示编辑
     };
   },
+  mounted() {
+    this.getAdminPage(1, 10);
+  },
   methods: {
+    /* 请求数据 */
+    // 管理员分页查询
+    async getAdminPage(current, pageSize) {
+      try {
+        const { data } = await getAdminPageInfo(current, pageSize);
+        // console.log(data);
+        /* 加工数组
+          所属高校 => 字符串
+          角色状态 0-普通用户 1-管理员 2-超级管理员
+          状态 0-未禁用 1-禁用
+          时间 数组-字符串
+        */
+        data.records.forEach((current, index, arr) => {
+          // 所属高校 (会有延迟问题)待定
+          // let belong = await getCollegeName(current.belong);
+          // current.belong = belong.data.name;
+          // 角色状态 - 管理员 超级管理员
+          current.role = current.role === 1 ? "管理员" : "超级管理员";
+          // 状态
+          current.status = current.status === 0 ? "正常" : "禁用";
+          // 时间
+
+          current.createTime = current.createTime
+            .splice(0, 3)
+            .toString()
+            .replace(/,/g, "-");
+        });
+        this.tableAdminData = data.records;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
     /* 表格相关 */
     // 编辑操作
     handleEdit(index, row) {
       // 标识编辑操作
       this.isAdd = false;
+      const id = row.id;
       // 展示信息
       console.log(index, row);
+      const data = getInfoAdminId(id);
       this.dialogForm = row;
       this.dialogShow = true;
       // 修改信息
-
       // 调用编辑接口
     },
     // 新增操作
@@ -231,6 +293,25 @@ export default {
         // 调用相关接口
       }
     },
+    // 取消按钮
+    dialogCancel() {
+      this.dialogShow = false;
+    },
+    // 表单重置
+    reset() {
+      this.dialogForm = {
+        // id: undefined,
+        name: undefined,
+        belong: undefined,
+        score: undefined,
+        role: undefined,
+        status: undefined,
+        create_time: undefined,
+        // update_time: undefined,
+      };
+      this.resetForm("form");
+    },
+
     // 导出excel
     handleExportExcel() {
       // 调用接口
