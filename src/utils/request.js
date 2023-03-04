@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
-import { getToken } from '@/utils/auth'
+import router from '@/router' // 引入路由
+import { getToken, removeToken } from '@/utils/auth'
 
 // create an axios instance
 const service = axios.create({
@@ -24,6 +25,11 @@ service.interceptors.request.use(
           // please modify it according to the actual situation
           config.headers['userLoginState'] = getToken()
         } */
+
+    // 添加 responseType
+    if (config.responseType) {
+      config['responseType'] = 'blob'
+    }
     return config
   },
   error => {
@@ -57,8 +63,19 @@ service.interceptors.response.use(
         duration: 5 * 1000
       })
 
+      // 未登录
+      if (res.code === "D0112") {
+
+        console.log("未登录");
+        // 清除token
+        removeToken('adminLoginstate')
+        // 未登录跳转至登录页
+        router.push(`/login?redirect=${window.location.hash.replace(/#/, "")}`);
+
+      }
+
       // 50008:非法令牌;50012:已登录的其他客户端;50014:令牌过期;
-      if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
+      if (res.code === "50008" || res.code === "50012" || res.code === "50014") {
         // to re-login
         MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
           confirmButtonText: 'Re-Login',
