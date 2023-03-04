@@ -1,6 +1,6 @@
 <template>
   <div class="college-container">
-    <div class="college-text">高校</div>
+    <!-- <div class="college-text">高校</div> -->
     <div class="op-btn">
       <el-button class="add-btn" type="success" size="mini" @click="handleAdd()"
         >新增</el-button
@@ -29,7 +29,7 @@
           :key="item.prop"
           :prop="item.prop"
           :label="item.label"
-          width="120"
+          :width="tableColumnWidth"
         >
         </el-table-column>
         <el-table-column align="right">
@@ -59,44 +59,34 @@
         :visible.sync="dialogShow"
         :width="dialogWidth"
         :top="dialogTop"
+        :before-close="dialogCancel"
       >
-        <el-form :model="dialogForm">
-          <el-form-item label="用户ID" :label-width="formLabelWidth">
+        <el-form :model="dialogForm" ref="queryForm">
+          <!-- <el-form-item label="用户ID" :label-width="formLabelWidth">
             <el-input v-model="dialogForm.id" autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="老师姓名" :label-width="formLabelWidth">
+          </el-form-item> -->
+          <el-form-item label="高校" :label-width="formLabelWidth">
             <el-input v-model="dialogForm.name" autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="所属高校" :label-width="formLabelWidth">
-            <el-input
-              v-model="dialogForm.belong_name"
-              autocomplete="off"
-            ></el-input>
-          </el-form-item>
-          <el-form-item label="地址" :label-width="formLabelWidth">
-            <el-input
-              v-model="dialogForm.address"
-              autocomplete="off"
-            ></el-input>
           </el-form-item>
           <el-form-item label="院校代码" :label-width="formLabelWidth">
             <el-input v-model="dialogForm.code" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="录入时间" :label-width="formLabelWidth">
+          <!-- <el-form-item label="录入时间" :label-width="formLabelWidth">
             <el-input
-              v-model="dialogForm.create_time"
+              v-model="dialogForm.createTime"
               autocomplete="off"
+              :disabled="true"
             ></el-input>
-          </el-form-item>
-          <el-form-item label="修改时间" :label-width="formLabelWidth">
+          </el-form-item> -->
+          <!-- <el-form-item label="修改时间" :label-width="formLabelWidth">
             <el-input
               v-model="dialogForm.update_time"
               autocomplete="off"
             ></el-input>
-          </el-form-item>
+          </el-form-item> -->
         </el-form>
         <div slot="footer">
-          <el-button @click="dialogShow = false">取 消</el-button>
+          <el-button @click="dialogCancel()">取 消</el-button>
           <el-button type="primary" @click="dialogSubmit()">确 定</el-button>
         </div>
       </el-dialog>
@@ -105,41 +95,40 @@
 </template>
 
 <script>
+import {
+  getCollegePageInfo,
+  getCollegeName,
+  updateCollege,
+  addCollegeName,
+} from "@/api/college";
+
 export default {
   name: "College",
   data() {
     return {
       tableCollegeCol: [
-        {
-          prop: "id",
-          label: "高校ID",
-        },
-        {
-          prop: "name",
-          label: "高校姓名",
-        },
-        {
-          prop: "belong_name",
-          label: "所属高校",
-        },
-        {
-          prop: "address",
-          label: "所在地址",
-        },
+        // {
+        //   prop: "id",
+        //   label: "高校ID",
+        // },
         {
           prop: "code",
           label: "院校代码",
         },
         {
-          prop: "create_time",
-          label: "录入时间",
+          prop: "name",
+          label: "高校",
         },
         {
-          prop: "update_time",
-          label: "修改时间",
+          prop: "createTime",
+          label: "录入时间",
         },
+        // {
+        //   prop: "update_time",
+        //   label: "修改时间",
+        // },
       ],
-      tableCollegeData: [
+      /*       tableCollegeData: [
         {
           id: "test",
           name: "test",
@@ -158,7 +147,8 @@ export default {
           create_time: "5",
           update_time: "6",
         },
-      ],
+      ], */
+      tableCollegeData: [],
       // 表格相关
       search: "",
       dialogShow: false,
@@ -166,11 +156,10 @@ export default {
       dialogForm: {
         id: "",
         name: "",
-        belong_name: "",
-        address: "",
         code: "",
-        create_time: "",
-        update_time: "",
+        // create_time: "",
+        // belong_name: "",
+        // update_time: "",
       },
       formLabelWidth: "120px", // 输入框宽度
       // 对话框dialog相关
@@ -179,24 +168,44 @@ export default {
       isAdd: true, // 标识新增操作 | true表示新增 - false表示编辑
     };
   },
+  mounted() {
+    this.getCollegePage(1, 10);
+  },
   methods: {
+    /* 请求数据 */
+    // 管理员分页查询
+    async getCollegePage(current, pageSize) {
+      try {
+        const { data } = await getCollegePageInfo(current, pageSize);
+        console.log(data);
+        /* 加工数组 */
+
+        this.tableCollegeData = data.records;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
     /* 表格相关 */
     // 编辑操作
-    handleEdit(index, row) {
+    async handleEdit(index, row) {
       // 标识编辑操作
       this.isAdd = false;
       // 展示信息
-      console.log(index, row);
-      this.dialogForm = row;
-      this.dialogShow = true;
-      // 修改信息
+      // 深拷贝
+      // this.dialogForm = JSON.parse(JSON.stringify(row));
 
-      // 调用编辑接口
+      // 向后台请求信息
+      const result = await getCollegeName(row.id);
+      this.dialogForm = result.data;
+      this.dialogShow = true;
     },
     // 新增操作
     handleAdd() {
       // 标识新增操作
       this.isAdd = true;
+      // 清除表单数据
+      this.reset();
       // 显示对话框
       this.dialogShow = true;
       // 获取数据
@@ -211,29 +220,54 @@ export default {
     // dialog对话框相关
     // 提交按钮
     dialogSubmit() {
-      // 关闭对话框
+      this.$refs["queryForm"].validate((valid) => {
+        if (valid) {
+          if (this.dialogForm.id != null) {
+            updateCollege(this.dialogForm).then((response) => {
+              this.dialogShow = false;
+              this.getCollegePage(1, 10);
+              this.reset();
+            });
+          } else {
+            addCollegeName(this.dialogForm).then((response) => {
+              this.dialogShow = false;
+              this.getCollegePage(1, 10);
+              this.reset();
+            });
+          }
+        }
+      });
+    },
+    // 取消按钮
+    dialogCancel() {
       this.dialogShow = false;
-      // 判断操作
-      if (this.isAdd) {
-        // 新增操作
-        console.log("新增");
-        // 调用相关接口
-      } else {
-        // 编辑操作
-        console.log("编辑");
-        // 调用相关接口
-      }
+      this.reset();
+    },
+    // 表单重置
+    reset() {
+      this.dialogForm = {
+        code: undefined,
+        // create_time: undefined,
+        id: undefined,
+        name: undefined,
+        // update_time: undefined,
+      };
+      this.resetForm("queryForm");
     },
     // 导出excel
     handleExportExcel() {
       // 调用接口
-      /* 参数相关
-          header: tHeader, //表头 必填
-          data, //具体数据 必填
-          filename: 'excel-list', //非必填
-          autoWidth: true, //非必填
-          bookType: 'xlsx' //非必填
-      */
+      try {
+        /* 逃课写法 */
+        let link = document.createElement("a");
+        // 高校url
+        link.href = "http://localhost:9528/api/college/download";
+        console.log(link);
+        link.click(); //模拟点击
+        document.body.removeChild(link);
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
 };
@@ -245,7 +279,7 @@ export default {
     margin: 30px;
 
     .op-btn {
-      margin: 10px 0 0 5px;
+      margin: 10px 0 30px 5px;
     }
   }
   &-text {
