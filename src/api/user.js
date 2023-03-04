@@ -1,3 +1,5 @@
+/* 用户接口 */
+
 import request from '@/utils/request'
 
 /* 登录相关接口 */
@@ -34,7 +36,7 @@ export function logout() {
  * id
  * get
 */
-export function getInfoAdmin(id) {
+export function getInfoAdminSelf(id) {
   return request({
     url: `/admin/getSelf`,
     method: 'get',
@@ -56,7 +58,7 @@ export function getInfoAdmin(id) {
     }
  * put
 */
-export function updateInfoAdmin(data) {
+export function updateInfoAdminSelf(data) {
   return request({
     url: `/admin/updateSelf`,
     method: 'put',
@@ -75,7 +77,7 @@ export function getInfoAdminId(id) {
   })
 }
 
-/** 超级管理员修改自己信息
+/** 超级管理员修改管理员信息
  * 
   * data = {
       "avatar": "http://dummyimage.com/100x100",
@@ -89,7 +91,7 @@ export function getInfoAdminId(id) {
     }
  * put
 */
-export function updateInfoSuper(data) {
+export function updateInfoAdmin(data) {
   return request({
     url: `/admin/update`,
     method: 'put',
@@ -112,17 +114,16 @@ export function getAdminPageInfo(current, pageSize) {
   })
 }
 
+
+
 /** 管理员信息Excel导出
  * get
 */
-export function getAdminExcel(current, pageSize) {
+export function getAdminExcel() {
   return request({
-    url: `/admin/page`,
-    method: 'put',
-    params: {
-      current,
-      pageSize
-    }
+    url: `/admin/download`,
+    method: 'get',
+    responseType: 'blob'
   })
 }
 
@@ -169,7 +170,6 @@ export function getTeacherInfo(id) {
   return request({
     url: `/teacher/get/${id}`,
     method: 'get',
-    data
   })
 }
 

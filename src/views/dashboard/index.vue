@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-container">
-    <div class="dashboard-text">可视化管理</div>
+    <!-- <div class="dashboard-text">可视化管理</div> -->
     <!-- 上传文件 -->
     <el-upload
       class="upload-file"

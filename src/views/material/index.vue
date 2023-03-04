@@ -1,6 +1,6 @@
 <template>
   <div class="material-container">
-    <div class="material-text">资料管理</div>
+    <!-- <div class="material-text">资料管理</div> -->
     <div class="op-btn">
       <el-button class="add-btn" type="success" size="mini" @click="handleAdd()"
         >新增</el-button
@@ -29,7 +29,7 @@
           :key="item.prop"
           :prop="item.prop"
           :label="item.label"
-          width="120"
+          :width="tableColumnWidth"
         >
         </el-table-column>
         <el-table-column align="right">
@@ -215,13 +215,17 @@ export default {
     // 导出excel
     handleExportExcel() {
       // 调用接口
-      /* 参数相关
-          header: tHeader, //表头 必填
-          data, //具体数据 必填
-          filename: 'excel-list', //非必填
-          autoWidth: true, //非必填
-          bookType: 'xlsx' //非必填
-      */
+      try {
+        /* 逃课写法 */
+        let link = document.createElement("a");
+        // 高校url
+        link.href = "http://localhost:9528/api/resource/download";
+        console.log(link);
+        link.click(); //模拟点击
+        document.body.removeChild(link);
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
 };
@@ -233,7 +237,7 @@ export default {
     margin: 30px;
 
     .op-btn {
-      margin: 10px 0 0 5px;
+      margin: 10px 0 30px 5px;
     }
   }
   &-text {

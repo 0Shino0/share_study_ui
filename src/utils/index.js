@@ -1,9 +1,28 @@
-/**
- * Created by PanJiaChen on 16/11/18.
- */
 
 /**
- * Parse the time to string
+ * 表单重置
+ * @param {string} refName
+ * @returns {string}
+ */
+export function resetForm(refName) {
+  if (this.$refs[refName]) {
+    this.$refs[refName].resetFields();
+  }
+}
+
+/**
+ * 懒加载
+ * @param {number} timeEnd
+ * @returns {string}
+ */
+export function resetLoading(timeEnd) {
+  setTimeout(() => {
+    this.loading = false;
+  }, timeEnd)
+}
+
+/**
+ * 解析时间字符串
  * @param {(Object|string|number)} time
  * @param {string} cFormat
  * @returns {string | null}
