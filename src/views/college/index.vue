@@ -23,6 +23,7 @@
         "
         stripe
         style="width: 100%"
+        v-loading="loading"
       >
         <el-table-column
           v-for="item in tableCollegeCol"
@@ -53,6 +54,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <Pagination :total="total" :emitName="$options.name"></Pagination>
 
       <el-dialog
         title="标题"
@@ -166,20 +168,36 @@ export default {
       dialogWidth: "600px", // 对话框宽度
       dialogTop: "30px", // 对话框距离顶部距离
       isAdd: true, // 标识新增操作 | true表示新增 - false表示编辑
+      loading: false,
+      // 分页相关
+      currentPage: 1,
+      pageSize: 10,
+      total: 10,
     };
   },
   mounted() {
-    this.getCollegePage(1, 10);
+    if (this.tableCollegeData) {
+      this.getCollegePage(this.currentPage, this.pageSize);
+    }
+    // console.log(this.$options.name);
+    this.$bus.$on(`pagination${this.$options.name}`, ({ page, limit }) => {
+      // console.log(page, limit);
+      this.getCollegePage(page, limit);
+    });
   },
   methods: {
     /* 请求数据 */
+
     // 管理员分页查询
     async getCollegePage(current, pageSize) {
+      this.loading = true;
       try {
         const { data } = await getCollegePageInfo(current, pageSize);
+        const { total } = data.records;
         console.log(data);
         /* 加工数组 */
-
+        this.total = data.total;
+        this.resetLoading(300);
         this.tableCollegeData = data.records;
       } catch (error) {
         console.log(error);

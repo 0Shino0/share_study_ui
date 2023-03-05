@@ -7,6 +7,9 @@ import { Message } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 // import locale from 'element-ui/lib/locale/lang/en' // lang i18n
 
+// 分页组件
+import Pagination from "@/components/Pagination/index.vue"
+
 import '@/styles/index.scss' // global css
 
 import App from './App'
@@ -50,11 +53,17 @@ Vue.prototype.resetLoading = resetLoading
 
 // 全局组件
 // Vue.component("Table", Table); /* 废弃 */
+Vue.component("Pagination", Pagination);
 
 
 Vue.config.productionTip = false;
 
 new Vue({
+  beforeCreate() {
+    // 1) 创建或指定事件总线对象，保存到Vue的原型上
+    Vue.prototype.$bus = this
+
+  },
   el: '#app',
   router,
   store,

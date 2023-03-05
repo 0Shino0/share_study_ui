@@ -59,12 +59,15 @@
           </template>
         </el-table-column>
       </el-table>
+      <!-- 分页 -->
+      <Pagination :total="total" :emitName="$options.name"></Pagination>
 
       <el-dialog
         title="标题"
         :visible.sync="dialogShow"
         :width="dialogWidth"
         :top="dialogTop"
+        :before-close="dialogCancel"
       >
         <el-form ref="queryForm" :model="dialogForm" :rules="dialogFormRules">
           <!-- <el-form-item label="用户ID" :label-width="formLabelWidth">
@@ -227,10 +230,20 @@ export default {
       dialogTop: "30px", // 对话框距离顶部距离
       isAdd: true, // 标识新增操作 | true表示新增 - false表示编辑
       loading: false, // 懒加载
+      // 分页相关
+      currentPage: 1,
+      pageSize: 10,
+      total: 10,
     };
   },
   created() {
-    this.getAdminPage(1, 10);
+    if (this.tableAdminData) {
+      this.getAdminPage(1, 10);
+    }
+    this.$bus.$on(`pagination${this.$options.name}`, ({ page, limit }) => {
+      // console.log(page, limit);
+      this.getAdminPage(page, limit);
+    });
   },
   mounted() {},
   methods: {
@@ -241,6 +254,7 @@ export default {
 
       try {
         const { data } = await getAdminPageInfo(current, pageSize);
+        this.total = data.total;
         // console.log(data);
         /* 加工数组
           所属高校 => 字符串
@@ -273,6 +287,7 @@ export default {
         );
         //
         this.resetLoading(300);
+
         this.tableAdminData = newArr;
       } catch (error) {
         this.loading = false;

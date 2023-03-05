@@ -59,12 +59,15 @@
           </template>
         </el-table-column>
       </el-table>
+      <!-- 分页 -->
+      <Pagination :total="total" :emitName="$options.name"></Pagination>
 
       <el-dialog
         title="标题"
         :visible.sync="dialogShow"
         :width="dialogWidth"
         :top="dialogTop"
+        :before-close="dialogCancel"
       >
         <el-form :model="dialogForm" ref="queryForm" :rules="dialogFormRules">
           <el-form-item label="角色状态" :label-width="formLabelWidth">
@@ -243,10 +246,20 @@ export default {
       dialogTop: "30px", // 对话框距离顶部距离
       isAdd: true, // 标识新增操作 | true表示新增 - false表示编辑
       loading: false,
+      // 分页相关
+      currentPage: 1,
+      pageSize: 10,
+      total: 10,
     };
   },
   created() {
-    this.getTeacherPage(1, 10);
+    if (this.tableTeacherData) {
+      this.getTeacherPage(1, 100);
+    }
+    this.$bus.$on(`pagination${this.$options.name}`, ({ page, limit }) => {
+      // console.log(page, limit);
+      this.getTeacherPage(page, limit);
+    });
   },
   mounted() {},
   methods: {
