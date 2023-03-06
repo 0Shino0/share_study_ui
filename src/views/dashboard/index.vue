@@ -7,7 +7,7 @@
       class="map-charts"
       style="margin-bottom: 32px; border-radius: 10px; overflow: hidden"
     >
-      <!-- <map-chart></map-chart> -->
+      <map-chart></map-chart>
     </el-row>
     <!-- 上传文件 -->
     <!--     <el-upload
