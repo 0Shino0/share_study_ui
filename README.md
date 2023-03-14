@@ -10,7 +10,7 @@ teaching-ui
 
 ## 后端接口
 
-后端接口由 AntonyCheng 开发 ![https://github.com/AntonyCheng/share_study](https://github.com/AntonyCheng/share_study)
+后端接口由 AntonyCheng 开发 [https://github.com/AntonyCheng/share_study](https://github.com/AntonyCheng/share_study)
 
 ## 区块链相关
 
