@@ -1,4 +1,6 @@
 import request from '@/utils/request'
+import qs from 'qs';
+
 /* oss存储相关 */
 
 /** 用户头像上传
@@ -15,28 +17,37 @@ export function getResourceInfoPage(file) {
 }
 
 /** 用户头像上传
- * @param {file} file
+ * @param {file} data
  * @method post
  * @returns {object}
   */
-export function ossAvatarUpload(file) {
+export function ossAvatarUpload(data) {
   return request({
     url: `/file/oss_avatar_upload`,
     method: 'post',
-    file
+    data,
+    headers: {
+      'Conten-Type': "multipart/form-data"
+      // 'Content-Type': 'application/x-www-form-urlencoded'
+    }
   })
 }
 
 /** 用户其他文件上传
- * @param {file} file
+ * @param {FormData} data
  * @method post
  * @returns {object}
   */
-export function ossFileUpload(file) {
+export function ossFileUpload(data) {
+  console.log(data);
   return request({
     url: `/file/oss_file_upload`,
     method: 'post',
-    file
+    data,
+    headers: {
+      'Conten-Type': "multipart/form-data"
+      // 'Content-Type': 'application/x-www-form-urlencoded'
+    }
   })
 }
 
@@ -45,9 +56,9 @@ export function ossFileUpload(file) {
  * @method delete
  * @returns {object}
   */
-export function ossFileUpload(ossUrl) {
+export function delOssFile(ossUrl) {
   return request({
-    url: `/file/oss_file_delete/${ossUrl}`,
+    url: `/file/oss_file_delete?ossUrl=${ossUrl}`,
     method: 'delete',
   })
 }

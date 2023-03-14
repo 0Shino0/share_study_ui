@@ -11,7 +11,7 @@ import request from '@/utils/request'
 export function getPostPage(current, pageSize) {
   return request({
     url: `/post/page/${current}/${pageSize}`,
-    method: "post",
+    method: "get",
   })
 }
 
@@ -33,10 +33,10 @@ export function addPost(data) {
  * @method post
  * @returns {object}
   */
-export function getPostPage(id) {
+export function getPostDetail(id) {
   return request({
     url: `/post/info/${id}`,
-    method: "post",
+    method: "get",
   })
 }
 
@@ -47,9 +47,75 @@ export function getPostPage(id) {
  * @method get
  * @returns {object}
   */
-export function getPostPage(id, current, pageSize) {
+export function getPostCommentPage(id, current, pageSize) {
   return request({
     url: `/post/page/${id}/${current}/${pageSize}`,
     method: "get",
   })
 }
+
+/** 获取用户收到评论分页
+ * @param {number} current
+ * @param {number} pageSize
+ * @method get
+ * @returns {object}
+  */
+export function getUserCommentPage(current, pageSize) {
+  return request({
+    url: `/user/comment/page/${current}/${pageSize}`,
+    method: "get",
+  })
+}
+
+/** 新增评论
+ * @param {object} data
+ * @method post
+ * @returns {object}
+  */
+export function addPostComment(data) {
+  return request({
+    url: `/post/comment/add`,
+    method: "post",
+    data
+  })
+}
+
+/** 添加收藏 接口
+ * @param {object} data = {belong resource}
+ * @method post
+ * @returns {object}
+  */
+export function addCollect(data) {
+  return request({
+    url: `/post/update/collect`,
+    method: "put",
+    data
+  })
+}
+
+/** 删除收藏 接口
+ * @param {string} id
+ * @method post
+ * @returns {object}
+  */
+export function delCollect(id) {
+  return request({
+    url: `/user/collect/delete/${id}`,
+    method: "delete",
+  })
+}
+
+/** 获取收藏分页接口
+ * @param {string} id
+ * @param {number} current
+ * @param {number} pageSize
+ * @method get
+ * @returns {object}
+  */
+export function getCollectPage(id,current,pageSize) {
+  return request({
+    url: `/user/collect/page/${id}/${current}/${pageSize}`,
+    method: "get",
+  })
+}
+

@@ -10,9 +10,19 @@ const routes = [
     component: () => import('@/views/home'),
   },
   {
-    path: "/login",
-    name: "Login",
-    component: () => import('@/views/login'),
+    path: "/addPost",
+    name: "addPost",
+    component: () => import('@/views/addPost'),
+  },
+  {
+    path: "/postDetail/:id",
+    name: "postDetail",
+    component: () => import('@/views/postDetail'),
+  },
+  {
+    path: "/about",
+    name: "about",
+    component: () => import('@/views/about'),
   },
 ];
 

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Vue from 'vue'
 import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 import router from '@/router' // 引入路由
@@ -14,6 +15,7 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(
   config => {
+    // console.log(config);
     // do something before request is sent
 
     // session鉴权
@@ -26,10 +28,15 @@ service.interceptors.request.use(
           config.headers['userLoginState'] = getToken()
         } */
 
-    // 添加 responseType
-    if (config.responseType) {
-      config['responseType'] = 'blob'
-    }
+    // 添加 responseType 向服务端请求文件时添加
+    // if (config.responseType) {
+    //   config['responseType'] = 'blob'
+    // }
+
+    // 上传文件响应头
+    // config.headers['Conten-Type'] = "application/x-www-form-urlencoded";
+    // config.headers['Conten-Type'] = "multipart/form-data";
+    // console.log(config);
     return config
   },
   error => {
@@ -53,7 +60,8 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-    console.log(res);
+    // console.log(res);
+    // console.log("getToken=>", getToken());
     // if the custom code is not 20000, it is judged as an error.
     if (res.code !== "00000") {
       // if (res.code !== 20000) {
@@ -65,13 +73,29 @@ service.interceptors.response.use(
 
       // 未登录
       if (res.code === "D0112") {
-
         console.log("未登录");
-        // 清除token
-        removeToken('adminLoginstate')
-        // 未登录跳转至登录页
-        router.push(`/login?redirect=${window.location.hash.replace(/#/, "")}`);
+        console.log('Vue=>',Vue.prototype.$bus);
 
+        // store.dispatch('user/logout').then(() => { // 退出登录
+        //   // location.reload()
+        // })
+        // console.log("getToken=>", getToken());
+        // 未登录 => 跳转首页
+        console.log(getToken());
+        if (getToken()) {
+          console.log('noLogin');
+          // 未登录
+          Vue.prototype.$bus.$emit('noLogin', 'noLogin')
+          removeToken('adminLoginstate')
+        }else if (window.location.href.split('#')[1] !== '/') {
+            router.push(`/`);
+          }
+
+      }
+
+      if (res.code === 'A0410') {
+        console.log("请求必填参数为空");
+        console.log(res);
       }
 
       // 50008:非法令牌;50012:已登录的其他客户端;50014:令牌过期;
@@ -84,7 +108,7 @@ service.interceptors.response.use(
         }).then(() => {
           // token鉴权-清除token
           store.dispatch('user/resetToken').then(() => {
-            location.reload()
+            // location.reload()
           })
         })
       }

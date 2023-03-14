@@ -50,15 +50,27 @@ export function getInfo(id) {
   })
 }
 
+/** 用户获取最新信息
+ * @param {number | string} id
+ * @method get
+ * @returns {object}
+  */
+export function getCurrentUser(id) {
+  return request({
+    url: `/user/login/get/${id}`,
+    method: 'get'
+  })
+}
+
 /** 用户修改自己信息
  * @param {object} data
- * @method get
+ * @method post
  * @returns {object}
   */
 export function updateUserInfo(data) {
   return request({
     url: `/user/info/self/update`,
-    method: 'get',
+    method: 'post',
     data
   })
 }

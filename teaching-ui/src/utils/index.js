@@ -1,3 +1,14 @@
+import { getToken } from "@/utils/auth";
+
+/**
+ * @param {null} 
+ * @return {*}
+ */
+export function getTokenData() {
+  let token = getToken();
+  let data = JSON.parse(token);
+  return data;
+}
 
 /**
  * @param {Function} func

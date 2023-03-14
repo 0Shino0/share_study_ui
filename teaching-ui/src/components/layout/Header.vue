@@ -12,27 +12,33 @@
       <!-- 导航 -->
       <div class="menu-panel">
         <router-link class="nav-item" to="/">首页</router-link>
-        <router-link class="nav-item" to="/">关于</router-link>
+        <router-link class="nav-item" :to="aboutPath">关于</router-link>
         <router-link class="nav-item" to="/">相关高校</router-link>
         <router-link class="nav-item" to="/">教学资料</router-link>
       </div>
 
       <!-- 登录注册 用户信息 -->
       <div class="user-info-panel">
+        <div class="input-search">
+          <input class="input-text" placeholder="搜索" v-model="searchInfo"></input>
+          <span class="iconfont icon-fenxiang search-icon"></span>
+        </div>
         <div class="op-btn">
-          <el-button type="primary" class="op-btn"
-            >发帖<span class="iconfont icon-add"></span
-          ></el-button>
-          <el-button type="primary" class="op-btn"
+          <!-- <el-button
+            type="primary"
+            v-if="currentPath === '/addPost'"
+            class="op-btn"
+            @click="pushAddPost"
+            >返回<span class="iconfont icon-left-open"></span
+          ></el-button> -->
+          <el-button type="primary" class="op-btn" @click="pushAddPost">发帖<span
+              class="iconfont icon-add"></span></el-button>
+          <!-- <el-button type="primary" class="op-btn"
             >搜索<span class="iconfont icon-fenxiang"></span
-          ></el-button>
+          ></el-button> -->
         </div>
         <!-- 头像 退出登录 -->
-        <div
-          class="userInfo-avatar"
-          v-if="userInfo && userInfo.isLogin"
-          :style="{ 'margin-left': '20px' }"
-        >
+        <div class="userInfo-avatar" v-if="userInfo && userInfo.isLogin" :style="{ 'margin-left': '20px' }">
           <el-dropdown placement="bottom-start">
             <el-avatar size="large" :src="userInfo.avatar"></el-avatar>
 
@@ -40,7 +46,7 @@
               <router-link to="/">
                 <el-dropdown-item> 首页 </el-dropdown-item>
               </router-link>
-              <router-link to="/about">
+              <router-link :to="aboutPath">
                 <el-dropdown-item> 个人中心 </el-dropdown-item>
               </router-link>
               <!-- <a target="_blank" href="https://github.com/PanJiaChen/vue-admin-template/">
@@ -57,83 +63,48 @@
         </div>
         <!-- 登录注册 -->
         <el-button-group v-else :style="{ 'margin-left': '10px' }">
-          <el-button type="primary" class="btn-group" plain @click="login"
-            >登录</el-button
-          >
-          <el-button type="primary" class="btn-group" plain @click="register"
-            >注册</el-button
-          >
+          <el-button type="primary" class="btn-group" plain @click="login">登录</el-button>
+          <el-button type="primary" class="btn-group" plain @click="register">注册</el-button>
         </el-button-group>
       </div>
     </div>
-    <el-dialog
-      title="标题"
-      :visible.sync="showDialog"
-      :width="dialogWidth"
-      :top="dialogTop"
-      :before-close="dialogCancel"
-      append-to-body
-      show-close
-    >
-      <el-form
-        v-if="loginOrRegister"
-        ref="loginForm"
-        :model="loginForm"
-        :rules="loginFormRules"
-      >
-        <el-form-item label="账号" :label-width="formLabelWidth">
+    <el-dialog class="dialog" :title="textLogin" :visible.sync="showDialog" :width="dialogWidth" :top="dialogTop"
+      :close-on-click-modal="false" :close-on-press-escape="false" :before-close="dialogCancel" append-to-body show-close>
+      <el-form class="dialog-login-form" v-if="loginOrRegister" ref="loginForm" :model="loginForm"
+        :rules="loginFormRules">
+        <el-form-item label="账号" :label-width="loginFormLabelWidth">
           <el-input v-model="loginForm.account" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="密码" :label-width="formLabelWidth">
-          <el-input
-            type="password"
-            v-model="loginForm.password"
-            autocomplete="off"
-          ></el-input>
+        <el-form-item label="密码" :label-width="loginFormLabelWidth">
+          <el-input type="password" v-model="loginForm.password" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
-      <el-form
-        v-else
-        ref="registerForm"
-        :model="registerForm"
-        :rules="registerFormRules"
-      >
-        <el-form-item label="账号" :label-width="formLabelWidth">
-          <el-input
-            v-model="registerForm.account"
-            autocomplete="off"
-          ></el-input>
+      <el-form class="dialog-register-form" v-else ref="registerForm" :model="registerForm" :rules="registerFormRules">
+        <el-form-item class="dialog-form-item" label="账号" :label-width="registerFormLabelWidth">
+          <el-input v-model="registerForm.account" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="密码" :label-width="formLabelWidth">
-          <el-input
-            type="password"
-            v-model="registerForm.password"
-            autocomplete="off"
-          ></el-input>
+        <el-form-item label="密码" :label-width="registerFormLabelWidth">
+          <el-input type="password" v-model="registerForm.password" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="确认密码" :label-width="formLabelWidth">
-          <el-input
-            type="password"
-            v-model="registerForm.checkPassword"
-            autocomplete="off"
-          ></el-input>
+        <el-form-item label="确认密码" label-width="80px">
+          <el-input type="password" v-model="registerForm.checkPassword" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="姓名" :label-width="formLabelWidth">
+        <el-form-item label="姓名" :label-width="registerFormLabelWidth">
           <el-input v-model="registerForm.name" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" :label-width="formLabelWidth">
+        <el-form-item label="邮箱" :label-width="registerFormLabelWidth">
           <el-input v-model="registerForm.email" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="性别" :label-width="formLabelWidth">
+        <el-form-item label="性别" :label-width="registerFormLabelWidth">
           <el-select v-model="registerForm.gender" placeholder="请选择">
             <el-option label="男" value="0"></el-option>
             <el-option label="女" value="1"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="院校" :label-width="formLabelWidth">
+        <el-form-item label="院校" :label-width="registerFormLabelWidth">
           <el-input v-model="registerForm.code" autocomplete="off"></el-input>
         </el-form-item>
-        <!-- <el-form-item label="用户头像" :label-width="formLabelWidth">
+        <!-- <el-form-item label="用户头像" :label-width="registerFormLabelWidth">
             <el-upload
               class="avatar-uploader"
               action="https://jsonplaceholder.typicode.com/posts/"
@@ -149,14 +120,14 @@
       </el-form>
       <div slot="footer">
         <el-button @click="dialogCancel()">取 消</el-button>
-        <el-button type="primary" @click="dialogSubmit()">确 定</el-button>
+        <el-button type="primary" @click="dialogSubmit()" :disabled="loginload">确 定</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+// import { mapGetters } from "vuex";
 import { login, register } from "@/api/login";
 import { getToken } from "@/utils/auth";
 
@@ -215,33 +186,59 @@ export default {
         code: [{ required: true, trigger: "blur" }],
       },
       loginOrRegister: true, // 默认 登录
+      loginload: false,
       // isLogin: false , // 标识是否登录
       // dialog 相关属性
       userInfo: undefined,
       dialogWidth: "620px",
       dialogTop: "30px",
-      formLabelWidth: "80px",
+      loginFormLabelWidth: "40px",
+      registerFormLabelWidth: "80px",
       // 信息
       logoInfo: {},
       showHeader: true, // 标记顶部导航是否显示
       showDialog: false,
+      currentPath: null,
+      searchInfo: null,
     };
   },
+  created() {
+    if (!this.userInfo) {
+      this.userInfo = this.getTokenData();
+    }
+    console.log('created');
+  },
   mounted() {
+    console.log('mounted');
     this.initScroll();
     // 获取数据
-    this.userInfo = this.getTokenData();
+    // this.currentPath = this.$route.path;
+    // 登录
+    this.$bus.$on('handleLogin', (val) => {
+      this.login()
+    })
+    // 未登录
+    this.$bus.$on('noLogin', (val) => {
+      this.userInfo = undefined;
+      console.log(val);
+      this.noLogin()
+    })
   },
   computed: {
     // ...mapGetters(['userInfo']),
     Form: function () {
       return this.loginOrRegister ? "loginForm" : "registerForm";
     },
-    dataToken: () => {
-      let token = getToken();
-      let data = JSON.parse(token);
-      return data;
+    textLogin: function () {
+      return this.loginOrRegister ? "登录" : "注册";
     },
+    aboutPath: function () {
+      if (this.userInfo) {
+        return '/about?id=' + this.userInfo.id
+      } else {
+        return '/about?id='
+      }
+    }
   },
   methods: {
     //
@@ -260,14 +257,24 @@ export default {
       this.loginOrRegister = false;
       this.showDialog = true;
     },
-    async logout() {
-      await this.$store.dispatch("user/logout");
+    // 退出
+    logout() {
+      this.userInfo = undefined; // 修改登录状态
+      this.$store.dispatch("user/logout"); // 清除user相关token
       this.$message({
         type: "info",
         message: "退出成功",
       });
-      this.userInfo = null; // 修改登录状态
+      this.$bus.$emit('resetUserInfo', undefined)
     },
+    // 未登录情况
+    noLogin() {
+      this.userInfo = undefined; // 修改登录状态
+      // console.log('userInfo=>', userInfo);
+      this.$store.dispatch("user/logout"); // 清除user相关token
+      this.$bus.$emit('resetUserInfo', undefined)
+    },
+    // 关闭对话框
     dialogCancel() {
       this.showDialog = false;
       this.resetRegister();
@@ -276,6 +283,7 @@ export default {
     dialogSubmit() {
       this.$refs[this.Form].validate((valid) => {
         if (valid) {
+          this.loginload = true;
           if (this.loginOrRegister) {
             // 登录
             // console.log(this.loginForm);
@@ -291,10 +299,16 @@ export default {
                   type: "info",
                   message: "登录成功",
                 });
-              })
-              .catch(() => {
+                this.loginload = false;
+                // 获取信息
+                this.$bus.$emit('getPostPageInfo', '1')
+              }).catch((error) => {
+                console.log(error);
+                this.userInfo = undefined;
+                this.loginload = false;
                 this.showDialog = false;
                 this.resetLogin();
+                // console.log('退出登录');
               });
           } else {
             // 注册
@@ -335,7 +349,7 @@ export default {
       };
       this.resetForm("registerForm");
     },
-
+    // 滚动事件相关
     initScroll() {
       let initScrollTop = this.getScorllTop();
       let scrollType = 0;
@@ -367,6 +381,15 @@ export default {
 
       return scrollTop;
     },
+    // 跳转 addPost页面
+    pushAddPost() {
+      console.log(this.$route.path);
+      if (this.$route.path !== "/addPost") {
+        this.$router.push({ path: "/addPost" });
+      } else {
+        this.$message.info("你已经在发帖页面了");
+      }
+    },
   },
 };
 </script>
@@ -377,51 +400,176 @@ export default {
   position: fixed;
   box-shadow: 0 2px 6px 0 #ddd;
   background-color: #fff;
+  z-index: 999;
+
   .header-content {
     margin: 0px auto;
     height: 60px;
     align-items: center;
     display: flex;
+    flex: 1;
+    justify-content: space-between;
+
     a {
       text-decoration: none;
     }
+
     .logo {
       display: block;
       margin-right: 5px;
+      padding-right: 20px;
+
       span {
         font-size: 35px;
       }
     }
+
     // 导航信息
     .menu-panel {
       flex: 1;
+      display: flex;
 
       .nav-item {
-        padding: 20px;
+        // padding: 0 20px 0 0;
+        margin: 0 10px 0 10px;
+        line-height: 60px;
         color: #909399;
+        display: inline-block;
+        cursor: pointer;
+        position: relative;
       }
 
+      // 导航下划线动画效果
       .nav-item:hover {
-        border-bottom: 3px solid #6b64f9;
         color: #409eff;
       }
 
-      /* 登录注册 头像相关 */
-      .userInfo-avatar {
+      .nav-item:before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -2px;
+        width: 0;
+        height: 2px;
+        background: #409eff;
+        transition: all 0.3s;
       }
+
+      .nav-item:hover:before {
+        width: 100%;
+        left: 0;
+        right: 0;
+      }
+
+      /* 登录注册 头像相关 */
+      .userInfo-avatar {}
     }
+
     // 登录注册信息
     .user-info-panel {
-      width: 300px;
+      // width: 310px;
       display: flex;
+
+      // 右侧搜索框
+      .input-search {
+        position: relative;
+        display: inline-block;
+        margin-right: 50px;
+
+        // .input-text {
+        // }
+        input {
+          padding: 0 40px 0 20px;
+          width: 140px;
+          height: 38px;
+          font-size: 14px;
+          border: 1px solid #eee;
+          border-radius: 40px;
+          background: #eee;
+          transition: width 0.5s;
+          transition-delay: 0.1s;
+        }
+
+        .input-text:focus {
+          width: 240px;
+          outline: none;
+          box-shadow: none;
+        }
+
+        .input-text:focus+.search-icon {
+          background-color: #66B1FF;
+          color: #000;
+        }
+
+        .search-icon {
+          position: absolute;
+          top: 4px;
+          right: 5px;
+          width: 30px;
+          height: 30px;
+          line-height: 30px;
+          padding: 0;
+          color: #fff;
+          text-align: center;
+          background: #409EFF;
+          border-radius: 50%;
+          font-size: 15px;
+          cursor: pointer;
+        }
+      }
+
+      // 右侧按钮
       .op-btn {
+        font-size: 14px;
+
+        button {
+          width: 100px;
+          padding: 8px 15px 8px 15px;
+        }
+
         .iconfont {
           margin-left: 5px;
         }
       }
-      .op-btn + .op-btn {
+
+      .el-button-group {
+        button {
+          padding: 8px 15px 8px 15px;
+        }
+      }
+
+      .op-btn+.op-btn {
         margin-left: 5px;
       }
+    }
+  }
+
+}
+
+// dialog对话框
+
+.dialog {
+  .el-dialog {
+
+    .el-dialog__header {
+      text-align: center;
+    }
+
+    .el-dialog__body {
+      width: 50%;
+      margin: 0 auto;
+
+      // .dialog-login-form {
+      .dialog-form-item {
+        .el-form-item {}
+
+      }
+
+      .dialog-register-form {}
+    }
+
+    .el-dialog__footer {
+      text-align: center;
     }
   }
 }
