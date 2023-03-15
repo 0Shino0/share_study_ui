@@ -12,9 +12,9 @@
         <el-input type="textarea" maxlength="2000" show-word-limit v-model="form.info"></el-input>
       </el-form-item>
 
-      <!-- 
+      <!--
         <el-upload
-          class="upload-demo" 
+          class="upload-demo"
           action  //必要属性，上传文件的地址，可以不给，但必须要有，不给就i调接口上传
           :http-request="uploadFile"//这个是就上传文件的方法，把上传的接口写在这个方法里
           ref="upload"
@@ -66,16 +66,10 @@ export default {
       action: "/api/file/oss_file_upload", // 上传的地址
       fileList: [], // 上传文件列表
       fileType: [
-        "pdf",
-        "doc",
-        "docx",
-        "xls",
-        "xlsx",
-        "txt",
-        "png",
-        "jpg",
-        "bmp",
-        "jpeg",
+          "png", "jpg", "jpeg", "pdf",
+          "xlsx", "xls", "doc", "docx",
+          "ppt", "pptx", "mp3", "mp4","mpeg",
+          "zip","rar", "7z","gif"
       ], // 允许的文件类型
       fileLimit: 1, // 限制上传数
       headers: { "Content-Type": "multipart/form-data" }, // 上传请求头
@@ -170,10 +164,10 @@ export default {
         //截取文件的后缀，判断文件类型
         const FileExt = file.name.replace(/.+\./, "").toLowerCase();
         //计算文件的大小
-        const isLt5M = file.size / 1024 / 1024 < 50; //这里做文件大小限制
+        const isLt5M = file.size / 1024 / 1024 < 200; //这里做文件大小限制
         //如果大于50M
         if (!isLt5M) {
-          this.$message.error("上传文件大小不能超过 50MB!");
+          this.$message.error("上传文件大小不能超过 200MB!");
           return false;
         }
         //如果文件类型不在允许上传的范围内

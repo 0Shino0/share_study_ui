@@ -154,7 +154,7 @@ export default {
         //   label: "修改时间",
         // },
       ],
-      /*       
+      /*
       tableTeacherData: [
         {
           id: "test",
@@ -434,7 +434,7 @@ export default {
         /* 逃课写法 */
         let link = document.createElement("a");
         // 高校url
-        link.href = "http://localhost:9528/api/teacher/download";
+        link.href = "http://116.63.165.100:8080/api/teacher/download";
         console.log(link);
         link.click(); //模拟点击
         document.body.removeChild(link);

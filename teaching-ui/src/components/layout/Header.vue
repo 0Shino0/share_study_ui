@@ -362,8 +362,8 @@ export default {
           } else {
             // 注册
             // 默认头像
-            this.registerForm.avatar =
-              "https://sharestudy-1306588126.cos.ap-chengdu.myqcloud.com/super_avatar.jpg";
+            // this.registerForm.avatar =
+            //   "https://sharestudy-1306588126.cos.ap-chengdu.myqcloud.com/super_avatar.jpg";
             register(this.registerForm).then((response) => {
               this.$message({
                 type: "info",
