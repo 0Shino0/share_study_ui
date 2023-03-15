@@ -2,7 +2,7 @@
   "name": "share_study_admin",
   "version": "4.4.0",
   "description": "A 教学共享平台管理端 with Element UI & axios & iconfont & permission control & lint",
-  "author": "Pan <panfree23@gmail.com>",
+  "author": "yyshino",
   "scripts": {
     "dev": "vue-cli-service serve",
     "build:prod": "vue-cli-service build",
