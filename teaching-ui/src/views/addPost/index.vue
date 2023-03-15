@@ -76,6 +76,7 @@ export default {
         "jpg",
         "bmp",
         "jpeg",
+        "mp4"
       ], // 允许的文件类型
       fileLimit: 1, // 限制上传数
       headers: { "Content-Type": "multipart/form-data" }, // 上传请求头
@@ -115,14 +116,13 @@ export default {
             this.resetAddPost()
             this.$router.push({ path: '/' });
           }).catch((error) => {
+            this.submitLoading = false;
             this.resetAddPost()
             // 上传成功，但发布失败情况
             if (this.fileUrl) {
               // 删除oss文件
               delOssFile(this.fileUrl);
             }
-
-            this.submitLoading = false;
           });
 
 

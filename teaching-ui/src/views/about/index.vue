@@ -110,7 +110,7 @@
                     <!-- 附件信息 -->
                     <div class="collect-download" v-if="collectItem.resourceUrl">
                       <a class="download" target='blank' :href="collectItem.resourceUrl" download="下载"><span
-                          class="iconfont icon-fujian"></span>附件下载</a>
+                          class="iconfont icon-fujian"></span>附件查看</a>
                     </div>
                     <!-- 评论 -->
                     <div class="add-collect-item" @click="handlePushPost(collectItem.resourceId)">
