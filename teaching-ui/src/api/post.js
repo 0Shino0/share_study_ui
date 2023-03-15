@@ -54,6 +54,20 @@ export function getPostCommentPage(id, current, pageSize) {
   })
 }
 
+/** 用户获取发帖
+ * @param {number|string} id
+ * @param {string} current
+ * @param {string} pageSize
+ * @method get
+ * @returns {object}
+  */
+export function getUserPostPage(id, current, pageSize) {
+  return request({
+    url: `/user/resource/page/${id}/${current}/${pageSize}`,
+    method: "get",
+  })
+}
+
 /** 获取用户收到评论分页
  * @param {number} current
  * @param {number} pageSize

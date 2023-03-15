@@ -95,6 +95,7 @@ export default {
       this.$refs["form"].validate(async (valid) => {
         if (valid) {
           this.submitLoading = true;
+          this.$message.info("正在发布中，请稍后");
           // 上传接口
           // 判断是否存在需要上传文件
           if (this.fileList[0]) {
@@ -109,17 +110,18 @@ export default {
           this.form.belong = this.userInfo.id; // 配置id
 
           addPost(this.form).then((res) => {
-            this.$message.info("发布成功,正在跳转首页");
+            this.$message.success("发布成功,正在跳转首页");
             this.submitLoading = false;
             this.resetAddPost()
             this.$router.push({ path: '/' });
-          }).catch(() => {
+          }).catch((error) => {
             this.resetAddPost()
             // 上传成功，但发布失败情况
             if (this.fileUrl) {
               // 删除oss文件
               delOssFile(this.fileUrl);
             }
+
             this.submitLoading = false;
           });
 

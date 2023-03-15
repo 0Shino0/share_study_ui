@@ -1,3 +1,4 @@
+'use strict'
 const { defineConfig } = require("@vue/cli-service");
 const path = require('path')
 
@@ -8,6 +9,9 @@ const port = process.env.port || process.env.npm_config_port || 3004 // dev port
 module.exports = defineConfig({
   transpileDependencies: true,
   lintOnSave: false,
+  publicPath: '/',
+  outputDir: 'dist',
+  assetsDir: 'static',
 
   devServer: {
     port: port,
@@ -35,4 +39,5 @@ module.exports = defineConfig({
       }
     }
   },
+
 });

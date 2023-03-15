@@ -1,6 +1,6 @@
 <template >
-  <div class="main" style="overflow-x: auto;height:100%;" v-infinite-scroll="load" infinite-scroll-disabled="disabled"
-    infinite-scroll-immediate="true" infinite-scroll-distance="1">
+  <div class="main" style="overflow: auto;height:600px;margin-top: 10px;" v-infinite-scroll="load"
+    infinite-scroll-disabled="disabled" infinite-scroll-immediate="false" infinite-scroll-distance="1">
     <!-- 无限滚动数据 -->
     <div v-if="userInfo && userInfo.isLogin" class="post-container infinite-list">
       <router-link class="infinite-list-item" v-for="item in postList" :key="item.resourceId"
@@ -70,8 +70,10 @@ export default {
       postLength: undefined, // 总帖子数
       postAveList: [], // 
       postList: [],
+      filterPostList: [],
       componentKey: undefined,
-      userInfo: {}
+      userInfo: {},
+      searchInfo: null // 搜索信息
     };
   },
   created() {
@@ -105,6 +107,15 @@ export default {
       this.postList = [];
     });
     // console.log(this.isLogin);
+    // 传递searchInfo
+    this.$bus.$on('tranSearchInfo', (val) => {
+      this.searchInfo = val;
+      // var reg = new RegExp("^[0-9]+"+param+"[a-z]+$","g");
+
+      let reg = new RegExp(val)
+      // console.log(reg);
+      this.filterPostList = this.postList.filter((c) => reg.test(c.resourceInfo))
+    })
   },
   methods: {
     // 获取帖子数
@@ -127,7 +138,7 @@ export default {
       return result;
     },
     // 无限滚动加载方法
-    load() {
+    async load() {
       this.loading = true;
       setTimeout(() => {
         // this.count += 4;
@@ -166,7 +177,8 @@ export default {
 
 <style lang="scss">
 .main {
-  min-height: 1092px;
+  min-height: 730px;
+
 
   .post-container {
     max-width: 680px;
@@ -177,6 +189,10 @@ export default {
     // flex-wrap: no-wrap;
     padding-top: 60px;
     margin: 0 auto;
+
+    // .infinite-list-item:first-child {
+    //   margin-top: 300px;
+    // }
 
     .post-card-loading {
       align-items: center;
@@ -284,6 +300,43 @@ export default {
 
 
   }
+
+  // 动画效果
+  .post-container {
+    -webkit-animation: fade-in-fwd 0.6s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+    animation: fade-in-fwd 0.6s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+  }
+
+
+  @-webkit-keyframes fade-in-fwd {
+    0% {
+      -webkit-transform: translateZ(-80px);
+      transform: translateZ(-80px);
+      opacity: 0;
+    }
+
+    100% {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in-fwd {
+    0% {
+      -webkit-transform: translateZ(-80px);
+      transform: translateZ(-80px);
+      opacity: 0;
+    }
+
+    100% {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      opacity: 1;
+    }
+  }
+
+
 
   .no-login {
     max-width: 680px;

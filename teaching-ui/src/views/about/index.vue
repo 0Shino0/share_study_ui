@@ -15,15 +15,15 @@
         <h2 class="about-name">{{ userInfo.name }}</h2>
         <div class="description-container">
           <div class="description-item">
-            <strong class="count">0</strong>
+            <strong class="count">{{ postTotal }}</strong>
             <div class="description-tag">发帖数</div>
           </div>
           <div class="description-item">
-            <strong class="count">0</strong>
+            <strong class="count">{{ userInfo.score }}</strong>
             <div class="description-tag">贡献值</div>
           </div>
           <div class="description-item">
-            <strong class="count">0</strong>
+            <strong class="count">{{ collectTotal }}</strong>
             <div class="description-tag">收藏数</div>
           </div>
         </div>
@@ -69,12 +69,17 @@
                   </div>
                 </div>
               </router-link>
+              <!-- <div class="comment-none" v-if="userCommentList === []">
+                <h2>无</h2>
+              </div> -->
             </div>
+
+
           </el-tab-pane>
           <el-tab-pane label="我的收藏" name="collect">
+
             <!-- 我的收藏 -->
             <div class="collect-container">
-
               <div class="collect-item" v-for="(collectItem, index) in collectList" :key="collectItem.collectId">
                 <!-- 作者信息 -->
                 <div class="collect-author">
@@ -119,38 +124,42 @@
                   </div>
                 </div>
               </div>
-
+              <!-- <div class="collect-none" v-if="collectList === []">
+                <h2>无</h2>
+              </div> -->
             </div>
           </el-tab-pane>
           <el-tab-pane label="我的信息" name="userInfo">
             <!-- 我的信息 -->
-            <el-form ref="selfForm" :model="selfForm" :rules="selfFormRules" label-width="80px">
+            <el-form ref="selfForm" :model="selfForm" :rules="selfFormRules" label-width="80px" :disabled="isSelfForm">
               <el-form-item label="姓名">
                 <el-input v-model="selfForm.name"></el-input>
-                <span class="form-item-action">修改</span>
+                <!-- <span class="form-item-action">修改</span> -->
               </el-form-item>
               <el-form-item label="账号">
                 <el-input v-model="selfForm.account"></el-input>
-                <span class="form-item-action">修改</span>
+                <!-- <span class="form-item-action">修改</span> -->
               </el-form-item>
               <el-form-item label="密码">
                 <el-input v-model="selfForm.password"></el-input>
-                <span class="form-item-action">修改</span>
+                <!-- <span class="form-item-action">修改</span> -->
               </el-form-item>
               <el-form-item label="邮箱">
                 <el-input v-model="selfForm.email"></el-input>
-                <span class="form-item-action">修改</span>
+                <!-- <span class="form-item-action">修改</span> -->
               </el-form-item>
               <el-form-item label="性别">
-                <el-input v-model="selfForm.gender"></el-input>
-                <span class="form-item-action" @click="handleUpdateUser(event)">修改</span>
+                <!-- <el-input v-model="selfForm.gender"></el-input> -->
+                <el-select v-model="selfForm.gender" placeholder="请选择">
+                  <el-option label="女" value="0"></el-option>
+                  <el-option label="男" value="1"></el-option>
+                </el-select>
+                <!-- <span class="form-item-action" @click="handleUpdateUser(event)">修改</span> -->
               </el-form-item>
             </el-form>
           </el-tab-pane>
         </el-tabs>
       </div>
-
-
 
       <!-- 收藏 -->
       <!-- <div class="about-body-right">
@@ -173,7 +182,7 @@
 </template>
 
 <script>
-import { getUserCommentPage, getCollectPage } from '@/api/post';
+import { getUserCommentPage, getCollectPage, getUserPostPage } from '@/api/post';
 import { ossAvatarUpload, delOssFile } from '@/api/oss';
 import { updateUserInfo, getInfo } from '@/api/login';
 import { mapState } from 'vuex'
@@ -196,9 +205,12 @@ export default {
     return {
       // 用户信息
       // userInfo: {},
-      activeName: 'userInfo',
+      activeName: 'comment',
       userCommentList: [],
       collectList: [],
+      collectTotal: 0,
+      postList: [],
+      postTotal: 0,
       selfForm: {
         email: undefined,
         name: undefined,
@@ -219,6 +231,7 @@ export default {
         belong: [{ required: false, trigger: "blur" }],
         id: [{ required: true, trigger: "blur" }],
       },
+      isSelfForm: true,
       dialogForm: {
         email: undefined,
         name: undefined,
@@ -260,13 +273,25 @@ export default {
   async mounted() {
     // await this.$store.dispatch('user/getInfo', this.queryId)
     await this.getCurrentUserInfo(this.queryId);
-    this.getUserCommentPageInfo(1, 10)
-    this.getCollectPageInfo(this.queryId, 1, 10);
+    this.getUserCommentPageInfo(1, 100)
+    this.getCollectPageInfo(this.queryId, 1, 100);
+    this.getSelfFormInfo(this.queryId);
+    this.getUserPostPageInfo(this.queryId, 1, 100);
+    this.$bus.$emit('updateUserInfo', '');
     // console.log(this.user);
     // this.userInfo = this.getTokenData()
     // console.log('id=>', this.queryId);
   },
+  // updated() {
+  //   console.log('update');
+  // },
   methods: {
+    // 获取用户资料分页
+    async getUserPostPageInfo(id, current, pageSize) {
+      const { data } = await getUserPostPage(id, current, pageSize)
+      this.postList = data.records;
+      this.postTotal = data.total;
+    },
     // 获取评论资料
     async getUserCommentPageInfo(current, pageSize) {
       const { data } = await getUserCommentPage(current, pageSize);
@@ -276,18 +301,19 @@ export default {
     async getCollectPageInfo(id, current, pageSize) {
       const { data } = await getCollectPage(id, current, pageSize);
       this.collectList = data.records;
+      this.collectTotal = data.total;
     },
     // 获取最新用户信息
     async getCurrentUserInfo(id) {
       // const { data } = await getCurrentUser(id);
-      await this.$store.dispatch('user/getInfo', id)
+      return await this.$store.dispatch('user/getInfo', id)
       // console.log(data);
       // this.userInfo = data;
     },
     // 修改个人资料 按钮
     handleUpdate() {
       // 跳转路由
-
+      this.activeName = ''
     },
     // 标签页
     handleClick() {
@@ -378,6 +404,14 @@ export default {
         this.dialogForm[i] = data[i];
       }
     },
+    // 获取表单相关数据数据
+    async getSelfFormInfo(id) {
+      let { data } = await getInfo(id)
+      for (let i in data) {
+        this.selfForm[i] = data[i];
+      }
+      this.selfForm.gender === 1 ? "男" : "女";
+    },
     // 关闭对话框
     dialogCancel() {
       this.showDialog = false;
@@ -412,7 +446,10 @@ export default {
             }
             this.resetDialogForm() // 重置表单
             // 更新数据
-            this.getCurrentUserInfo(this.queryId);
+            this.getCurrentUserInfo(this.queryId).then((res) => {
+              // 更新Header数据
+              this.$bus.$emit('updateUserInfo', this.userInfo)
+            })
 
           }).catch((error) => {
             console.log('update error! Error message:' + error);
@@ -445,12 +482,19 @@ export default {
 <style lang="scss">
 .about-container {
   width: 960px;
-  height: 800px;
+  // 方案一
+  height: 680px;
+
+  // 方案二
+  // min-height: 680px;
+  // padding-bottom: 50px;
+
   // border: 1px solid red;
   border-radius: 10px;
   padding-top: 62px;
   margin: 0 auto;
   background-color: #E9ECEF;
+  overflow: hidden;
 
   // 头部——头像 描述
   .about-header {
@@ -459,7 +503,10 @@ export default {
     // border: 1px solid red;
     border-radius: 10px;
     position: relative;
-    background-color: #fff;
+    // background-color: #fff;
+    /* 不理想条纹 */
+    background: linear-gradient(45deg, #fafafa 50%, #fff 0);
+    background-size: 30px 30px;
 
     // background-color: blue;
 
@@ -534,7 +581,13 @@ export default {
     .about-update {
       position: absolute;
       width: 200px;
+      // 方案一
       height: 40px;
+
+      // 方案二
+      // min-height: 40px;
+
+
       right: 20px;
       bottom: 20px;
     }
@@ -545,12 +598,20 @@ export default {
   .about-body {
     margin-top: 12px;
     background-color: #fff;
-    // height: 400px;
-    // border: 1px solid red;
     border-radius: 10px;
 
     .about-body-left {
       .el-tabs {
+
+        .el-tabs__content {
+          // 方案一
+          height: 350px;
+          overflow-y: auto;
+
+          // 方案二
+          // min-height: 350px;
+          // overflow-y: auto;
+        }
 
         // 评论分页
         .comment-container {
@@ -559,13 +620,13 @@ export default {
           .comment-link {
 
             .comment-item {
-              // width: 100%;
-              // text-align: start;
               position: relative;
-              // padding: 0px 0px 10px 50px;
               padding-bottom: 10px;
               margin-right: 50px;
               margin-left: 50px;
+              // width: 100%;
+              // text-align: start;
+              // padding: 0px 0px 10px 50px;
 
               // 评论详细 
               .comment-detail {
@@ -601,7 +662,24 @@ export default {
             .comment-item:hover {
               background-color: #fafafa;
             }
+
           }
+
+          // 奇数选择器 斑马纹
+          .comment-link:nth-child(odd) {
+            .comment-item {
+
+              background-color: #fafafa;
+            }
+          }
+
+          // 无评论
+          .comment-none {
+            text-align: center;
+            margin-top: 150px;
+            color: #7F757D;
+          }
+
 
         }
 
@@ -610,6 +688,7 @@ export default {
           margin-top: 20px;
           border-radius: 10px;
           background-color: #fff;
+
 
           .collect-title {
             padding: 10px 30px;
@@ -724,6 +803,18 @@ export default {
               }
 
             }
+          }
+
+          // 奇数选择器 
+          .collect-item:nth-child(odd) {
+            background-color: #fafafa;
+          }
+
+          // 无收藏
+          .collect-none {
+            text-align: center;
+            margin-top: 150px;
+            color: #7F757D;
           }
         }
 
