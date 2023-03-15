@@ -168,7 +168,7 @@ export default {
     })
     this.getParamsId()
     this.getPostDetailInfo()
-    this.getPostCommentPageInfo(this.postId, 1, 10)
+    this.getPostCommentPageInfo(this.postId, 1, 100)
     this.userInfo = this.getTokenData()
   },
   methods: {
@@ -228,7 +228,7 @@ export default {
             // this.$router.push({ path: '/' });
             this.resetComment(); // 清除表单
             this.fileList = [];
-            this.getPostCommentPageInfo(this.postId, 1, 10)
+            this.getPostCommentPageInfo(this.postId, 1, 100)
           }).catch((error) => {
             console.log(error);
             // 上传成功，但发布失败情况
@@ -238,8 +238,6 @@ export default {
             }
             // this.submitLoading = false;
           });
-
-
         }
       })
     },
@@ -576,6 +574,10 @@ export default {
         }
 
       }
+    }
+
+    .comment-item:nth-child(odd) {
+      background-color: #fafafa;
     }
   }
 }

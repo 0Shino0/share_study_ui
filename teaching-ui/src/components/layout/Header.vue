@@ -13,8 +13,8 @@
       <div class="menu-panel">
         <router-link class="nav-item" to="/">首页</router-link>
         <router-link class="nav-item" :to="aboutPath">关于</router-link>
-        <router-link class="nav-item" to="/">相关高校</router-link>
-        <router-link class="nav-item" to="/">教学资料</router-link>
+        <!-- <router-link class="nav-item" to="/">相关高校</router-link>
+        <router-link class="nav-item" to="/">教学资料</router-link> -->
       </div>
 
       <!-- 登录注册 用户信息 -->
@@ -39,7 +39,7 @@
         </div>
         <!-- 头像 退出登录 -->
         <div class="userInfo-avatar" v-if="userInfo && userInfo.isLogin" :style="{ 'margin-left': '20px' }">
-          <el-dropdown placement="bottom-start">
+          <el-dropdown placement="bottom">
             <el-avatar size="large" :src="userInfo.avatar"></el-avatar>
 
             <el-dropdown-menu slot="dropdown" class="user-dropdown">
@@ -58,6 +58,22 @@
               <el-dropdown-item divided @click.native="logout">
                 <span style="display: block">退出登录</span>
               </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+
+          <el-dropdown placement="bottom">
+            <div class="comment-badge" style="width: 50px;height:50px;">
+              <el-badge :max="10" :hidden="userInfo.messageNumber === 0 ? true : false" :value="userInfo.messageNumber"
+                class="item">
+                <el-button size="large" icon="el-icon-message-solid"></el-button>
+              </el-badge>
+            </div>
+
+            <el-dropdown-menu slot="dropdown" class="user-dropdown">
+              <router-link :to="aboutPath">
+                <el-dropdown-item> 消息列表 </el-dropdown-item>
+              </router-link>
+              <el-dropdown-item @click="commentReadAll()"> 全部已读 </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -128,8 +144,9 @@
 
 <script>
 // import { mapGetters } from "vuex";
-import { login, register } from "@/api/login";
+import { login, register, readCommentAll } from "@/api/login";
 import { getToken } from "@/utils/auth";
+
 
 export default {
   name: "Header",
@@ -208,7 +225,7 @@ export default {
     }
     console.log('created');
   },
-  mounted() {
+  async mounted() {
     console.log('mounted');
     this.initScroll();
     // 获取数据
@@ -222,6 +239,14 @@ export default {
       this.userInfo = undefined;
       console.log(val);
       this.noLogin()
+    })
+    // 用户信息变更
+    this.$bus.$on('updateUserInfo', (val) => {
+      if (val) {
+        console.log(val);
+        this.userInfo = val;
+        console.log(this.userInfo);
+      }
     })
   },
   computed: {
@@ -238,9 +263,27 @@ export default {
       } else {
         return '/about?id='
       }
+    },
+  },
+  watch: {
+    searchInfo(newVal) {
+      // console.log(2);
+      console.log(newVal);
+      this.$bus.$emit('tranSearchInfo', newVal)
     }
   },
   methods: {
+    // 消息已读
+    commentReadAll() {
+      console.log(1);
+      readCommentAll(this.userInfo.id)
+      // 获取最新消息
+      // this.userInfo
+      this.$store.dispatch('/user/getInfo', this.userInfo.id).then((res) => {
+        console.log(res);
+        this.userInfo = res;
+      })
+    },
     //
     getTokenData() {
       let token = getToken();
@@ -299,6 +342,12 @@ export default {
                   type: "info",
                   message: "登录成功",
                 });
+                // 如果当前不是首页则跳转
+                console.log(window.location.href.split('#')[1]);
+                if (window.location.href.split('#')[1] !== '/') {
+                  this.$router.push({ path: '/' });
+                }
+
                 this.loginload = false;
                 // 获取信息
                 this.$bus.$emit('getPostPageInfo', '1')
@@ -321,8 +370,11 @@ export default {
                 message: "注册成功",
               });
               this.showDialog = false;
+              this.loginload = false;
               this.resetRegister();
-            });
+            }).catch((error) => {
+              this.loginload = false;
+            })
           }
         }
       });
@@ -461,14 +513,14 @@ export default {
         right: 0;
       }
 
-      /* 登录注册 头像相关 */
-      .userInfo-avatar {}
+
     }
 
     // 登录注册信息
     .user-info-panel {
       // width: 310px;
       display: flex;
+      align-items: center;
 
       // 右侧搜索框
       .input-search {
@@ -521,6 +573,7 @@ export default {
       // 右侧按钮
       .op-btn {
         font-size: 14px;
+        // line-height: 50px;
 
         button {
           width: 100px;
@@ -541,6 +594,137 @@ export default {
       .op-btn+.op-btn {
         margin-left: 5px;
       }
+
+      /* 登录注册 头像相关 */
+      .userInfo-avatar {
+        display: flex;
+        align-items: stretch;
+
+        // 弹出框
+        // .el-dropdown {
+
+        //   .el-dropdown-menu {
+        //     top: 60px;
+        //     width: 120px;
+        //   }
+        // }
+
+        .comment-badge {
+          // margin-left: 10px;
+
+          // 消息提示组件
+          .el-badge {
+            .el-button {
+              // padding: 12px 10px 12px 10px;
+              // padding: 0;
+              border: none;
+            }
+
+            /* button动画效果 */
+            .el-button:hover {
+              -webkit-animation: shake-top 0.8s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+              animation: shake-top 0.8s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+              background-color: #fff;
+            }
+
+            @-webkit-keyframes shake-top {
+
+              0%,
+              100% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                -webkit-transform-origin: 50% 0;
+                transform-origin: 50% 0;
+              }
+
+              10% {
+                -webkit-transform: rotate(2deg);
+                transform: rotate(2deg);
+              }
+
+              20%,
+              40%,
+              60% {
+                -webkit-transform: rotate(-4deg);
+                transform: rotate(-4deg);
+              }
+
+              30%,
+              50%,
+              70% {
+                -webkit-transform: rotate(4deg);
+                transform: rotate(4deg);
+              }
+
+              80% {
+                -webkit-transform: rotate(-2deg);
+                transform: rotate(-2deg);
+              }
+
+              90% {
+                -webkit-transform: rotate(2deg);
+                transform: rotate(2deg);
+              }
+            }
+
+            @keyframes shake-top {
+
+              0%,
+              100% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                -webkit-transform-origin: 50% 0;
+                transform-origin: 50% 0;
+              }
+
+              10% {
+                -webkit-transform: rotate(2deg);
+                transform: rotate(2deg);
+              }
+
+              20%,
+              40%,
+              60% {
+                -webkit-transform: rotate(-4deg);
+                transform: rotate(-4deg);
+              }
+
+              30%,
+              50%,
+              70% {
+                -webkit-transform: rotate(4deg);
+                transform: rotate(4deg);
+              }
+
+              80% {
+                -webkit-transform: rotate(-2deg);
+                transform: rotate(-2deg);
+              }
+
+              90% {
+                -webkit-transform: rotate(2deg);
+                transform: rotate(2deg);
+              }
+            }
+
+
+
+            // 右上角 消息提示
+            .is-fixed {
+              top: 15px;
+              right: 20px;
+            }
+
+            .el-icon-message-solid {
+              display: inline-block;
+              // width: 50px;
+              // height: 50px;
+              font-size: 20px;
+            }
+          }
+        }
+      }
+
     }
   }
 
