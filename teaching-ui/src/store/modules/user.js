@@ -1,6 +1,7 @@
 import Vue from "vue";
 import { login, logout, getInfo, register,getCurrentUser } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
+import router from "@/router";
 // import { resetRouter } from '@/router'
 // import Cookies from 'js-cookie'
 
@@ -126,6 +127,10 @@ const actions = {
     return new Promise((resolve, reject) => {
       logout().then(() => {
         removeToken() // 清除token
+        // 跳转路由
+        if (window.location.href.split('#')[1] !== '/login') {
+          router.push(`/login`);
+        }
         // resetRouter()
         commit('RESET_STATE')
         commit('SET_USERINFO',undefined)

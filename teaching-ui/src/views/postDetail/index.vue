@@ -11,7 +11,18 @@
       <div class="post-author">
         <!-- 头像 -->
         <div class="post-avater">
-          <img class="avater" :src="postDetail.userAvatarUrl" alt="作者">
+          <default-avater
+            v-if="postDetail.userAvatarUrl === ''"
+            width="40px"
+            height="40px"
+            :avaterName="postDetail.userName.split('')[0]"
+          ></default-avater>
+          <img
+            class="avater"
+            :src="postDetail.userAvatarUrl"
+            alt="作者"
+            v-else
+          />
         </div>
         <div class="avater-description">
           <!-- 姓名 -->
@@ -22,7 +33,6 @@
           <div class="post-college">
             {{ postDetail.collegeName }}
           </div>
-
         </div>
       </div>
       <!-- 帖子信息 -->
@@ -32,52 +42,108 @@
 
       <!-- 附件信息 -->
       <div class="post-download">
-        <a class="download" target='blank' :href="postDetail.resourceUrl" download="下载"><span
-            class="iconfont icon-fujian"></span>附件下载</a>
+        <a
+          class="download"
+          target="blank"
+          :href="postDetail.resourceUrl"
+          download="下载"
+          ><span class="iconfont icon-fujian"></span>附件查看</a
+        >
       </div>
 
       <!-- 收藏按钮 -->
       <div class="button-container">
-        <el-button class="btn-collect" type="primary" size="mini" @click="handleCollect"><span class="iconfont icon-star"
-            :class="isCollect ? 'icon-star-fill' : 'icon-star'"></span>{{ isCollect ? '已收藏' : '收藏' }}</el-button>
+        <el-button
+          class="btn-collect"
+          type="primary"
+          size="mini"
+          @click="handleCollect"
+          ><span
+            class="iconfont icon-star"
+            :class="isCollect ? 'icon-star-fill' : 'icon-star'"
+          ></span
+          >{{ isCollect ? "已收藏" : "收藏" }}</el-button
+        >
       </div>
     </div>
-
 
     <!-- 发布评论 -->
     <div class="add-comment" @focus="isFocus = true" tabindex="0">
       <div class="add-comment-header">
         <div class="current-avater">
-          <img :src="userInfo.avatar" alt="当前用户">
+          <default-avater
+            v-if="userInfo.avatar === ''"
+            width="40px"
+            height="40px"
+            :avaterName="userInfo.name.split('')[0]"
+          ></default-avater>
+          <img :src="userInfo.avatar" alt="当前用户" v-else />
         </div>
         <el-form class="form" ref="form" :model="form" label-width="0">
           <el-form-item label="">
-            <el-input type="textarea" v-model="form.content" @focus="isFocus = true;"></el-input>
+            <el-input
+              type="textarea"
+              v-model="form.content"
+              @focus="isFocus = true"
+            ></el-input>
           </el-form-item>
         </el-form>
-
       </div>
-      <div slot="footer" class="add-comment-footer" :class="isFocus ? 'comment-footer-flex' : 'comment-footer-none'">
-        <el-upload class="add-comment-upload" action="action" :on-preview="handlePreview" :on-remove="handleRemove"
-          :before-remove="beforeRemove" multiple :limit="limit" :on-exceed="handleExceed" :file-list="fileList"
-          :http-request="uploadFile">
-          <el-link :underline="false"><span class="iconfont icon-fujian"></span> 附件上传</el-link>
+      <div
+        slot="footer"
+        class="add-comment-footer"
+        :class="isFocus ? 'comment-footer-flex' : 'comment-footer-none'"
+      >
+        <el-upload
+          class="add-comment-upload"
+          action="action"
+          :on-preview="handlePreview"
+          :on-remove="handleRemove"
+          :before-remove="beforeRemove"
+          multiple
+          :limit="limit"
+          :on-exceed="handleExceed"
+          :file-list="fileList"
+          :http-request="uploadFile"
+        >
+          <el-link :underline="false"
+            ><span class="iconfont icon-fujian"></span> 附件上传</el-link
+          >
         </el-upload>
-        <el-button class="btn-comment" type="primary" size="mini" @click="commentSubmit"><span
-            class="iconfont icon-message"></span>
-          评论</el-button>
+        <el-button
+          class="btn-comment"
+          type="primary"
+          size="mini"
+          @click="commentSubmit"
+          ><span class="iconfont icon-message"></span> 评论</el-button
+        >
       </div>
     </div>
 
     <!-- 评论分页 -->
     <div class="comment-container" v-if="isCommentsList">
       <h3 class="comment-title">全部评论</h3>
-      <div class="comment-item" v-for="(commentItem, index) in commentsList" :key="commentItem.commentId">
+      <div
+        class="comment-item"
+        v-for="(commentItem, index) in commentsList"
+        :key="commentItem.commentId"
+      >
         <!-- 作者信息 -->
         <div class="comment-author">
           <!-- 头像 -->
           <div class="comment-avater">
-            <img class="avater" :src="commentItem.belongAvatarUrl" alt="作者">
+            <default-avater
+              v-if="commentItem.belongAvatarUrl === ''"
+              width="40px"
+              height="40px"
+              :avaterName="commentItem.belongName.split('')[0]"
+            ></default-avater>
+            <img
+              class="avater"
+              :src="commentItem.belongAvatarUrl"
+              alt="评论人"
+              v-else
+            />
           </div>
         </div>
         <!-- 评论详细 -->
@@ -101,12 +167,18 @@
           <div class="comment-action">
             <!-- 附件信息 -->
             <div class="comment-download" v-if="commentItem.commentOssUrl">
-              <a class="download" target='blank' :href="commentItem.commentOssUrl" download="下载"><span
-                  class="iconfont icon-fujian"></span>附件下载</a>
+              <a
+                class="download"
+                target="blank"
+                :href="commentItem.commentOssUrl"
+                download="下载"
+                ><span class="iconfont icon-fujian"></span>附件下载</a
+              >
             </div>
             <!-- 评论 -->
             <div class="add-comment-item">
-              <span class="iconfont icon-message"></span> <span class='add-action'>回复</span>
+              <span class="iconfont icon-message"></span>
+              <span class="add-action">回复</span>
             </div>
           </div>
 
@@ -127,24 +199,28 @@ import {
   getPostCommentPage,
   addCollect,
   // delCollect
-} from '@/api/post'
-import { ossFileUpload, delOssFile } from '@/api/oss'
+} from "@/api/post";
+import { ossFileUpload, delOssFile } from "@/api/oss";
+import DefaultAvater from "@/components/DefaultAvater";
 
 export default {
   name: "postDetail",
+  components: {
+    DefaultAvater,
+  },
   data() {
     return {
       postDetail: {}, // 帖子详细消息
       postId: undefined,
       isCollect: false, // 是否收藏
       isComment: false,
-      isFocus: false,//是否聚集
+      isFocus: false, //是否聚集
       // 评论
       commentsList: [], // 帖子评论
       form: {
         send: undefined, // 接收评论的id
         content: undefined, // 内容
-        url: '', // 附件url
+        url: "", // 附件url
         resource: undefined, // 评论所属资料ID
       },
       fileList: [], // 评论附件列表
@@ -163,18 +239,18 @@ export default {
   },
 
   mounted() {
-    this.$bus.$on('cancelFocus', (val) => {
+    this.$bus.$on("cancelFocus", (val) => {
       this.isFocus = false;
-    })
-    this.getParamsId()
-    this.getPostDetailInfo()
-    this.getPostCommentPageInfo(this.postId, 1, 100)
-    this.userInfo = this.getTokenData()
+    });
+    this.getParamsId();
+    this.getPostDetailInfo();
+    this.getPostCommentPageInfo(this.postId, 1, 100);
+    this.userInfo = this.getTokenData();
   },
   methods: {
     // 获取帖子详细消息
     async getPostDetailInfo() {
-      const { data } = await getPostDetail(this.postId)
+      const { data } = await getPostDetail(this.postId);
       this.postDetail = data;
       console.log(this.postDetail);
     },
@@ -189,8 +265,8 @@ export default {
       this.collectForm.belong = this.userInfo.id;
       addCollect(this.collectForm).then((res) => {
         this.isCollect = !this.isCollect;
-        this.$message.success(res.message)
-      })
+        this.$message.success(res.message);
+      });
     },
     // 获取收藏状态
     getCollectStatus() {
@@ -214,7 +290,7 @@ export default {
             let FormDatas = new window.FormData();
             FormDatas.append("file", this.fileList[0]);
             console.log("FormDatas=>", FormDatas);
-            const { data } = await ossFileUpload(FormDatas)
+            const { data } = await ossFileUpload(FormDatas);
             this.fileUrl = data;
             this.form.url = data; // form的url
           }
@@ -222,33 +298,35 @@ export default {
           this.form.resource = this.postDetail.resourceId; // 接收评论的用户id
           this.form.send = this.postDetail.userId; // 接收评论的资料id
 
-          addPostComment(this.form).then((res) => {
-            this.$message.info("评论成功");
-            // this.submitLoading = false;
-            // this.$router.push({ path: '/' });
-            this.resetComment(); // 清除表单
-            this.fileList = [];
-            this.getPostCommentPageInfo(this.postId, 1, 100)
-          }).catch((error) => {
-            console.log(error);
-            // 上传成功，但发布失败情况
-            if (this.fileUrl) {
-              // 删除oss文件
-              delOssFile(this.fileUrl);
-            }
-            // this.submitLoading = false;
-          });
+          addPostComment(this.form)
+            .then((res) => {
+              this.$message.info("评论成功");
+              // this.submitLoading = false;
+              // this.$router.push({ path: '/' });
+              this.resetComment(); // 清除表单
+              this.fileList = [];
+              this.getPostCommentPageInfo(this.postId, 1, 100);
+            })
+            .catch((error) => {
+              console.log(error);
+              // 上传成功，但发布失败情况
+              if (this.fileUrl) {
+                // 删除oss文件
+                delOssFile(this.fileUrl);
+              }
+              // this.submitLoading = false;
+            });
         }
-      })
+      });
     },
     // 登录表单重置
     resetComment() {
-      this.form = {
+      (this.form = {
         send: undefined, // 接收评论的id
         content: undefined, // 内容
-        url: '', // 附件url
+        url: "", // 附件url
         resource: undefined, // 评论所属资料ID
-      },
+      }),
         this.resetForm("form");
     },
     /* 评论资料上传相关方法 */
@@ -259,7 +337,11 @@ export default {
       console.log(file);
     },
     handleExceed(files, fileList) {
-      this.$message.warning(`当前限制选择 ${this.limit} 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+      this.$message.warning(
+        `当前限制选择 ${this.limit} 个文件，本次选择了 ${
+          files.length
+        } 个文件，共选择了 ${files.length + fileList.length} 个文件`
+      );
     },
     beforeRemove(file, fileList) {
       return this.$confirm(`确定移除 ${file.name}？`);
@@ -268,14 +350,14 @@ export default {
       // this.$message.info("文件已上传至浏览器，点击发布上传至服务器");
       //上传文件的需要formdata类型;所以要转
       // console.log(item.file);
-      this.fileList.push(item.file)
-    }
+      this.fileList.push(item.file);
+    },
   },
   computed: {
     isCommentsList: function () {
       return this.commentsList === [] ? false : true;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -284,7 +366,6 @@ export default {
   width: 960px;
   padding-top: 80px;
   margin: 0 auto;
-
 
   // 帖子详情
   .post-detail {
@@ -313,7 +394,6 @@ export default {
           width: 42px;
           border-radius: 50%;
         }
-
       }
 
       .avater-description {
@@ -325,16 +405,14 @@ export default {
         .post-name {
           font-size: 16px;
           font-weight: bold;
-
         }
 
-        // 高校      
+        // 高校
         .post-college {
           font-size: 8px;
           margin-top: 2px;
         }
       }
-
     }
 
     // 帖子信息
@@ -351,7 +429,7 @@ export default {
       }
 
       .download:hover {
-        color: #029DFF;
+        color: #029dff;
       }
     }
 
@@ -361,15 +439,10 @@ export default {
 
       .btn-collect {
         .icon-star-fill {
-          color: #Ffd700;
+          color: #ffd700;
         }
       }
-
-
-
     }
-
-
   }
 
   // 发布评论
@@ -385,7 +458,6 @@ export default {
       width: 900px;
       border-radius: 10px;
       display: flex;
-
 
       .current-avater {
         margin-right: 20px;
@@ -404,26 +476,21 @@ export default {
           width: 838px;
 
           .el-textarea {
-
             textarea {
               max-width: 838px;
               height: 66px;
               padding: 8px 12px 8px 12px;
-              background-color: #E9ECEF;
+              background-color: #e9ecef;
               width: 100%;
             }
 
             textarea:focus {
               background-color: #fff;
             }
-
           }
         }
-
       }
-
     }
-
 
     .add-comment-footer {
       margin-top: 10px;
@@ -445,8 +512,9 @@ export default {
         }
       }
 
-      // 
-      .btn-comment {}
+      //
+      .btn-comment {
+      }
     }
 
     .comment-footer-flex {
@@ -466,7 +534,6 @@ export default {
 
     .comment-title {
       padding: 10px 30px;
-
     }
 
     .comment-item {
@@ -490,12 +557,10 @@ export default {
             border-radius: 50%;
           }
         }
-
       }
 
       // 评论详细
       .comment-detail {
-
         .avater-description {
           margin-left: 10px;
           padding-right: 10px;
@@ -509,7 +574,7 @@ export default {
             font-size: 14px;
           }
 
-          // 高校      
+          // 高校
           .comment-college {
             padding-left: 5px;
             font-size: 8px;
@@ -540,7 +605,7 @@ export default {
             }
 
             .download:hover {
-              color: #029DFF;
+              color: #029dff;
             }
           }
 
@@ -559,7 +624,7 @@ export default {
           }
 
           .add-comment-item:hover {
-            color: #029DFF;
+            color: #029dff;
           }
         }
       }
@@ -572,7 +637,6 @@ export default {
         span {
           font-size: 12px;
         }
-
       }
     }
 

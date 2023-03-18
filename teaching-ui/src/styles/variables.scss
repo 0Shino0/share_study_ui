@@ -1,0 +1,21 @@
+/* 全局样式 */
+
+// color
+$appBackgroundColor: #fafafa;
+$inputBackgroundColor: #E9E9F7;
+
+$buttonDefaultColor: #409EFF;
+$buttonDefaultHoverColor: #66B1FF;
+
+
+// shaldow
+@mixin boxShalldow(){
+  border-radius: 8px;
+  background: #f9fbff;
+  box-shadow: 20px 20px 60px #d4d5d9, -20px -20px 60px #ffffff;
+}
+
+// 手型
+@mixin cursor($pointer: pointer) {
+  cursor: $pointer;
+}

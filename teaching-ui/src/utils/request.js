@@ -9,7 +9,7 @@ import { getToken, removeToken } from '@/utils/auth'
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 20000 // request timeout
+  timeout: 60000 // request timeout
 })
 
 // request interceptor
@@ -87,8 +87,8 @@ service.interceptors.response.use(
           // 未登录
           Vue.prototype.$bus.$emit('noLogin', 'noLogin')
           removeToken('adminLoginstate')
-        }else if (window.location.href.split('#')[1] !== '/') {
-            router.push(`/`);
+        }else if (window.location.href.split('#')[1] !== '/login') {
+            router.push(`/login`);
           }
 
       }

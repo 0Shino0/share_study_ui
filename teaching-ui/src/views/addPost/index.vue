@@ -1,5 +1,6 @@
 <template>
   <div class="add-post-container">
+    <Loading v-show="submitLoading"></Loading>
     <h2>发帖</h2>
     <el-form class="form" ref="form" :model="form" label-width="40px">
       <el-form-item label="标题">
@@ -8,13 +9,18 @@
       <!-- <el-form-item label="描述">
       <el-input v-model="form.info"></el-input>
     </el-form-item> -->
-      <el-form-item label="内容">
-        <el-input type="textarea" maxlength="2000" show-word-limit v-model="form.info"></el-input>
+      <el-form-item label="描述">
+        <el-input
+          type="textarea"
+          maxlength="2000"
+          show-word-limit
+          v-model="form.info"
+        ></el-input>
       </el-form-item>
 
-      <!-- 
+      <!--
         <el-upload
-          class="upload-demo" 
+          class="upload-demo"
           action  //必要属性，上传文件的地址，可以不给，但必须要有，不给就i调接口上传
           :http-request="uploadFile"//这个是就上传文件的方法，把上传的接口写在这个方法里
           ref="upload"
@@ -28,18 +34,28 @@
           :headers="headers"//上传文件的请求头
           >
        -->
-      <el-upload class="upload-file" :action="action" :http-request="uploadFile" :on-preview="handlePreview"
-        :on-remove="handleRemove" :before-remove="beforeRemove" :before-upload="beforeUpload" multiple :limit="fileLimit"
-        :on-exceed="handleExceed" :file-list="fileList">
-        <el-button size="small" type="primary"><span class="iconfont icon-fujian"></span> 附件上传</el-button>
-        <div slot="tip" class="el-upload__tip">
-          只能上传jpg/png文件，且不超过500kb
-        </div>
+      <el-upload
+        class="upload-file"
+        :action="action"
+        :http-request="uploadFile"
+        :on-preview="handlePreview"
+        :on-remove="handleRemove"
+        :before-remove="beforeRemove"
+        :before-upload="beforeUpload"
+        multiple
+        :limit="fileLimit"
+        :on-exceed="handleExceed"
+        :file-list="fileList"
+      >
+        <el-button size="small" type="primary"
+          ><span class="iconfont icon-fujian"></span> 附件上传</el-button
+        >
+        <div slot="tip" class="el-upload__tip"></div>
       </el-upload>
 
       <el-form-item>
-        <el-button type="primary" @click="onSubmit" :disabled="submitLoading">发布</el-button>
-        <el-button @click="handleCancel" :disabled="submitLoading">取消</el-button>
+        <el-button type="primary" @click="onSubmit">发布</el-button>
+        <el-button @click="handleCancel">取消</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -47,10 +63,14 @@
 
 <script>
 import { delOssFile, ossFileUpload } from "@/api/oss";
-import { addPost } from '@/api/post'
+import { addPost } from "@/api/post";
 import { getToken } from "@/utils/auth";
+import Loading from "@/components/Loading";
 
 export default {
+  components: {
+    Loading,
+  },
   data() {
     return {
       userInfo: {}, // 用户信息
@@ -66,16 +86,23 @@ export default {
       action: "/api/file/oss_file_upload", // 上传的地址
       fileList: [], // 上传文件列表
       fileType: [
-        "pdf",
-        "doc",
-        "docx",
-        "xls",
-        "xlsx",
-        "txt",
         "png",
         "jpg",
-        "bmp",
         "jpeg",
+        "pdf",
+        "xlsx",
+        "xls",
+        "doc",
+        "docx",
+        "ppt",
+        "pptx",
+        "mp3",
+        "mp4",
+        "mpeg",
+        "zip",
+        "rar",
+        "7z",
+        "gif",
       ], // 允许的文件类型
       fileLimit: 1, // 限制上传数
       headers: { "Content-Type": "multipart/form-data" }, // 上传请求头
@@ -92,7 +119,7 @@ export default {
       return data;
     },
     onSubmit() {
-      this.$refs["form"].validate(async (valid) => {
+      this.$refs["form"].validate((valid) => {
         if (valid) {
           this.submitLoading = true;
           this.$message.info("正在发布中，请稍后");
@@ -102,32 +129,68 @@ export default {
             let FormDatas = new window.FormData();
             FormDatas.append("file", this.fileList[0]);
             console.log("FormDatas=>", FormDatas);
-            const { data } = await ossFileUpload(FormDatas)
-            this.fileUrl = data;
-            this.form.url = data; // form的url
+            ossFileUpload(FormDatas)
+              .then((res) => {
+                const { data } = res;
+                console.log(data);
+                this.$message.success("附件上传成功");
+                this.fileUrl = data;
+                this.form.url = data; // form的url
+                this.submitLoading = false; //
+
+                // 调用发布接口
+                this.form.belong = this.userInfo.id; // 配置id
+
+                addPost(this.form)
+                  .then((res) => {
+                    this.$message.success("发布成功,正在跳转首页");
+                    this.submitLoading = false;
+                    this.resetAddPost();
+                    this.$router.push({ path: "/" });
+                  })
+                  .catch((error) => {
+                    this.resetAddPost();
+                    this.$message.info("帖子发布失败，请重试");
+                    // 上传成功，但发布失败情况
+                    if (this.fileUrl) {
+                      // 删除oss文件
+                      delOssFile(this.fileUrl);
+                    }
+
+                    this.submitLoading = false;
+                  });
+              })
+              .catch((error) => {
+                console.log(error);
+                this.$message.info("附件上传失败");
+                this.submitLoading = false; //
+              });
+          } else {
+            // 无文件
+            // 调用发布接口
+            this.form.belong = this.userInfo.id; // 配置id
+
+            addPost(this.form)
+              .then((res) => {
+                this.$message.success("发布成功,正在跳转首页");
+                this.submitLoading = false;
+                this.resetAddPost();
+                this.$router.push({ path: "/" });
+              })
+              .catch((error) => {
+                this.resetAddPost();
+                this.$message.info("帖子发布失败，请重试");
+                // 上传成功，但发布失败情况
+                if (this.fileUrl) {
+                  // 删除oss文件
+                  delOssFile(this.fileUrl);
+                }
+
+                this.submitLoading = false;
+              });
           }
-          // 调用发布接口
-          this.form.belong = this.userInfo.id; // 配置id
-
-          addPost(this.form).then((res) => {
-            this.$message.success("发布成功,正在跳转首页");
-            this.submitLoading = false;
-            this.resetAddPost()
-            this.$router.push({ path: '/' });
-          }).catch((error) => {
-            this.resetAddPost()
-            // 上传成功，但发布失败情况
-            if (this.fileUrl) {
-              // 删除oss文件
-              delOssFile(this.fileUrl);
-            }
-
-            this.submitLoading = false;
-          });
-
-
         }
-      })
+      });
     },
     // 登录表单重置
     resetAddPost() {
@@ -157,7 +220,8 @@ export default {
     },
     handleExceed(files, fileList) {
       this.$message.warning(
-        `当前限制选择 ${this.fileLimit} 个文件，本次选择了 ${files.length
+        `当前限制选择 ${this.fileLimit} 个文件，本次选择了 ${
+          files.length
         } 个文件，共选择了 ${files.length + fileList.length} 个文件`
       );
     },
@@ -170,10 +234,10 @@ export default {
         //截取文件的后缀，判断文件类型
         const FileExt = file.name.replace(/.+\./, "").toLowerCase();
         //计算文件的大小
-        const isLt5M = file.size / 1024 / 1024 < 50; //这里做文件大小限制
+        const isLt5M = file.size / 1024 / 1024 < 200; //这里做文件大小限制
         //如果大于50M
         if (!isLt5M) {
-          this.$message.error("上传文件大小不能超过 50MB!");
+          this.$message.error("上传文件大小不能超过 200MB!");
           return false;
         }
         //如果文件类型不在允许上传的范围内
@@ -190,7 +254,7 @@ export default {
       this.$message.info("文件已上传至浏览器，点击发布上传至服务器");
       //上传文件的需要formdata类型;所以要转
       // console.log(item.file);
-      this.fileList.push(item.file)
+      this.fileList.push(item.file);
       // console.log(this.fileList);
       // let FormDatas = new window.FormData();
       // FormDatas.append("file", item.file);
@@ -220,7 +284,6 @@ export default {
   }
 
   .form {
-
     .el-form-item,
     .upload-file {
       width: 600px;
