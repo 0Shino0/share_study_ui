@@ -1,9 +1,11 @@
 <template>
-  <div id="app" @focus="cancelFocus" tabindex="0" style="overflow: auto;">
+  <div id="app" @focus="cancelFocus" tabindex="0" style="overflow: auto">
     <keep-alive>
       <Header></Header>
     </keep-alive>
-    <router-view />
+    <transition name="app-transform">
+      <router-view />
+    </transition>
     <!-- <Footer></Footer> -->
   </div>
 </template>
@@ -20,9 +22,9 @@ export default {
   },
   methods: {
     cancelFocus() {
-      this.$bus.$emit('cancelFocus', false)
-    }
-  }
+      this.$bus.$emit("cancelFocus", false);
+    },
+  },
 };
 </script>
 
@@ -30,16 +32,17 @@ export default {
 body,
 html {
   font-size: 16px;
-  background-color: #E9ECEF;
+  // background-color: #E9ECEF;
+  // background-color: #f9fbff;
+  background-color: #e9ecef;
 }
-
-
 
 #app {
   outline: none;
   // 方案一
   height: 750px;
   overflow: hidden;
+  background-color: #e9ecef;
 
   // 方案二
   // min-height: 750px;
@@ -66,17 +69,16 @@ a {
 ::-webkit-scrollbar {
   width: 8px;
   height: 16px;
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
   // display: none;
 }
-
 
 /*定义滚动条轨道
  内阴影+圆角*/
 ::-webkit-scrollbar-track {
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   border-radius: 10px;
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
 }
 
 /*定义滑块
@@ -84,6 +86,6 @@ a {
 ::-webkit-scrollbar-thumb {
   border-radius: 10px;
   -webkit-box-shadow: inset 0 0 6px #40a0ff36;
-  background-color: #409EFF;
+  background-color: #409eff;
 }
 </style>

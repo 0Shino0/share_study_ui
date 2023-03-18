@@ -3,10 +3,11 @@
     <div class="header-content" :style="{ width: globalInfo.bodyWidth + 'px' }">
       <!-- logo -->
       <router-link class="logo" to="/">
-        <span>T</span>
+        <!-- <span>T</span>
         <span>e</span>
         <span>s</span>
-        <span>t</span>
+        <span>t</span> -->
+        <img src="@/assets/logo.svg" alt="logo">
       </router-link>
 
       <!-- 导航 -->
@@ -39,8 +40,9 @@
         </div>
         <!-- 头像 退出登录 -->
         <div class="userInfo-avatar" v-if="userInfo && userInfo.isLogin" :style="{ 'margin-left': '20px' }">
-          <el-dropdown placement="bottom">
-            <el-avatar size="large" :src="userInfo.avatar"></el-avatar>
+          <!-- 有头像时 -->
+          <el-dropdown placement="bottom" v-if="userInfo.avatar">
+            <el-avatar v-if="userInfo.avatar" size="large" :src="userInfo.avatar"></el-avatar>
 
             <el-dropdown-menu slot="dropdown" class="user-dropdown">
               <router-link to="/">
@@ -60,7 +62,32 @@
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
+          <!-- 无头像使用默认头像 -->
+          <el-dropdown placement="bottom" v-else>
+          <default-avater width="40px" height="40px" :avaterName="userInfo.name.split('')[0]"></default-avater>
+            <!-- <div class="default-avater">
+              <span class="avater-name">{{ userInfo.name.split('')[0] }}</span>
+            </div> -->
 
+            <el-dropdown-menu slot="dropdown" class="user-dropdown">
+              <router-link to="/">
+                <el-dropdown-item> 首页 </el-dropdown-item>
+              </router-link>
+              <router-link :to="aboutPath">
+                <el-dropdown-item> 个人中心 </el-dropdown-item>
+              </router-link>
+              <!-- <a target="_blank" href="https://github.com/PanJiaChen/vue-admin-template/">
+                <el-dropdown-item>Github</el-dropdown-item>
+              </a>
+              <a target="_blank" href="https://panjiachen.github.io/vue-element-admin-site/#/">
+                <el-dropdown-item>Docs</el-dropdown-item>
+              </a> -->
+              <el-dropdown-item divided @click.native="logout">
+                <span style="display: block">退出登录</span>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+          <!-- badge提示 -->
           <el-dropdown placement="bottom">
             <div class="comment-badge" style="width: 50px;height:50px;">
               <el-badge :max="10" :hidden="userInfo.messageNumber === 0 ? true : false" :value="userInfo.messageNumber"
@@ -146,10 +173,13 @@
 // import { mapGetters } from "vuex";
 import { login, register, readCommentAll } from "@/api/login";
 import { getToken } from "@/utils/auth";
-
+import DefaultAvater from '@/components/DefaultAvater'
 
 export default {
   name: "Header",
+  components: {
+    DefaultAvater
+  },
   data() {
     /* 表单校验 */
     // 密码
@@ -223,31 +253,31 @@ export default {
     if (!this.userInfo) {
       this.userInfo = this.getTokenData();
     }
-    console.log('created');
+    console.log("created");
   },
   async mounted() {
-    console.log('mounted');
+    console.log("mounted");
     this.initScroll();
     // 获取数据
     // this.currentPath = this.$route.path;
     // 登录
-    this.$bus.$on('handleLogin', (val) => {
-      this.login()
-    })
+    this.$bus.$on("handleLogin", (val) => {
+      this.login();
+    });
     // 未登录
-    this.$bus.$on('noLogin', (val) => {
+    this.$bus.$on("noLogin", (val) => {
       this.userInfo = undefined;
       console.log(val);
-      this.noLogin()
-    })
+      this.noLogin();
+    });
     // 用户信息变更
-    this.$bus.$on('updateUserInfo', (val) => {
+    this.$bus.$on("updateUserInfo", (val) => {
       if (val) {
         console.log(val);
         this.userInfo = val;
         console.log(this.userInfo);
       }
-    })
+    });
   },
   computed: {
     // ...mapGetters(['userInfo']),
@@ -259,9 +289,9 @@ export default {
     },
     aboutPath: function () {
       if (this.userInfo) {
-        return '/about?id=' + this.userInfo.id
+        return "/about?id=" + this.userInfo.id;
       } else {
-        return '/about?id='
+        return "/about?id=";
       }
     },
   },
@@ -269,20 +299,20 @@ export default {
     searchInfo(newVal) {
       // console.log(2);
       console.log(newVal);
-      this.$bus.$emit('tranSearchInfo', newVal)
-    }
+      this.$bus.$emit("tranSearchInfo", newVal);
+    },
   },
   methods: {
     // 消息已读
     commentReadAll() {
       console.log(1);
-      readCommentAll(this.userInfo.id)
+      readCommentAll(this.userInfo.id);
       // 获取最新消息
       // this.userInfo
-      this.$store.dispatch('/user/getInfo', this.userInfo.id).then((res) => {
+      this.$store.dispatch("/user/getInfo", this.userInfo.id).then((res) => {
         console.log(res);
         this.userInfo = res;
-      })
+      });
     },
     //
     getTokenData() {
@@ -308,14 +338,14 @@ export default {
         type: "info",
         message: "退出成功",
       });
-      this.$bus.$emit('resetUserInfo', undefined)
+      this.$bus.$emit("resetUserInfo", undefined);
     },
     // 未登录情况
     noLogin() {
       this.userInfo = undefined; // 修改登录状态
       // console.log('userInfo=>', userInfo);
       this.$store.dispatch("user/logout"); // 清除user相关token
-      this.$bus.$emit('resetUserInfo', undefined)
+      this.$bus.$emit("resetUserInfo", undefined);
     },
     // 关闭对话框
     dialogCancel() {
@@ -343,15 +373,16 @@ export default {
                   message: "登录成功",
                 });
                 // 如果当前不是首页则跳转
-                console.log(window.location.href.split('#')[1]);
-                if (window.location.href.split('#')[1] !== '/') {
-                  this.$router.push({ path: '/' });
+                console.log(window.location.href.split("#")[1]);
+                if (window.location.href.split("#")[1] !== "/") {
+                  this.$router.push({ path: "/" });
                 }
 
                 this.loginload = false;
                 // 获取信息
-                this.$bus.$emit('getPostPageInfo', '1')
-              }).catch((error) => {
+                this.$bus.$emit("getPostPageInfo", "1");
+              })
+              .catch((error) => {
                 console.log(error);
                 this.userInfo = undefined;
                 this.loginload = false;
@@ -364,17 +395,19 @@ export default {
             // 默认头像
             // this.registerForm.avatar =
             //   "https://sharestudy-1306588126.cos.ap-chengdu.myqcloud.com/super_avatar.jpg";
-            register(this.registerForm).then((response) => {
-              this.$message({
-                type: "info",
-                message: "注册成功",
+            register(this.registerForm)
+              .then((response) => {
+                this.$message({
+                  type: "info",
+                  message: "注册成功",
+                });
+                this.showDialog = false;
+                this.loginload = false;
+                this.resetRegister();
+              })
+              .catch((error) => {
+                this.loginload = false;
               });
-              this.showDialog = false;
-              this.loginload = false;
-              this.resetRegister();
-            }).catch((error) => {
-              this.loginload = false;
-            })
           }
         }
       });
@@ -468,12 +501,25 @@ export default {
 
     .logo {
       display: block;
-      margin-right: 5px;
-      padding-right: 20px;
+      margin-right: 15px;
+      // padding-right: 20px;
+      // logo
+      overflow: hidden;
+      width: 150px;
+      height: 64px;
+      position: relative;
 
-      span {
-        font-size: 35px;
+      img {
+        width: 160px;
+        position: absolute;
+        top: -28px;
+        // right: ;
+        left: -5px;
       }
+
+      // span {
+      //   font-size: 35px;
+      // }
     }
 
     // 导航信息
@@ -512,8 +558,6 @@ export default {
         left: 0;
         right: 0;
       }
-
-
     }
 
     // 登录注册信息
@@ -548,8 +592,8 @@ export default {
           box-shadow: none;
         }
 
-        .input-text:focus+.search-icon {
-          background-color: #66B1FF;
+        .input-text:focus + .search-icon {
+          background-color: #66b1ff;
           color: #000;
         }
 
@@ -563,7 +607,7 @@ export default {
           padding: 0;
           color: #fff;
           text-align: center;
-          background: #409EFF;
+          background: #409eff;
           border-radius: 50%;
           font-size: 15px;
           cursor: pointer;
@@ -591,14 +635,15 @@ export default {
         }
       }
 
-      .op-btn+.op-btn {
+      .op-btn + .op-btn {
         margin-left: 5px;
       }
 
       /* 登录注册 头像相关 */
       .userInfo-avatar {
         display: flex;
-        align-items: stretch;
+        align-items: center;
+
 
         // 弹出框
         // .el-dropdown {
@@ -622,13 +667,14 @@ export default {
 
             /* button动画效果 */
             .el-button:hover {
-              -webkit-animation: shake-top 0.8s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
-              animation: shake-top 0.8s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+              -webkit-animation: shake-top 0.8s
+                cubic-bezier(0.455, 0.03, 0.515, 0.955) both;
+              animation: shake-top 0.8s cubic-bezier(0.455, 0.03, 0.515, 0.955)
+                both;
               background-color: #fff;
             }
 
             @-webkit-keyframes shake-top {
-
               0%,
               100% {
                 -webkit-transform: rotate(0deg);
@@ -668,7 +714,6 @@ export default {
             }
 
             @keyframes shake-top {
-
               0%,
               100% {
                 -webkit-transform: rotate(0deg);
@@ -707,8 +752,6 @@ export default {
               }
             }
 
-
-
             // 右上角 消息提示
             .is-fixed {
               top: 15px;
@@ -717,39 +760,60 @@ export default {
 
             .el-icon-message-solid {
               display: inline-block;
-              // width: 50px;
-              // height: 50px;
               font-size: 20px;
             }
           }
         }
       }
-
     }
   }
-
 }
 
 // dialog对话框
 
 .dialog {
   .el-dialog {
+    border-radius: 8px;
+    // background-color: #15172b;
+    // color: #eee;
+    // box-shadow: 20px 20px 60px #6a6b6d, -20px -20px 60px #909193;
 
     .el-dialog__header {
       text-align: center;
+      .el-dialog__title{
+        // color: #eee;
+
+      }
     }
 
     .el-dialog__body {
       width: 50%;
       margin: 0 auto;
+      color: #eee;
 
-      // .dialog-login-form {
-      .dialog-form-item {
-        .el-form-item {}
+      .dialog-login-form {
+        // .dialog-form-item {
+        .el-form-item {
+          .el-form-item__label{
+            // color: #eee;
+          }
 
+          .el-form-item__content {
+            .el-input {
+              input {
+                // color: #eee;
+                // color: #7d7e80;
+                // background-color: #7d7e80;
+                // background-color: #303245;
+                // border: none;
+              }
+            }
+          }
+        }
       }
 
-      .dialog-register-form {}
+      .dialog-register-form {
+      }
     }
 
     .el-dialog__footer {

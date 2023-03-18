@@ -87,8 +87,8 @@ service.interceptors.response.use(
           // 未登录
           Vue.prototype.$bus.$emit('noLogin', 'noLogin')
           removeToken('adminLoginstate')
-        }else if (window.location.href.split('#')[1] !== '/') {
-            router.push(`/`);
+        }else if (window.location.href.split('#')[1] !== '/login') {
+            router.push(`/login`);
           }
 
       }

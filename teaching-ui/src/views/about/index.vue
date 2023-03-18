@@ -4,11 +4,31 @@
     <div class="about-header">
       <div class="about-header-avater">
         <!-- <img class="avater" :src="userInfo.avatar" alt="头像"> -->
-        <el-upload class="avatar-uploader" action="https://jsonplaceholder.typicode.com/posts/" :show-file-list="false"
-          :action="action" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload"
-          :http-request="uploadAvater">
-          <img v-if="userInfo" :src="userInfo.avatar" class="avatar" style="width: 125px;border-radius: 50%;">
-          <i class="el-icon-plus avatar-uploader-icon" style="font-size: 40px;"></i>
+        <el-upload
+          class="avatar-uploader"
+          :show-file-list="false"
+          :action="action"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload"
+          :http-request="uploadAvater"
+        >
+          <default-avater
+            v-if="userInfo.avatar === ''"
+            width="125px"
+            height="125px"
+            :avaterName="userInfo.name.split('')[0]"
+          ></default-avater>
+          <img
+            v-else
+            :src="userInfo.avatar"
+            class="avatar"
+            style="width: 125px; border-radius: 50%"
+          />
+
+          <i
+            class="el-icon-plus avatar-uploader-icon"
+            style="font-size: 40px"
+          ></i>
         </el-upload>
       </div>
       <div class="about-header-description">
@@ -29,7 +49,9 @@
         </div>
       </div>
       <!-- 修改个人资料 -->
-      <el-button class="about-update" type="primary" plain @click="handleUpdate">修改个人资料</el-button>
+      <el-button class="about-update" type="primary" plain @click="handleUpdate"
+        >修改个人资料</el-button
+      >
     </div>
 
     <!-- 展示帖子 收藏等 -->
@@ -41,8 +63,12 @@
             <!-- 我的评论 -->
             <!-- 评论分页 -->
             <div class="comment-container">
-              <router-link class="comment-link" v-for="(commentItem, index) in userCommentList" :key="commentItem.id"
-                :to="'/postDetail/' + commentItem.resourceId">
+              <router-link
+                class="comment-link"
+                v-for="(commentItem, index) in userCommentList"
+                :key="commentItem.id"
+                :to="'/postDetail/' + commentItem.resourceId"
+              >
                 <div class="comment-item">
                   <!-- 评论详细 -->
                   <div class="comment-detail">
@@ -73,19 +99,24 @@
                 <h2>无</h2>
               </div> -->
             </div>
-
-
           </el-tab-pane>
           <el-tab-pane label="我的收藏" name="collect">
-
             <!-- 我的收藏 -->
             <div class="collect-container">
-              <div class="collect-item" v-for="(collectItem, index) in collectList" :key="collectItem.collectId">
+              <div
+                class="collect-item"
+                v-for="(collectItem, index) in collectList"
+                :key="collectItem.collectId"
+              >
                 <!-- 作者信息 -->
                 <div class="collect-author">
                   <!-- 头像 -->
                   <div class="collect-avater" v-if="collectItem.userAvatarUrl">
-                    <img class="avater" :src="collectItem.userAvatarUrl" alt="作者">
+                    <img
+                      class="avater"
+                      :src="collectItem.userAvatarUrl"
+                      alt="作者"
+                    />
                   </div>
                 </div>
                 <!-- 评论详细 -->
@@ -108,13 +139,25 @@
 
                   <div class="collect-action">
                     <!-- 附件信息 -->
-                    <div class="collect-download" v-if="collectItem.resourceUrl">
-                      <a class="download" target='blank' :href="collectItem.resourceUrl" download="下载"><span
-                          class="iconfont icon-fujian"></span>附件下载</a>
+                    <div
+                      class="collect-download"
+                      v-if="collectItem.resourceUrl"
+                    >
+                      <a
+                        class="download"
+                        target="blank"
+                        :href="collectItem.resourceUrl"
+                        download="下载"
+                        ><span class="iconfont icon-fujian"></span>附件下载</a
+                      >
                     </div>
                     <!-- 评论 -->
-                    <div class="add-collect-item" @click="handlePushPost(collectItem.resourceId)">
-                      <span class="iconfont icon-message"></span> <span class='add-action'>回复</span>
+                    <div
+                      class="add-collect-item"
+                      @click="handlePushPost(collectItem.resourceId)"
+                    >
+                      <span class="iconfont icon-message"></span>
+                      <span class="add-action">回复</span>
                     </div>
                   </div>
 
@@ -131,7 +174,13 @@
           </el-tab-pane>
           <el-tab-pane label="我的信息" name="userInfo">
             <!-- 我的信息 -->
-            <el-form ref="selfForm" :model="selfForm" :rules="selfFormRules" label-width="80px" :disabled="isSelfForm">
+            <el-form
+              ref="selfForm"
+              :model="selfForm"
+              :rules="selfFormRules"
+              label-width="80px"
+              :disabled="isSelfForm"
+            >
               <el-form-item label="姓名">
                 <el-input v-model="selfForm.name"></el-input>
                 <!-- <span class="form-item-action">修改</span> -->
@@ -166,31 +215,60 @@
       </div> -->
     </div>
 
-    <el-dialog class="dialog" :title="dialogTitle" :visible.sync="showDialog" :width="dialogWidth" :top="dialogTop"
-      :close-on-click-modal="false" :close-on-press-escape="false" :before-close="dialogCancel" append-to-body show-close>
-      <el-form class="dialog-password-form" ref="dialogForm" :model="dialogForm" :rules="dialogFormRules">
+    <el-dialog
+      class="dialog"
+      :title="dialogTitle"
+      :visible.sync="showDialog"
+      :width="dialogWidth"
+      :top="dialogTop"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      :before-close="dialogCancel"
+      append-to-body
+      show-close
+    >
+      <el-form
+        class="dialog-password-form"
+        ref="dialogForm"
+        :model="dialogForm"
+        :rules="dialogFormRules"
+      >
         <el-form-item label="密码" :label-width="passwordFormLabelWidth">
-          <el-input type="password" v-model="dialogForm.password" autocomplete="off"></el-input>
+          <el-input
+            type="password"
+            v-model="dialogForm.password"
+            autocomplete="off"
+          ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer">
         <el-button @click="dialogCancel()">取 消</el-button>
-        <el-button type="primary" @click="dialogSubmit()" :disabled="submitLoad">确 定</el-button>
+        <el-button type="primary" @click="dialogSubmit()" :disabled="submitLoad"
+          >确 定</el-button
+        >
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { getUserCommentPage, getCollectPage, getUserPostPage } from '@/api/post';
-import { ossAvatarUpload, delOssFile } from '@/api/oss';
-import { updateUserInfo, getInfo } from '@/api/login';
-import { mapState } from 'vuex'
+import DefaultAvater from "@/components/DefaultAvater";
+import {
+  getUserCommentPage,
+  getCollectPage,
+  getUserPostPage,
+} from "@/api/post";
+import { ossAvatarUpload, delOssFile } from "@/api/oss";
+import { updateUserInfo, getInfo } from "@/api/login";
+import { mapState } from "vuex";
 // import { getCurrentUser } from '@/api/login'
 // import { setToken } from '@/utils/auth'
 
 export default {
-  name: 'about',
+  name: "about",
+  components: {
+    DefaultAvater,
+  },
   data() {
     var validatePass = (rule, value, callback) => {
       if (value === "") {
@@ -205,7 +283,7 @@ export default {
     return {
       // 用户信息
       // userInfo: {},
-      activeName: 'comment',
+      activeName: "comment",
       userCommentList: [],
       collectList: [],
       collectTotal: 0,
@@ -263,21 +341,21 @@ export default {
         password: [{ validator: validatePass, trigger: "blur" }],
       },
       showDialog: false,
-      dialogTitle: '请输入密码以完成上传',
+      dialogTitle: "请输入密码以完成上传",
       submitLoad: false, // 提交loading
       dialogWidth: "620px",
       dialogTop: "30px",
       passwordFormLabelWidth: "40px",
-    }
+    };
   },
   async mounted() {
     // await this.$store.dispatch('user/getInfo', this.queryId)
     await this.getCurrentUserInfo(this.queryId);
-    this.getUserCommentPageInfo(1, 100)
+    this.getUserCommentPageInfo(1, 100);
     this.getCollectPageInfo(this.queryId, 1, 100);
     this.getSelfFormInfo(this.queryId);
     this.getUserPostPageInfo(this.queryId, 1, 100);
-    this.$bus.$emit('updateUserInfo', '');
+    this.$bus.$emit("updateUserInfo", "");
     // console.log(this.user);
     // this.userInfo = this.getTokenData()
     // console.log('id=>', this.queryId);
@@ -288,7 +366,7 @@ export default {
   methods: {
     // 获取用户资料分页
     async getUserPostPageInfo(id, current, pageSize) {
-      const { data } = await getUserPostPage(id, current, pageSize)
+      const { data } = await getUserPostPage(id, current, pageSize);
       this.postList = data.records;
       this.postTotal = data.total;
     },
@@ -306,22 +384,20 @@ export default {
     // 获取最新用户信息
     async getCurrentUserInfo(id) {
       // const { data } = await getCurrentUser(id);
-      return await this.$store.dispatch('user/getInfo', id)
+      return await this.$store.dispatch("user/getInfo", id);
       // console.log(data);
       // this.userInfo = data;
     },
     // 修改个人资料 按钮
     handleUpdate() {
       // 跳转路由
-      this.activeName = ''
+      this.activeName = "";
     },
     // 标签页
-    handleClick() {
-
-    },
+    handleClick() {},
     // 跳转资源页
     handlePushPost(resourceId) {
-      this.$router.push({ path: '/postDetail/' + resourceId })
+      this.$router.push({ path: "/postDetail/" + resourceId });
     },
     /* 头像上传 */
     // 文件上传成功时的钩子
@@ -357,9 +433,9 @@ export default {
       console.log(item.file);
       console.log("FormDatas=>", FormDatas);
 
-      this.$message.info('请输入密码以继续上传')
+      this.$message.info("请输入密码以继续上传");
 
-      const { data } = await ossAvatarUpload(FormDatas)
+      const { data } = await ossAvatarUpload(FormDatas);
       this.lastImageUrl = this.userInfo.avatar; // 上一次
       this.newImageUrl = data; // 新上传
       // 输入密码框
@@ -370,7 +446,7 @@ export default {
     /* dialog密码 */
     // 登录表单重置
     resetSelfForm() {
-      this.selfForm = {
+      (this.selfForm = {
         email: undefined,
         name: undefined,
         avatar: undefined,
@@ -379,12 +455,12 @@ export default {
         gender: undefined,
         belong: undefined,
         id: undefined,
-      },
+      }),
         this.resetForm("selfForm");
       this.resetForm("passwordForm");
     },
     resetDialogForm() {
-      this.dialogForm = {
+      (this.dialogForm = {
         email: undefined,
         name: undefined,
         avatar: undefined,
@@ -393,20 +469,20 @@ export default {
         gender: undefined,
         belong: undefined,
         id: undefined,
-      },
+      }),
         this.resetForm("dialogForm");
       this.resetForm("passwordForm");
     },
     // 获取表单相关数据数据
     async getdialogFormInfo(id) {
-      const { data } = await getInfo(id)
+      const { data } = await getInfo(id);
       for (let i in data) {
         this.dialogForm[i] = data[i];
       }
     },
     // 获取表单相关数据数据
     async getSelfFormInfo(id) {
-      let { data } = await getInfo(id)
+      let { data } = await getInfo(id);
       for (let i in data) {
         this.selfForm[i] = data[i];
       }
@@ -417,66 +493,67 @@ export default {
       this.showDialog = false;
       // 删除 新头像
       if (this.newImageUrl) {
-        this.delOssFile(this.newImageUrl)
+        this.delOssFile(this.newImageUrl);
         this.newImageUrl = undefined;
       }
-      this.$message.info('已取消上传。')
+      this.$message.info("已取消上传。");
       // this.resetRegister();
       this.resetDialogForm();
     },
     async dialogSubmit() {
       // 获取数据
-      await this.getdialogFormInfo(this.queryId)
-      this.$refs['dialogForm'].validate((valid) => {
+      await this.getdialogFormInfo(this.queryId);
+      this.$refs["dialogForm"].validate((valid) => {
         if (valid) {
           this.submitLoad = true;
           // 输入密码
           // console.log(this.$store);
           this.dialogForm.avatar = this.newImageUrl;
           // 更新头像数据
-          updateUserInfo(this.dialogForm).then((res) => {
-            console.log('update finish' + res);
-            this.submitLoad = false;
-            this.showDialog = false;
-            this.$message.success('上传成功');
-            // 删除 旧头像
-            if (this.lastImageUrl) {
-              delOssFile(this.lastImageUrl)
-              this.lastImageUrl = undefined;
-            }
-            this.resetDialogForm() // 重置表单
-            // 更新数据
-            this.getCurrentUserInfo(this.queryId).then((res) => {
-              // 更新Header数据
-              this.$bus.$emit('updateUserInfo', this.userInfo)
+          updateUserInfo(this.dialogForm)
+            .then((res) => {
+              console.log("update finish" + res);
+              this.submitLoad = false;
+              this.showDialog = false;
+              this.$message.success("上传成功");
+              // 删除 旧头像
+              if (this.lastImageUrl) {
+                delOssFile(this.lastImageUrl);
+                this.lastImageUrl = undefined;
+              }
+              this.resetDialogForm(); // 重置表单
+              // 更新数据
+              this.getCurrentUserInfo(this.queryId).then((res) => {
+                // 更新Header数据
+                this.$bus.$emit("updateUserInfo", this.userInfo);
+              });
             })
-
-          }).catch((error) => {
-            console.log('update error! Error message:' + error);
-            this.$message.error('上传失败，请重新上传');
-            this.resetDialogForm();
-            this.submitLoad = false;
-            this.showDialog = false;
-            // 删除 新头像
-            if (this.newImageUrl) {
-              delOssFile(this.newImageUrl)
-              this.newImageUrl = undefined;
-            }
-          })
+            .catch((error) => {
+              console.log("update error! Error message:" + error);
+              this.$message.error("上传失败，请重新上传");
+              this.resetDialogForm();
+              this.submitLoad = false;
+              this.showDialog = false;
+              // 删除 新头像
+              if (this.newImageUrl) {
+                delOssFile(this.newImageUrl);
+                this.newImageUrl = undefined;
+              }
+            });
         }
       });
     },
   },
   computed: {
     ...mapState({
-      userInfo: state => Object.assign({}, state.user.userInfo)
+      userInfo: (state) => Object.assign({}, state.user.userInfo),
     }),
     queryId: function () {
       console.log(this.$route.query.id);
       return this.$route.query.id;
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style lang="scss">
@@ -493,7 +570,7 @@ export default {
   border-radius: 10px;
   padding-top: 62px;
   margin: 0 auto;
-  background-color: #E9ECEF;
+  background-color: #e9ecef;
   overflow: hidden;
 
   // 头部——头像 描述
@@ -514,7 +591,6 @@ export default {
       width: 250px;
 
       .avatar-uploader {
-
         .el-upload {
           border-radius: 50%;
           margin-top: 40px;
@@ -543,14 +619,11 @@ export default {
             opacity: 1;
           }
         }
-
       }
     }
 
     // 个人介绍
     .about-header-description {
-
-
       .about-name {
         margin: 85px 0 20px 20px;
       }
@@ -561,7 +634,6 @@ export default {
         .description-item {
           margin-left: 20px;
 
-
           .count {
             text-align: center;
             width: auto;
@@ -570,11 +642,10 @@ export default {
           }
 
           .description-tag {
-            color: #7F757D;
+            color: #7f757d;
           }
         }
       }
-
     }
 
     // 修改个人资料按钮
@@ -587,11 +658,9 @@ export default {
       // 方案二
       // min-height: 40px;
 
-
       right: 20px;
       bottom: 20px;
     }
-
   }
 
   // 主体——介绍
@@ -602,7 +671,6 @@ export default {
 
     .about-body-left {
       .el-tabs {
-
         .el-tabs__content {
           // 方案一
           height: 350px;
@@ -618,7 +686,6 @@ export default {
           margin: 0 auto;
 
           .comment-link {
-
             .comment-item {
               position: relative;
               padding-bottom: 10px;
@@ -628,21 +695,20 @@ export default {
               // text-align: start;
               // padding: 0px 0px 10px 50px;
 
-              // 评论详细 
+              // 评论详细
               .comment-detail {
-
                 // 用户描述
                 .avater-description {
                   margin-bottom: 5px;
 
-                  .comment-name {}
-
+                  .comment-name {
+                  }
                 }
 
                 // 帖子信息
                 .comment-info {
                   font-size: 10px;
-                  color: #7F757D;
+                  color: #7f757d;
                   padding-left: 10px;
                   padding-bottom: 5px;
                 }
@@ -650,25 +716,22 @@ export default {
                 // 回复
                 .comment-send-name {
                   font-size: 10px;
-                  color: #7F757D;
+                  color: #7f757d;
                   position: absolute;
                   right: 5px;
                   bottom: 10px;
                 }
-
               }
             }
 
             .comment-item:hover {
               background-color: #fafafa;
             }
-
           }
 
           // 奇数选择器 斑马纹
           .comment-link:nth-child(odd) {
             .comment-item {
-
               background-color: #fafafa;
             }
           }
@@ -677,10 +740,8 @@ export default {
           .comment-none {
             text-align: center;
             margin-top: 150px;
-            color: #7F757D;
+            color: #7f757d;
           }
-
-
         }
 
         // 收藏分页
@@ -689,10 +750,8 @@ export default {
           border-radius: 10px;
           background-color: #fff;
 
-
           .collect-title {
             padding: 10px 30px;
-
           }
 
           .collect-item {
@@ -712,19 +771,14 @@ export default {
               // padding-bottom: 10px;
 
               .collect-avater {
-
-
                 .avater {
                   width: 40px;
-
                 }
               }
-
             }
 
             // 评论详细
             .collect-detail {
-
               .avater-description {
                 margin-left: 10px;
                 padding-right: 10px;
@@ -738,7 +792,7 @@ export default {
                   font-size: 14px;
                 }
 
-                // 高校      
+                // 高校
                 .collect-college {
                   padding-left: 5px;
                   font-size: 8px;
@@ -769,7 +823,7 @@ export default {
                   }
 
                   .download:hover {
-                    color: #029DFF;
+                    color: #029dff;
                   }
                 }
 
@@ -788,7 +842,7 @@ export default {
                 }
 
                 .add-collect-item:hover {
-                  color: #029DFF;
+                  color: #029dff;
                 }
               }
             }
@@ -801,11 +855,10 @@ export default {
               span {
                 font-size: 12px;
               }
-
             }
           }
 
-          // 奇数选择器 
+          // 奇数选择器
           .collect-item:nth-child(odd) {
             background-color: #fafafa;
           }
@@ -814,17 +867,15 @@ export default {
           .collect-none {
             text-align: center;
             margin-top: 150px;
-            color: #7F757D;
+            color: #7f757d;
           }
         }
-
 
         // 用户信息
         .el-form {
           .el-form-item {
             display: flex;
             justify-content: center;
-
 
             .el-form-item__content {
               display: flex;
@@ -838,7 +889,7 @@ export default {
             }
 
             .form-item-action {
-              color: #7F757D;
+              color: #7f757d;
               width: 80px;
               display: inline-block;
               text-align: center;
@@ -846,7 +897,7 @@ export default {
             }
 
             .form-item-action:hover {
-              color: #029DFF;
+              color: #029dff;
             }
           }
         }
@@ -864,10 +915,10 @@ export default {
           }
         }
       }
-
     }
 
-    .about-body-right {}
+    .about-body-right {
+    }
   }
 }
 </style>

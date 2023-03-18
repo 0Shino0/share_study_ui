@@ -12,6 +12,8 @@ import 'element-ui/lib/theme-chalk/index.css';
 import '@/assets/icon/iconfont.css' // 图标字体相关
 import { Message } from 'element-ui'
 
+import Loading from '@/components/Loading';
+
 import { resetForm,getTokenData } from "@/utils/index"
 
 // import Dialog from "@/components/Dialog.vue";
@@ -31,6 +33,7 @@ Vue.prototype.getTokenData = getTokenData;
 
 // 全局组件 Vue.component('DictTag', DictTag)
 // Vue.component('Dialog', Dialog)
+Vue.component('Loading', Loading)
 
 
 // Vue.use(Element, {

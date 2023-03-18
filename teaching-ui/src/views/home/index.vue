@@ -1,10 +1,23 @@
-<template >
-  <div class="main" style="overflow: auto;height:600px;margin-top: 10px;" v-infinite-scroll="load"
-    infinite-scroll-disabled="disabled" infinite-scroll-immediate="false" infinite-scroll-distance="1">
+<template>
+  <div
+    class="main"
+    style="overflow: auto; height: 600px; margin-top: 10px"
+    v-infinite-scroll="load"
+    infinite-scroll-disabled="disabled"
+    infinite-scroll-immediate="false"
+    infinite-scroll-distance="1"
+  >
     <!-- 无限滚动数据 -->
-    <div v-if="userInfo && userInfo.isLogin" class="post-container infinite-list">
-      <router-link class="infinite-list-item" v-for="item in postList" :key="item.resourceId"
-        :to="'/postDetail/' + item.resourceId">
+    <div
+      v-if="userInfo && userInfo.isLogin && postLength !=0"
+      class="post-container infinite-list"
+    >
+      <router-link
+        class="infinite-list-item"
+        v-for="item in postList"
+        :key="item.resourceId"
+        :to="'/postDetail/' + item.resourceId"
+      >
         <div class="post-item">
           <el-card class="post-card" shadow="hover">
             <div class="post-avater-info">
@@ -42,23 +55,69 @@
       <p class="post-card-loading" v-if="loading">加载中...</p>
       <p class="post-card-loading" v-if="noMore">没有更多了</p>
     </div>
-
-    <!-- 待登录页面 -->
-    <div class="no-login" v-else>
-      <h1 @click="handleLogin">请登录</h1>
+    <div class="no-data" v-if="postLength === 0">
+      <div class="loader">
+        <div>
+          <ul>
+            <li>
+              <svg fill="currentColor" viewBox="0 0 90 120">
+                <path
+                  d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"
+                ></path>
+              </svg>
+            </li>
+            <li>
+              <svg fill="currentColor" viewBox="0 0 90 120">
+                <path
+                  d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"
+                ></path>
+              </svg>
+            </li>
+            <li>
+              <svg fill="currentColor" viewBox="0 0 90 120">
+                <path
+                  d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"
+                ></path>
+              </svg>
+            </li>
+            <li>
+              <svg fill="currentColor" viewBox="0 0 90 120">
+                <path
+                  d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"
+                ></path>
+              </svg>
+            </li>
+            <li>
+              <svg fill="currentColor" viewBox="0 0 90 120">
+                <path
+                  d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"
+                ></path>
+              </svg>
+            </li>
+            <li>
+              <svg fill="currentColor" viewBox="0 0 90 120">
+                <path
+                  d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"
+                ></path>
+              </svg>
+            </li>
+          </ul>
+        </div>
+        <span>暂时还没有帖子~~~,快点击右上角发帖吧！</span></span>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import PostCard from "@/components/PostCard";
-import { mapState } from "vuex";
-import { getPostPage } from '@/api/post';
+import Loading from "@/components/Loading/index.vue";
+// import { mapState } from "vuex";
+import { getPostPage } from "@/api/post";
 
 export default {
   name: "home",
   components: {
-    PostCard,
+    Loading,
   },
   data() {
     return {
@@ -68,12 +127,12 @@ export default {
       // 帖子相关
       pageSize: 8,
       postLength: undefined, // 总帖子数
-      postAveList: [], // 
+      postAveList: [], //
       postList: [],
       filterPostList: [],
       componentKey: undefined,
       userInfo: {},
-      searchInfo: null // 搜索信息
+      searchInfo: null, // 搜索信息
     };
   },
   created() {
@@ -83,7 +142,7 @@ export default {
     this.getPostPageInfo(1, 100);
 
     // 登录时获取信息
-    this.$bus.$on('getPostPageInfo', (val) => {
+    this.$bus.$on("getPostPageInfo", (val) => {
       this.userInfo = this.getTokenData();
       this.getPostPageInfo(1, 100);
       // this.load()
@@ -96,10 +155,9 @@ export default {
       // console.log(this.componentKey);
 
       // v-if
-
     });
     // 退出登录时重置信息
-    this.$bus.$on('resetUserInfo', (val) => {
+    this.$bus.$on("resetUserInfo", (val) => {
       // this.userInfo = this.getTokenData();
       this.userInfo = undefined;
       this.postLength = undefined;
@@ -108,14 +166,16 @@ export default {
     });
     // console.log(this.isLogin);
     // 传递searchInfo
-    this.$bus.$on('tranSearchInfo', (val) => {
+    this.$bus.$on("tranSearchInfo", (val) => {
       this.searchInfo = val;
       // var reg = new RegExp("^[0-9]+"+param+"[a-z]+$","g");
 
-      let reg = new RegExp(val)
+      let reg = new RegExp(val);
       // console.log(reg);
-      this.filterPostList = this.postList.filter((c) => reg.test(c.resourceInfo))
-    })
+      this.filterPostList = this.postList.filter((c) =>
+        reg.test(c.resourceInfo)
+      );
+    });
   },
   methods: {
     // 获取帖子数
@@ -123,7 +183,8 @@ export default {
       const { data } = await getPostPage(current, pageSize);
       // 原数组
       this.postLength = data.total;
-      this.postAveList = this.aveArr(data.records.reverse(), this.pageSize);
+      // this.postAveList = this.aveArr(data.records.reverse(), this.pageSize);
+      this.postAveList = this.aveArr(data.records, this.pageSize);
       this.postList = this.postAveList[0];
       this.userInfo = this.getTokenData();
       console.log(this.postAveList[this.count]);
@@ -134,7 +195,7 @@ export default {
       for (let i = 0, len = data.length; i < len; i += num) {
         result.push(data.slice(i, i + num));
       }
-      console.log('result=>', result);
+      console.log("result=>", result);
       return result;
     },
     // 无限滚动加载方法
@@ -146,7 +207,7 @@ export default {
           let length = 0;
           length = this.postAveList[this.count].length;
           for (let i = 0; i < length; i++) {
-            this.postList.push(this.postAveList[this.count][i])
+            this.postList.push(this.postAveList[this.count][i]);
           }
           this.count++;
           this.loading = false;
@@ -156,8 +217,8 @@ export default {
       }, 2000);
     },
     handleLogin() {
-      this.$bus.$emit('handleLogin', true)
-    }
+      this.$bus.$emit("handleLogin", true);
+    },
   },
   computed: {
     // ...mapState({
@@ -166,11 +227,11 @@ export default {
     noMore() {
       // console.log(this.postLength);
       // console.log(this.postList.length);
-      return this.postList.length >= (this.postLength);
+      return this.postList.length >= this.postLength;
     },
     disabled() {
       return this.loading || this.noMore;
-    }
+    },
   },
 };
 </script>
@@ -178,7 +239,6 @@ export default {
 <style lang="scss">
 .main {
   min-height: 730px;
-
 
   .post-container {
     max-width: 680px;
@@ -201,7 +261,6 @@ export default {
 
     // post 帖子
     .post-item {
-
       .post-card {
         position: relative;
         height: 127px;
@@ -210,7 +269,8 @@ export default {
           padding-top: 30px;
           // padding-bottom: 20px;
 
-          .item {}
+          .item {
+          }
 
           .post-avater-info {
             // display: flex;
@@ -294,19 +354,16 @@ export default {
       }
 
       .post-card:hover {
-        background-color: #FAFAFA;
+        background-color: #fafafa;
       }
     }
-
-
   }
 
   // 动画效果
   .post-container {
-    -webkit-animation: fade-in-fwd 0.6s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
-    animation: fade-in-fwd 0.6s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+    -webkit-animation: fade-in-fwd 0.6s cubic-bezier(0.39, 0.575, 0.565, 1) both;
+    animation: fade-in-fwd 0.6s cubic-bezier(0.39, 0.575, 0.565, 1) both;
   }
-
 
   @-webkit-keyframes fade-in-fwd {
     0% {
@@ -336,21 +393,203 @@ export default {
     }
   }
 
-
-
-  .no-login {
-    max-width: 680px;
-    min-width: 460px;
+  // loading
+  .no-data{
     display: flex;
-    flex-direction: column;
     justify-content: center;
-    // flex-wrap: no-wrap;
-    padding-top: 160px;
-    margin: 0 auto;
+    align-items: center;
+    margin-top: 90px;
 
-    h1 {
-      text-align: center;
+    .loader {
+      --background: linear-gradient(135deg, #23C4F8, #275EFE);
+      --shadow: rgba(39, 94, 254, 0.28);
+      --text: #6C7486;
+      --page: rgba(255, 255, 255, 0.36);
+      --page-fold: rgba(255, 255, 255, 0.52);
+      --duration: 3s;
+      width: 200px;
+      height: 140px;
+      position: relative;
     }
+
+    .loader:before, .loader:after {
+      --r: -6deg;
+      content: "";
+      position: absolute;
+      bottom: 8px;
+      width: 120px;
+      top: 80%;
+      box-shadow: 0 16px 12px var(--shadow);
+      transform: rotate(var(--r));
+    }
+
+    .loader:before {
+      left: 4px;
+    }
+
+    .loader:after {
+      --r: 6deg;
+      right: 4px;
+    }
+
+    .loader div {
+      width: 100%;
+      height: 100%;
+      border-radius: 13px;
+      position: relative;
+      z-index: 1;
+      perspective: 600px;
+      box-shadow: 0 4px 6px var(--shadow);
+      background-image: var(--background);
+    }
+
+    .loader div ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      position: relative;
+    }
+
+    .loader div ul li {
+      --r: 180deg;
+      --o: 0;
+      --c: var(--page);
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      transform-origin: 100% 50%;
+      color: var(--c);
+      opacity: var(--o);
+      transform: rotateY(var(--r));
+      -webkit-animation: var(--duration) ease infinite;
+      animation: var(--duration) ease infinite;
+    }
+
+    .loader div ul li:nth-child(2) {
+      --c: var(--page-fold);
+      -webkit-animation-name: page-2;
+      animation-name: page-2;
+    }
+
+    .loader div ul li:nth-child(3) {
+      --c: var(--page-fold);
+      -webkit-animation-name: page-3;
+      animation-name: page-3;
+    }
+
+    .loader div ul li:nth-child(4) {
+      --c: var(--page-fold);
+      -webkit-animation-name: page-4;
+      animation-name: page-4;
+    }
+
+    .loader div ul li:nth-child(5) {
+      --c: var(--page-fold);
+      -webkit-animation-name: page-5;
+      animation-name: page-5;
+    }
+
+    .loader div ul li svg {
+      width: 90px;
+      height: 120px;
+      display: block;
+    }
+
+    .loader div ul li:first-child {
+      --r: 0deg;
+      --o: 1;
+    }
+
+    .loader div ul li:last-child {
+      --o: 1;
+    }
+
+    .loader span {
+      display: block;
+      left: 0;
+      right: 0;
+      top: 100%;
+      margin-top: 20px;
+      text-align: center;
+      color: var(--text);
+    }
+
+    @keyframes page-2 {
+      0% {
+        transform: rotateY(180deg);
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 1;
+      }
+
+      35%, 100% {
+        opacity: 0;
+      }
+
+      50%, 100% {
+        transform: rotateY(0deg);
+      }
+    }
+
+    @keyframes page-3 {
+      15% {
+        transform: rotateY(180deg);
+        opacity: 0;
+      }
+
+      35% {
+        opacity: 1;
+      }
+
+      50%, 100% {
+        opacity: 0;
+      }
+
+      65%, 100% {
+        transform: rotateY(0deg);
+      }
+    }
+
+    @keyframes page-4 {
+      30% {
+        transform: rotateY(180deg);
+        opacity: 0;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      65%, 100% {
+        opacity: 0;
+      }
+
+      80%, 100% {
+        transform: rotateY(0deg);
+      }
+    }
+
+    @keyframes page-5 {
+      45% {
+        transform: rotateY(180deg);
+        opacity: 0;
+      }
+
+      65% {
+        opacity: 1;
+      }
+
+      80%, 100% {
+        opacity: 0;
+      }
+
+      95%, 100% {
+        transform: rotateY(0deg);
+      }
+    }
+
   }
 }
 </style>
