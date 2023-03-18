@@ -2,73 +2,33 @@
   <div class="admin-container">
     <!-- <div class="admin-text">管理员管理</div> -->
     <div class="op-btn">
-      <el-button
-        v-if="0"
-        class="add-btn"
-        type="success"
-        size="mini"
-        @click="handleAdd()"
-        >新增</el-button
-      >
-      <el-button
-        class="export-btn"
-        type="success"
-        size="mini"
-        @click="handleExportExcel()"
-        >导出Excel</el-button
-      >
+      <el-button v-if="0" class="add-btn" type="success" size="mini" @click="handleAdd()">新增</el-button>
+      <el-button class="export-btn" type="success" size="mini" @click="handleExportExcel()">导出Excel</el-button>
     </div>
     <div class="table-container">
-      <el-table
-        :data="
-          tableAdminData.filter(
-            (data) =>
-              !search || data.name.toLowerCase().includes(search.toLowerCase())
-          )
-        "
-        stripe
-        style="width: 100%"
-        v-loading="loading"
-      >
-        <el-table-column
-          v-for="item in tableAdminCol"
-          :key="item.prop"
-          :prop="item.prop"
-          :label="item.label"
-          :width="tableColumnWidth"
-        >
+      <el-table :data="
+                  tableAdminData.filter(
+                    (data) =>
+                      !search || data.name.toLowerCase().includes(search.toLowerCase())
+                  )
+                " stripe style="width: 100%" v-loading="loading">
+        <el-table-column v-for="item in tableAdminCol" :key="item.prop" :prop="item.prop" :label="item.label"
+          :width="tableColumnWidth">
         </el-table-column>
         <el-table-column align="right">
           <template slot="header" slot-scope="scope">
-            <el-input
-              v-model="search"
-              size="mini"
-              placeholder="输入管理员名称搜索"
-            />
+            <el-input v-model="search" size="mini" placeholder="输入管理员名称搜索" />
           </template>
           <template slot-scope="scope" v-if="scope.row.role === '管理员'">
-            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
-              >编辑</el-button
-            >
-            <el-button
-              size="mini"
-              type="danger"
-              @click="handleDelete(scope.$index, scope.row)"
-              >删除</el-button
-            >
+            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <!-- 分页 -->
       <Pagination :total="total" :emitName="$options.name"></Pagination>
 
-      <el-dialog
-        title="标题"
-        :visible.sync="dialogShow"
-        :width="dialogWidth"
-        :top="dialogTop"
-        :before-close="dialogCancel"
-      >
+      <el-dialog title="标题" :visible.sync="dialogShow" :width="dialogWidth" :top="dialogTop" :before-close="dialogCancel">
         <el-form ref="queryForm" :model="dialogForm" :rules="dialogFormRules">
           <!-- <el-form-item label="用户ID" :label-width="formLabelWidth">
             <el-input
@@ -417,7 +377,7 @@ export default {
     handleExportExcel() {
       // 调用接口
       try {
-        /* 逃课写法 */
+        /* **写法 */
         let link = document.createElement("a");
         link.href = "http://116.63.165.100:8080/api/admin/download";
         console.log(link);
@@ -448,6 +408,7 @@ export default {
       margin: 10px 0 30px 5px;
     }
   }
+
   &-text {
     font-size: 30px;
     line-height: 46px;
