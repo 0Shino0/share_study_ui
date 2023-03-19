@@ -322,13 +322,23 @@ export default {
     },
     // 登录
     login() {
-      this.loginOrRegister = true;
-      this.showDialog = true;
+      if (window.location.href.split('#')[1] !== '/login') {
+            this.$router.push({ path: "/login" });
+          }else {
+            this.$message.info('你已经处在登录页了~')
+          }
+      // this.loginOrRegister = true;
+      // this.showDialog = true;
     },
     // 注册
     register() {
-      this.loginOrRegister = false;
-      this.showDialog = true;
+      if (window.location.href.split('#')[1] !== '/register') {
+            this.$router.push({ path: "/register" });
+      } else {
+            this.$message.info('你已经处在注册页了~')
+          }
+      // this.loginOrRegister = false;
+      // this.showDialog = true;
     },
     // 退出
     logout() {

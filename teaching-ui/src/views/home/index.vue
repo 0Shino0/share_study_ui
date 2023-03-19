@@ -16,7 +16,7 @@
         class="infinite-list-item"
         v-for="item in postList"
         :key="item.resourceId"
-        :to="'/postDetail/' + item.resourceId"
+        :to="'/postDetail/' + item.resourceId+'?collectStatus='+item.collectStatus"
       >
         <div class="post-item">
           <el-card class="post-card" shadow="hover">

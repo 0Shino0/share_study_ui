@@ -13,6 +13,18 @@ export function login(data) {
   })
 }
 
+/** 获取高校name / code
+ * @param {string} id
+ * @method put
+ * @returns {object}
+  */
+export function getCollegeList() {
+  return request({
+    url: `/college/list`,
+    method: 'get',
+  })
+}
+
 /** 用户注册
  * @param {object} data
  * @method post
@@ -87,4 +99,6 @@ export function readCommentAll(id) {
     data
   })
 }
+
+
 

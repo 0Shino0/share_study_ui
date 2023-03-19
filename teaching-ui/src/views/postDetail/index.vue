@@ -37,7 +37,25 @@
       </div>
       <!-- 帖子信息 -->
       <div class="post-info">
-        {{ postDetail.resourceInfo }}
+        <span>{{ postDetail.resourceInfo }}</span>
+
+        <!-- 如果附件是以 图片 / 视频的形式 则显示在帖子中 -->
+        <div class="img-container" v-if="fileIsImg">
+          <img
+            :src="postDetail.resourceUrl"
+            alt="图片"
+            style=" width=600px;
+          height=400px"
+          />
+        </div>
+
+        <div class="movies-container" v-else-if="fileIsVideo">
+          <video-player
+            :src="postDetail.resourceUrl"
+            :volume="volume"
+          ></video-player>
+          <!-- <audio :src="" alt="视频"></audio> -->
+        </div>
       </div>
 
       <!-- 附件信息 -->
@@ -60,9 +78,16 @@
           @click="handleCollect"
           ><span
             class="iconfont icon-star"
-            :class="isCollect ? 'icon-star-fill' : 'icon-star'"
+            :class="collectStatus === '1' ? 'icon-star-fill' : 'icon-star'"
           ></span
-          >{{ isCollect ? "已收藏" : "收藏" }}</el-button
+          >{{ collectStatus === 1 ? "已收藏" : "收藏" }}</el-button
+        >
+        <el-button
+          class="btn-collect"
+          type="primary"
+          size="mini"
+          @click="commentOther(postDetail.userId, postDetail.userName)"
+          ><span class="iconfont icon-message"></span>回复</el-button
         >
       </div>
     </div>
@@ -84,7 +109,7 @@
             <el-input
               type="textarea"
               v-model="form.content"
-              @focus="isFocus = true"
+              @focus="inputFocus"
             ></el-input>
           </el-form-item>
         </el-form>
@@ -94,28 +119,36 @@
         class="add-comment-footer"
         :class="isFocus ? 'comment-footer-flex' : 'comment-footer-none'"
       >
-        <el-upload
-          class="add-comment-upload"
-          action="action"
-          :on-preview="handlePreview"
-          :on-remove="handleRemove"
-          :before-remove="beforeRemove"
-          multiple
-          :limit="limit"
-          :on-exceed="handleExceed"
-          :file-list="fileList"
-          :http-request="uploadFile"
-        >
-          <el-link :underline="false"
-            ><span class="iconfont icon-fujian"></span> 附件上传</el-link
+        <div class="add-left">
+          <div class="add-smile" @click="isEmojis = !isEmojis">
+            <span class="iconfont icon-smile"></span>
+            <vue-emojis class="vue-emojis" v-show="isEmojis"></vue-emojis>
+          </div>
+          <el-upload
+            class="add-comment-upload"
+            action="action"
+            :on-preview="handlePreview"
+            :on-remove="handleRemove"
+            :before-remove="beforeRemove"
+            multiple
+            :limit="limit"
+            :on-exceed="handleExceed"
+            :file-list="fileList"
+            :http-request="uploadFile"
           >
-        </el-upload>
+            <el-link :underline="false"
+              ><span class="iconfont icon-fujian"></span> 附件上传</el-link
+            >
+          </el-upload>
+        </div>
         <el-button
           class="btn-comment"
           type="primary"
           size="mini"
           @click="commentSubmit"
-          ><span class="iconfont icon-message"></span> 评论</el-button
+          ><span class="iconfont icon-message"></span>回复{{
+            sendName
+          }}</el-button
         >
       </div>
     </div>
@@ -176,7 +209,10 @@
               >
             </div>
             <!-- 评论 -->
-            <div class="add-comment-item">
+            <div
+              class="add-comment-item"
+              @click="commentOther(commentItem.belong, commentItem.belongName)"
+            >
               <span class="iconfont icon-message"></span>
               <span class="add-action">回复</span>
             </div>
@@ -202,24 +238,38 @@ import {
 } from "@/api/post";
 import { ossFileUpload, delOssFile } from "@/api/oss";
 import DefaultAvater from "@/components/DefaultAvater";
+import VideoPlayer from "@/components/VideoPlayer";
+import VueEmojis from "@/components/VueEmojis";
 
 export default {
   name: "postDetail",
   components: {
     DefaultAvater,
+    VideoPlayer,
+    VueEmojis,
   },
   data() {
     return {
+      // 帖子信息相关
       postDetail: {}, // 帖子详细消息
-      postId: undefined,
-      isCollect: false, // 是否收藏
-      isComment: false,
-      isFocus: false, //是否聚集
+      postId: undefined, // 帖子ID
+      collectStatus: undefined, // 收藏状态
+      // 帖子 显示图片/视频
+      fileSuffix: undefined,
+      imgType: "png jpg jpeg", // 图片类型
+      VidioType: "mp4 mpeg", // 视频类型
+      volume: 0.5, // 视频声音
+      fileIsImg: undefined, // 是否 图片
+      fileIsVideo: undefined, // 是否是视频
+      isFocus: false, // 是否聚集
       // 评论
       commentsList: [], // 帖子评论
+      sendId: undefined, // 默认 帖子作者
+      isEmojis: false, // emoji-container 是否打开
+      sendName: undefined, // 要回复给谁 的姓名 | 默认 帖子作者
       form: {
         send: undefined, // 接收评论的id
-        content: undefined, // 内容
+        content: "", // 内容
         url: "", // 附件url
         resource: undefined, // 评论所属资料ID
       },
@@ -242,10 +292,15 @@ export default {
     this.$bus.$on("cancelFocus", (val) => {
       this.isFocus = false;
     });
-    this.getParamsId();
+    this.getParams(); // 获取路由中的参数
     this.getPostDetailInfo();
     this.getPostCommentPageInfo(this.postId, 1, 100);
     this.userInfo = this.getTokenData();
+    // 点击 emoji 时添加到输入框
+    this.$bus.$on("addEmoji", (item) => {
+      console.log(item.text);
+      this.form.content += item.text;
+    });
   },
   methods: {
     // 获取帖子详细消息
@@ -253,24 +308,49 @@ export default {
       const { data } = await getPostDetail(this.postId);
       this.postDetail = data;
       console.log(this.postDetail);
+      // 获取 要回复的人
+      this.sendId = data.userId;
+      this.sendName = data.userName;
+
+      // 设置后缀信息
+      if (data.resourceUrl != "") {
+        // 没有上传资源
+        this.fileSuffix = data.resourceUrl.split(".").reverse()[0];
+        console.log(this.fileSuffix);
+        this.isFileType(this.fileSuffix);
+      }
     },
-    // 获取路由中的id
-    getParamsId() {
+    isFileType(suffix) {
+      // 判断文件是什么类型
+      console.log("fileIsImg=>", this.imgType.includes(this.fileSuffix));
+      this.fileIsImg = this.imgType.includes(this.fileSuffix);
+      // return str.includes(this.fileSuffix);
+      if (!this.fileIsImg) {
+        console.log("fileIsVideo=>", this.VidioType.includes(this.fileSuffix));
+        this.fileIsVideo = this.VidioType.includes(this.fileSuffix);
+        // return str.includes(this.fileSuffix);
+      }
+    },
+    // 获取路由中的参数
+    getParams() {
       this.postId = this.$route.params.id;
-      console.log(this.postId);
+      this.collectStatus = this.$route.query.collectStatus;
+      console.log(this.collectStatus);
+      // console.log(this.postId);
+    },
+    // 聚焦输入框
+    inputFocus() {
+      this.isFocus = true;
+      this.isEmojis = false; //
     },
     // 点击收藏
     handleCollect() {
       this.collectForm.resource = this.postId;
       this.collectForm.belong = this.userInfo.id;
       addCollect(this.collectForm).then((res) => {
-        this.isCollect = !this.isCollect;
+        this.collectStatus = this.collectStatus === "1" ? "0" : "1";
         this.$message.success(res.message);
       });
-    },
-    // 获取收藏状态
-    getCollectStatus() {
-      return 0;
     },
     /* 评论相关方法 */
     // 获取评论分页
@@ -278,9 +358,14 @@ export default {
       const { data } = await getPostCommentPage(id, current, pageSize);
       this.commentsList = data.records;
     },
+    // 回复 非 帖子作者
+    commentOther(id, name) {
+      this.sendId = id;
+      this.sendName = name;
+      this.isFocus = true;
+    },
     // 点击评论
     commentSubmit() {
-      this.isComment = !this.isComment;
       this.$refs["form"].validate(async (valid) => {
         if (valid) {
           // this.submitLoading = true;
@@ -295,8 +380,8 @@ export default {
             this.form.url = data; // form的url
           }
           // 调用发布接口
-          this.form.resource = this.postDetail.resourceId; // 接收评论的用户id
-          this.form.send = this.postDetail.userId; // 接收评论的资料id
+          this.form.resource = this.postDetail.resourceId; // 接收评论的资料id
+          this.form.send = this.sendId; // 接收评论的用户id
 
           addPostComment(this.form)
             .then((res) => {
@@ -309,6 +394,7 @@ export default {
             })
             .catch((error) => {
               console.log(error);
+              this.$message.info("你不能回复自己！！！");
               // 上传成功，但发布失败情况
               if (this.fileUrl) {
                 // 删除oss文件
@@ -418,6 +504,18 @@ export default {
     // 帖子信息
     .post-info {
       margin-top: 30px;
+
+      // 图片附件
+      .img-container {
+        display: flex;
+        justify-content: center;
+      }
+
+      // 视频附件
+      .movies-container {
+        display: flex;
+        justify-content: center;
+      }
     }
 
     // 附件下载
@@ -499,15 +597,36 @@ export default {
       justify-content: space-between;
       position: relative;
 
-      // 上传
-      .add-comment-upload {
-        .el-upload-list {
-          position: absolute;
+      .add-left {
+        display: flex;
+        align-items: center;
+
+        .add-smile {
+          position: relative;
+          cursor: pointer;
+          font-size: 14px;
+          margin-right: 10px;
+          .icon-smile {
+          }
         }
 
-        .el-link {
-          .span {
-            // margin-right: 7px;
+        // emojis 容器
+        .vue-emojis {
+          top: 30px;
+          left: 0;
+          z-index: 1;
+        }
+
+        // 上传
+        .add-comment-upload {
+          .el-upload-list {
+            position: absolute;
+          }
+
+          .el-link {
+            .span {
+              // margin-right: 7px;
+            }
           }
         }
       }
