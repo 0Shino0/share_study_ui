@@ -53,14 +53,14 @@ export default {
         },
         dataset: [
           {
-            dimensions: ["name", "age", "score", "date"],
+            dimensions: ["name", "score", "resourceName"],
             source: [
-              ["super", 41, 390, "2023-02-12"],
-              ["admin", 20, 251, "2023-03-01"],
-              ["user1", 52, 300, "2023-02-14"],
-              ["user2", 37, 59, "2023-02-18"],
-              ["user3", 25, 0, "2023-04-02"],
-              ["user4", 19, 150, "2023-01-16"],
+              ["super", 390, "资源名称1"],
+              ["admin", 251, "资源名称2"],
+              ["user1", 300, "资源名称3"],
+              ["user2", 59, "资源名称4"],
+              ["user3", 0, "资源名称5555555"],
+              ["user4", 150, "资源名称6"],
             ],
           },
           {
@@ -75,6 +75,26 @@ export default {
           axisPointer: {
             // 坐标轴指示器，坐标轴触发有效
             type: "shadow", // 默认为直线，可选为：'line' | 'shadow'
+          },
+
+          formatter: function (params) {
+            console.log(params);
+            var dotHtml =
+              '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:8px;height:8px;background-color:#F1E67F"></span>'; // 定义第一个数据前的圆点颜色
+            var dotHtml2 =
+              '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:8px;height:8px;background-color:#2BA8F1"></span>'; // 定义第二个数据前的圆点颜色
+
+            var result =
+              "作者:" +
+              params[0].value[0] +
+              "<br/>" +
+              dotHtml +
+              params[0].value[2] +
+              "<br/>" +
+              dotHtml2 +
+              "收藏数:" +
+              params[0].value[1];
+            return result;
           },
         },
         grid: {

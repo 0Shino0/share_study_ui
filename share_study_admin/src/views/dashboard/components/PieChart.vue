@@ -67,7 +67,7 @@ export default {
         },
         series: [
           {
-            name: "每周贡献",
+            name: "总贡献",
             type: "pie",
             roseType: "radius",
             radius: [15, 95],

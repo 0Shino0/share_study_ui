@@ -3,7 +3,10 @@
     <!-- <div class="dashboard-text">可视化管理</div> -->
 
     <!-- map展示 -->
-    <el-row class="map-charts" style="margin-bottom: 32px; border-radius: 10px; overflow: hidden">
+    <el-row
+      class="map-charts"
+      style="margin-bottom: 32px; border-radius: 10px; overflow: hidden"
+    >
       <map-chart></map-chart>
     </el-row>
 
@@ -27,13 +30,16 @@
     </el-row>
 
     <!-- line图 -->
-    <el-row class="line-charts" style="
-          background: #fff;
-          padding: 16px 16px 0;
-          margin-top: 32px;
-          border-radius: 10px;
-          overflow: hidden;
-        ">
+    <el-row
+      class="line-charts"
+      style="
+        background: #fff;
+        padding: 16px 16px 0;
+        margin-top: 32px;
+        border-radius: 10px;
+        overflow: hidden;
+      "
+    >
       <line-chart></line-chart>
     </el-row>
   </div>
@@ -67,14 +73,25 @@ export default {
   background-color: rgb(240, 242, 245);
   position: relative;
 
+  .map-charts {
+    border-radius: 16px;
+    background: #f0f2f5;
+    box-shadow: 7px 7px 0px #e6e8eb, -7px -7px 0px #fafcff;
+  }
+
   .chart-wrapper {
-    border-radius: 10px;
+    border-radius: 8px;
+    background: #f0f2f5;
+    box-shadow: 7px 7px 0px #e6e8eb, -7px -7px 0px #fafcff;
   }
 
   .chart-wrapper {
     background: #fff;
     padding: 16px 16px 0;
-    margin-bottom: 32px;
+    border-radius: 16px;
+    background: #f0f2f5;
+    box-shadow: 7px 7px 0px #e6e8eb, -7px -7px 0px #fafcff;
+    // margin-bottom: 32px;
   }
 }
 

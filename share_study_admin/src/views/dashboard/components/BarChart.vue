@@ -53,14 +53,14 @@ export default {
         },
         dataset: [
           {
-            dimensions: ["name", "score", "date"],
+            dimensions: ["name", "score"],
             source: [
-              ["super", 390, "2023-02-12"],
-              ["admin", 251, "2023-03-01"],
-              ["user1", 300, "2023-02-14"],
-              ["user2", 59, "2023-02-18"],
-              ["user3", 0, "2023-04-02"],
-              ["user4", 150, "2023-01-16"],
+              ["super", 390],
+              ["admin", 251],
+              ["user1", 300],
+              ["user2", 59],
+              ["user3", 0],
+              ["user4", 150],
             ],
           },
           {
