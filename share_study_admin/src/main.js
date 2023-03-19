@@ -51,6 +51,7 @@ Vue.use(ElementUI)
 Vue.prototype.tableColumnWidth = "150px"
 Vue.prototype.$message = Message; // 全局element
 Vue.prototype.$echarts = echarts; // 
+Vue.prototype.$http = 'http://120.46.214.246:8080/api'; // 
 // map数据相关
 
 /* 全局方法 */

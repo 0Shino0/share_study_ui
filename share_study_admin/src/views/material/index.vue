@@ -2,33 +2,73 @@
   <div class="material-container">
     <!-- <div class="material-text">资料管理</div> -->
     <div class="op-btn">
-      <el-button v-if="0" class="add-btn" type="success" size="mini" @click="handleAdd()">新增</el-button>
-      <el-button class="export-btn" type="success" size="mini" @click="handleExportExcel()">导出Excel</el-button>
+      <el-button
+        v-if="0"
+        class="add-btn"
+        type="success"
+        size="mini"
+        @click="handleAdd()"
+        >新增</el-button
+      >
+      <el-button
+        class="export-btn"
+        type="success"
+        size="mini"
+        @click="handleExportExcel()"
+        >导出Excel</el-button
+      >
     </div>
     <div class="table-container">
-      <el-table :data="
-                  tableMaterialData.filter(
-                    (data) =>
-                      !search || data.name.toLowerCase().includes(search.toLowerCase())
-                  )
-                " stripe style="width: 100%" v-loading="loading">
-        <el-table-column v-for="item in tableMaterialCol" :key="item.prop" :prop="item.prop" :label="item.label"
-          :width="tableColumnWidth">
+      <el-table
+        :data="
+          tableMaterialData.filter(
+            (data) =>
+              !search || data.name.toLowerCase().includes(search.toLowerCase())
+          )
+        "
+        stripe
+        style="width: 100%"
+        v-loading="loading"
+      >
+        <el-table-column
+          v-for="item in tableMaterialCol"
+          :key="item.prop"
+          :prop="item.prop"
+          :label="item.label"
+          :width="tableColumnWidth"
+        >
         </el-table-column>
         <el-table-column align="right">
           <template slot="header" slot-scope="scope">
-            <el-input v-model="search" size="mini" placeholder="输入资料名搜索" />
+            <el-input
+              v-model="search"
+              size="mini"
+              placeholder="输入资料名搜索"
+            />
           </template>
           <template slot-scope="scope">
-            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
+              >编辑</el-button
+            >
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.$index, scope.row)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
       <!-- 分页 -->
       <Pagination :total="total" :emitName="$options.name"></Pagination>
 
-      <el-dialog title="标题" :visible.sync="dialogShow" :width="dialogWidth" :top="dialogTop" :before-close="dialogCancel">
+      <el-dialog
+        title="标题"
+        :visible.sync="dialogShow"
+        :width="dialogWidth"
+        :top="dialogTop"
+        :before-close="dialogCancel"
+      >
         <el-form :model="dialogForm" ref="queryForm" :rules="dialogFormRules">
           <!-- <el-form-item label="资料ID" :label-width="formLabelWidth">
             <el-input v-model="dialogForm.id" autocomplete="off"></el-input>
@@ -142,11 +182,13 @@ export default {
     };
   },
   mounted() {
-    if (this.tableMaterialData) {
-      this.getMaterialPage(1, 10);
-    }
+    // if (this.tableMaterialData) {
+    this.getMaterialPage(1, 10);
+    // }
     this.$bus.$on(`pagination${this.$options.name}`, ({ page, limit }) => {
       // console.log(page, limit);
+      this.currentPage = page;
+      this.pageSize = limit;
       this.getMaterialPage(page, limit);
     });
   },
@@ -203,13 +245,20 @@ export default {
       })
         .then(() => {
           // 调用删除接口
-          delMaterial(id);
-
-          this.$message({
-            type: "success",
-            message: "删除成功!",
-          });
-          this.getMaterialPage(1, 10);
+          delMaterial(id)
+            .then((response) => {
+              this.$message({
+                type: "success",
+                message: "删除成功!",
+              });
+              this.getMaterialPage(1, 10);
+            })
+            .catch((error) => {
+              this.$message({
+                type: "success",
+                message: "删除失败!" + error.message,
+              });
+            });
         })
         .catch(() => {
           this.$message({
@@ -230,12 +279,12 @@ export default {
 
             // 编辑操作
             updateMaterial(this.dialogForm).then((response) => {
+              this.dialogShow = false;
               this.$message({
                 type: "info",
                 message: "编辑成功",
               });
               // console.log(response);
-              this.dialogShow = false;
               this.getMaterialPage(1, 10);
               this.reset();
             });
@@ -243,11 +292,11 @@ export default {
             // 新增操作
             // addCollegeName(this.dialogForm).then((response) => {
             // });
+            this.dialogShow = false;
             this.$message({
               type: "info",
               message: "新增成功",
             });
-            this.dialogShow = false;
             this.getMaterialPage(1, 10);
             this.reset();
           }
@@ -281,7 +330,8 @@ export default {
         /* **写法 */
         let link = document.createElement("a");
         // 高校url
-        link.href = "http://116.63.165.100:8080/api/resource/download";
+        // link.href = "http://116.63.165.100:8080/api/resource/download";
+        link.href = `${this.$http}/resource/download`;
         console.log(link);
         link.click(); //模拟点击
         document.body.removeChild(link);

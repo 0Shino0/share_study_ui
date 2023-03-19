@@ -86,7 +86,7 @@ export default {
     },
     chartData: {
       type: Object,
-      required: true,
+      required: false, // 真实数据 true |  mock数据  false
     },
   },
   data() {

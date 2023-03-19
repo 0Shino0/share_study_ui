@@ -11,7 +11,13 @@
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="userInfo.avatar" class="user-avatar" />
+          <default-avater
+            width="40px"
+            height="40px"
+            :avaterName="userInfo.name.split('')[0]"
+            v-if="userInfo.avatar === ''"
+          ></default-avater>
+          <img :src="userInfo.avatar" class="user-avatar" v-else />
           <!-- <img
             :src="userInfo.avatar + '?imageView2/1/w/80/h/80'"
             class="user-avatar"
@@ -32,7 +38,7 @@
             <el-dropdown-item>Docs</el-dropdown-item>
           </a> -->
           <el-dropdown-item divided @click.native="logout">
-            <span style="display: block">Log Out</span>
+            <span style="display: block">退出登录</span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -45,11 +51,13 @@ import { mapGetters } from "vuex";
 import { getToken } from "@/utils/auth";
 import Breadcrumb from "@/components/Breadcrumb";
 import Hamburger from "@/components/Hamburger";
+import DefaultAvater from "@/layout/components/DefaultAvater";
 
 export default {
   components: {
     Breadcrumb,
     Hamburger,
+    DefaultAvater,
   },
   computed: {
     // ...mapGetters(["sidebar", "userInfo"]),
