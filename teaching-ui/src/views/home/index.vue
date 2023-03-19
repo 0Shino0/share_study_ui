@@ -7,6 +7,48 @@
     infinite-scroll-immediate="false"
     infinite-scroll-distance="1"
   >
+    <!-- 骨架屏 -->
+      <el-skeleton animated :loading="skeletonLoading">
+      <template #template>
+        <el-row class="post-container">
+          <el-card class="post-card" shadow="hover" v-for="i in skeletonCount" :key="i">
+            <el-row :gutter="20" class="post-avater-info">
+              <el-col :span="2">
+                  <el-skeleton-item></el-skeleton-item>
+                </el-col>
+              <el-col :span="4">
+                  <el-skeleton-item></el-skeleton-item>
+                </el-col>
+              <el-col :span="7">
+                  <el-skeleton-item></el-skeleton-item>
+                </el-col>
+            </el-row>
+            <el-row  class="title item" style="margin:8px 0;">
+              <el-col :span="10">
+              <el-skeleton-item ></el-skeleton-item>
+              </el-col>
+            </el-row>
+            <!-- 简介 -->
+            <el-row class="post-description text item">
+              <el-skeleton-item></el-skeleton-item>
+            </el-row>
+            <!-- 收藏 -->
+            <el-row :gutter="10" class="icon-container">
+              <el-col :span="2" class="icon-item">
+                <el-skeleton-item></el-skeleton-item>
+              </el-col>
+              <el-col :span="2" class="icon-item">
+                <el-skeleton-item></el-skeleton-item>
+              </el-col>
+              <el-col :span="2" class="icon-item">
+                <el-skeleton-item></el-skeleton-item>
+              </el-col>
+            </el-row>
+          </el-card>
+        </el-row>
+      </template>
+      </el-skeleton>
+
     <!-- 无限滚动数据 -->
     <div
       v-if="userInfo && userInfo.isLogin && postLength !=0"
@@ -53,9 +95,11 @@
         </div>
       </router-link>
       <p class="post-card-loading" v-if="loading">加载中...</p>
-      <p class="post-card-loading" v-if="noMore">没有更多了</p>
+      <!-- <p class="post-card-loading" v-if="noMore">没有更多了</p> -->
     </div>
-    <div class="no-data" v-if="postLength === 0">
+
+    <!-- 无数据时使用 -->
+    <div class="no-data" v-if="postLength === 0 || noMore">
       <div class="loader">
         <div>
           <ul>
@@ -103,7 +147,7 @@
             </li>
           </ul>
         </div>
-        <span>暂时还没有帖子~~~,快点击右上角发帖吧！</span></span>
+        <span>没有帖子了呢~~~,快点击右上角发帖吧！</span></span>
       </div>
     </div>
   </div>
@@ -121,7 +165,9 @@ export default {
   },
   data() {
     return {
-      loading: false,
+      loading: false, // 无限滚动 触底 loading
+      skeletonLoading: true, // 骨架屏loading
+      skeletonCount: 6, 
       pageFinish: false,
       count: 1, // 标记 默认第二页
       // 帖子相关
@@ -142,7 +188,7 @@ export default {
     this.getPostPageInfo(1, 100);
 
     // 登录时获取信息
-    this.$bus.$on("getPostPageInfo", (val) => {
+    this.$bus.$on("getPostPageInfoFromHeader", (val) => {
       this.userInfo = this.getTokenData();
       this.getPostPageInfo(1, 100);
       // this.load()
@@ -188,6 +234,8 @@ export default {
       this.postList = this.postAveList[0];
       this.userInfo = this.getTokenData();
       console.log(this.postAveList[this.count]);
+
+      this.skeletonLoading = false;
     },
     // 均分数组
     aveArr(data, num) {
@@ -399,6 +447,7 @@ export default {
     justify-content: center;
     align-items: center;
     margin-top: 90px;
+    margin-bottom: 130px;
 
     .loader {
       --background: linear-gradient(135deg, #23C4F8, #275EFE);

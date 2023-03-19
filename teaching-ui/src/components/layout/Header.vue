@@ -390,7 +390,7 @@ export default {
 
                 this.loginload = false;
                 // 获取信息
-                this.$bus.$emit("getPostPageInfo", "1");
+                this.$bus.$emit("getPostPageInfoFromHeader", "1");
               })
               .catch((error) => {
                 console.log(error);

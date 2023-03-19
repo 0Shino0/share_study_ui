@@ -1,6 +1,208 @@
 <template>
   <!-- 帖子+评论 -->
   <div class="post-container">
+    <!-- 骨架屏 -->
+    <el-skeleton animated :loading="skeletonLoading">
+      <template #template>
+        <el-row>
+          <!-- 帖子详细 -->
+          <div class="post-detail">
+            <el-row>
+              <el-col :span="8">
+                <el-skeleton-item></el-skeleton-item>
+              </el-col>
+            </el-row>
+            <!-- 帖子标题 -->
+            <el-row>
+              <div class="post-title">
+                <el-col :span="24">
+                  <!-- <el-skeleton-item></el-skeleton-item> -->
+                </el-col>
+              </div>
+            </el-row>
+            <!-- 作者信息 -->
+            <div class="post-author">
+              <!-- 头像 -->
+              <div class="post-avater">
+                <el-row>
+                  <div class="avater">
+                    <el-col>
+                      <el-skeleton-item
+                        variant="image"
+                        style="height: 40px; border-radius: 50%"
+                      ></el-skeleton-item>
+                    </el-col>
+                  </div>
+                </el-row>
+              </div>
+
+              <div class="avater-description" style="width: 9%">
+                <el-row>
+                  <!-- 姓名 -->
+                  <el-col :span="12">
+                    <el-skeleton-item></el-skeleton-item>
+                  </el-col>
+                </el-row>
+                <el-row>
+                  <!-- 所属高校 -->
+                  <el-col :span="24">
+                    <el-skeleton-item></el-skeleton-item>
+                  </el-col>
+                </el-row>
+              </div>
+            </div>
+            <!-- 帖子信息 -->
+            <el-row>
+              <div class="post-info">
+                <el-col :span="15">
+                  <el-skeleton-item></el-skeleton-item>
+                </el-col>
+              </div>
+            </el-row>
+
+            <!-- 附件信息 -->
+            <div class="post-download">
+              <el-row>
+                <el-col :span="3">
+                  <el-skeleton-item></el-skeleton-item>
+                </el-col>
+              </el-row>
+            </div>
+
+            <!-- 收藏按钮 -->
+            <div class="button-container">
+              <el-row :gutter="10">
+                <div class="post-info">
+                  <el-col :span="2">
+                    <el-skeleton-item></el-skeleton-item>
+                  </el-col>
+                  <el-col :span="2">
+                    <el-skeleton-item></el-skeleton-item>
+                  </el-col>
+                </div>
+              </el-row>
+            </div>
+          </div>
+
+          <!-- 发布评论 -->
+          <div class="add-comment">
+            <div class="add-comment-header">
+              <el-row>
+                <div class="current-avater">
+                  <el-col>
+                    <el-skeleton-item
+                      variant="image"
+                      style="height: 40px; width: 40px; border-radius: 50%"
+                    ></el-skeleton-item>
+                  </el-col>
+                </div>
+              </el-row>
+              <div class="form" style="width: 100%">
+                <el-row style="width: 100%">
+                  <!-- 姓名 -->
+                  <el-col :span="24">
+                    <el-skeleton-item
+                      variant="image"
+                      style="height: 66px"
+                    ></el-skeleton-item>
+                  </el-col>
+                </el-row>
+              </div>
+            </div>
+          </div>
+
+          <!-- 评论分页 -->
+          <div class="comment-container">
+            <h3 class="comment-title">
+              <el-row>
+                <!-- 姓名 -->
+                <el-col :span="6">
+                  <el-skeleton-item></el-skeleton-item>
+                </el-col>
+              </el-row>
+            </h3>
+            <!-- 单个评论 -->
+            <div class="comment-item">
+              <!-- 作者信息 -->
+              <div class="comment-author">
+                <!-- 头像 -->
+                <div class="comment-avater">
+                  <el-row>
+                    <!-- 姓名 -->
+                    <el-col :span="6">
+                      <el-skeleton-item
+                        variant="image"
+                        style="height: 40px; width: 40px; border-radius: 50%"
+                      ></el-skeleton-item>
+                    </el-col>
+                  </el-row>
+                </div>
+              </div>
+              <!-- 评论详细 -->
+              <div class="comment-detail">
+                <!-- 用户描述 -->
+                <div class="avater-description">
+                  <!-- 姓名 -->
+                  <div class="comment-name" style="width: 10%">
+                    <el-row>
+                      <!-- 姓名 -->
+                      <el-col :span="24">
+                        <el-skeleton-item></el-skeleton-item>
+                      </el-col>
+                    </el-row>
+                  </div>
+                  <!-- 所属高校 -->
+                  <div class="comment-college" style="width: 16%">
+                    <el-row>
+                      <el-col :span="24">
+                        <el-skeleton-item></el-skeleton-item>
+                      </el-col>
+                    </el-row>
+                  </div>
+                </div>
+                <!-- 帖子信息 -->
+                <div class="comment-info" style="width: 600px">
+                  <el-row>
+                    <el-col :span="24">
+                      <el-skeleton-item></el-skeleton-item>
+                    </el-col>
+                  </el-row>
+                </div>
+
+                <div class="comment-action">
+                  <!-- 附件信息 -->
+                  <div class="comment-download" style="width: 10%">
+                    <el-row>
+                      <el-col :span="24">
+                        <el-skeleton-item></el-skeleton-item>
+                      </el-col>
+                    </el-row>
+                  </div>
+                  <!-- 评论 -->
+                  <div class="add-comment-item" style="width: 10%">
+                    <el-row>
+                      <el-col :span="24">
+                        <el-skeleton-item></el-skeleton-item>
+                      </el-col>
+                    </el-row>
+                  </div>
+                </div>
+
+                <!-- 回复 -->
+                <div class="comment-send-name" style="width: 10%">
+                  <el-row>
+                    <el-col :span="24">
+                      <el-skeleton-item></el-skeleton-item>
+                    </el-col>
+                  </el-row>
+                </div>
+              </div>
+            </div>
+          </div>
+        </el-row>
+      </template>
+    </el-skeleton>
+
     <!-- 帖子详细 -->
     <div class="post-detail">
       <!-- 帖子标题 -->
@@ -41,12 +243,7 @@
 
         <!-- 如果附件是以 图片 / 视频的形式 则显示在帖子中 -->
         <div class="img-container" v-if="fileIsImg">
-          <img
-            :src="postDetail.resourceUrl"
-            alt="图片"
-            style=" width=600px;
-          height=400px"
-          />
+          <img :src="postDetail.resourceUrl" alt="图片" style="width: 600px" />
         </div>
 
         <div class="movies-container" v-else-if="fileIsVideo">
@@ -250,6 +447,8 @@ export default {
   },
   data() {
     return {
+      // loading
+      skeletonLoading: true,
       // 帖子信息相关
       postDetail: {}, // 帖子详细消息
       postId: undefined, // 帖子ID
@@ -315,10 +514,14 @@ export default {
       // 设置后缀信息
       if (data.resourceUrl != "") {
         // 没有上传资源
-        this.fileSuffix = data.resourceUrl.split(".").reverse()[0];
+        this.fileSuffix = data.resourceUrl
+          .split(".")
+          .reverse()[0]
+          .toLowerCase();
         console.log(this.fileSuffix);
         this.isFileType(this.fileSuffix);
       }
+      this.skeletonLoading = false;
     },
     isFileType(suffix) {
       // 判断文件是什么类型

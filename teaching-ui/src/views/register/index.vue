@@ -148,7 +148,7 @@ export default {
     };
   },
   mounted() {
-    this.getCollegeListInfo();
+    // this.getCollegeListInfo();
   },
   methods: {
     // 注册
