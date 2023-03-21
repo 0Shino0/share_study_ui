@@ -1,5 +1,11 @@
 import Vue from 'vue'
 
+import App from './App'
+import store from './store'
+import router from './router'
+
+import axios from 'axios'
+
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
 // elment-ui框架相关
@@ -17,9 +23,6 @@ import Pagination from "@/components/Pagination/index.vue"
 
 import '@/styles/index.scss' // global css
 
-import App from './App'
-import store from './store'
-import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control
@@ -51,6 +54,7 @@ Vue.use(ElementUI)
 Vue.prototype.tableColumnWidth = "150px"
 Vue.prototype.$message = Message; // 全局element
 Vue.prototype.$echarts = echarts; // 
+Vue.prototype.$axios = axios; // 请求
 Vue.prototype.$http = 'http://120.46.214.246:8080/api'; // 
 // map数据相关
 

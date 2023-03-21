@@ -5,65 +5,14 @@
 <script>
 // require("echarts/theme/macarons"); // echarts theme
 import resize from "./mixins/resize";
+// import {} from "@/api/chart.js";
 
-const data = [
-  ["2000-06-05", 116],
-  ["2000-06-06", 129],
-  ["2000-06-07", 135],
-  ["2000-06-08", 86],
-  ["2000-06-09", 73],
-  ["2000-06-10", 85],
-  ["2000-06-11", 73],
-  ["2000-06-12", 68],
-  ["2000-06-13", 92],
-  ["2000-06-14", 130],
-  ["2000-06-15", 245],
-  ["2000-06-16", 139],
-  ["2000-06-17", 115],
-  ["2000-06-18", 111],
-  ["2000-06-19", 309],
-  ["2000-06-20", 206],
-  ["2000-06-21", 137],
-  ["2000-06-22", 128],
-  ["2000-06-23", 85],
-  ["2000-06-24", 94],
-  ["2000-06-25", 71],
-  ["2000-06-26", 106],
-  ["2000-06-27", 84],
-  ["2000-06-28", 93],
-  ["2000-06-29", 85],
-  ["2000-06-30", 73],
-  ["2000-07-01", 83],
-  ["2000-07-02", 125],
-  ["2000-07-03", 107],
-  ["2000-07-04", 82],
-  ["2000-07-05", 44],
-  ["2000-07-06", 72],
-  ["2000-07-07", 106],
-  ["2000-07-08", 107],
-  ["2000-07-09", 66],
-  ["2000-07-10", 91],
-  ["2000-07-11", 92],
-  ["2000-07-12", 113],
-  ["2000-07-13", 107],
-  ["2000-07-14", 131],
-  ["2000-07-15", 111],
-  ["2000-07-16", 64],
-  ["2000-07-17", 69],
-  ["2000-07-18", 88],
-  ["2000-07-19", 77],
-  ["2000-07-20", 83],
-  ["2000-07-21", 111],
-  ["2000-07-22", 57],
-  ["2000-07-23", 55],
-  ["2000-07-24", 60],
-];
-const dateList = data.map(function (item) {
-  return item[0];
-});
-const valueList = data.map(function (item) {
-  return item[1];
-});
+// const dateList = data.map(function (item) {
+//   return item[0];
+// });
+// const valueList = data.map(function (item) {
+//   return item[1];
+// });
 
 export default {
   mixins: [resize],
@@ -92,6 +41,15 @@ export default {
   data() {
     return {
       chart: null,
+      dateList: [], // 日期数组
+      valueList: [
+        116, 129, 135, 86, 73, 85, 73, 68, 92, 130, 245, 139, 115, 111, 10, 206,
+        137, 20, 85, 94, 71, 106, 84, 93, 85, 73, 83, 125, 107, 82, 44, 72, 106,
+        107, 66, 91, 92, 113, 107, 20, 111, 64, 69, 88, 77, 83, 111, 57, 55, 60,
+      ], // 数值数组
+      dateSize: 48, // 获取 dateSize 天
+      valuemin: 0,
+      valueMax: 100,
     };
   },
   watch: {
@@ -103,6 +61,12 @@ export default {
     },
   },
   mounted() {
+    this.dateList = this.getDateList(this.dateSize);
+    // this.valueList = this.randArray2(
+    //   this.dateSize,
+    //   this.valuemin,
+    //   this.valueMax
+    // );
     this.$nextTick(() => {
       this.initChart();
     });
@@ -122,7 +86,7 @@ export default {
     setOptions({ expectedData, actualData } = {}) {
       this.chart.setOption({
         title: {
-          text: "近期用户访问数据",
+          text: this.dateSize + "天内用户访问数据",
           left: "center",
         },
         visualMap: [
@@ -139,14 +103,14 @@ export default {
             seriesIndex: 1,
             dimension: 0,
             min: 0,
-            max: dateList.length - 1,
+            max: this.dateList.length - 1,
           },
         ],
         xAxis: {
-          data: dateList,
+          data: this.dateList,
           boundaryGap: false,
           axisTick: {
-            show: false,
+            show: true,
           },
         },
         grid: {
@@ -162,6 +126,22 @@ export default {
             type: "cross",
           },
           padding: [5, 10],
+          formatter: function (params) {
+            console.log(params);
+            var dotHtml =
+              '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:8px;height:8px;background-color:#F1E67F"></span>'; // 定义第一个数据前的圆点颜色
+            var dotHtml2 =
+              '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:8px;height:8px;background-color:#2BA8F1"></span>'; // 定义第二个数据前的圆点颜色
+
+            var result =
+              "时间：" +
+              params[0].axisValue +
+              "<br/>" +
+              dotHtml +
+              "访问量：" +
+              params[0].data;
+            return result;
+          },
         },
         yAxis: {
           axisTick: {
@@ -175,12 +155,29 @@ export default {
           {
             type: "line",
             showSymbol: false,
-            data: valueList,
+            data: this.valueList,
             smooth: false,
             areaStyle: {},
           },
         ],
       });
+    },
+    // 获取日期函数
+    getDateList(size) {
+      var lastMonth = [];
+      for (var i = 0; i < size; i++) {
+        lastMonth.unshift(
+          new Date(
+            new Date().setDate(new Date().getDate() - i)
+          ).toLocaleDateString()
+        );
+      }
+      return lastMonth;
+    },
+    randArray2(len, min, max) {
+      return Array(len)
+        .fill(1)
+        .map((v) => Math.floor(Math.random() * (max - min)) + min);
     },
   },
 };

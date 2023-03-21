@@ -64,7 +64,7 @@
           </el-dropdown>
           <!-- 无头像使用默认头像 -->
           <el-dropdown placement="bottom" v-else>
-          <default-avater width="40px" height="40px" :avaterName="userInfo.name.split('')[0]"></default-avater>
+          <default-avater width="40px" height="40px" :avatarName="userInfo.name.split('')[0]"></default-avater>
             <!-- <div class="default-avater">
               <span class="avater-name">{{ userInfo.name.split('')[0] }}</span>
             </div> -->
@@ -494,8 +494,9 @@ export default {
   width: 100%;
   position: fixed;
   box-shadow: 0 2px 6px 0 #ddd;
-  background-color: #fff;
-  z-index: 999;
+  // background-color: #fff;
+  background-color: #F9FBFF;
+  z-index: 1;
 
   .header-content {
     margin: 0px auto;

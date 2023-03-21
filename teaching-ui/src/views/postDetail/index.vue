@@ -1,6 +1,6 @@
 <template>
   <!-- 帖子+评论 -->
-  <div class="post-container">
+  <div class="post-detail-container">
     <!-- 骨架屏 -->
     <el-skeleton animated :loading="skeletonLoading">
       <template #template>
@@ -217,7 +217,7 @@
             v-if="postDetail.userAvatarUrl === ''"
             width="40px"
             height="40px"
-            :avaterName="postDetail.userName.split('')[0]"
+            :avatarName="postDetail.userName.split('')[0]"
           ></default-avater>
           <img
             class="avater"
@@ -252,6 +252,19 @@
             :volume="volume"
           ></video-player>
           <!-- <audio :src="" alt="视频"></audio> -->
+        </div>
+
+        <div
+          class="doc-container"
+          style="width: 100%; margin-top: 30px"
+          v-else-if="docPreviewUrl"
+        >
+          <iframe
+            :src="docPreviewUrl"
+            frameborder="0"
+            width="100%"
+            height="600"
+          ></iframe>
         </div>
       </div>
 
@@ -297,7 +310,7 @@
             v-if="userInfo.avatar === ''"
             width="40px"
             height="40px"
-            :avaterName="userInfo.name.split('')[0]"
+            :avatarName="userInfo.name.split('')[0]"
           ></default-avater>
           <img :src="userInfo.avatar" alt="当前用户" v-else />
         </div>
@@ -352,7 +365,13 @@
 
     <!-- 评论分页 -->
     <div class="comment-container" v-if="isCommentsList">
-      <h3 class="comment-title">全部评论</h3>
+      <div class="comment-container-title">
+        <h3 class="comment-title">全部评论</h3>
+        <!-- <div class="btn-group">
+          <button @click="handleComment">评论最多</button>
+          <button @click="handleComment">最新</button>
+        </div> -->
+      </div>
       <div
         class="comment-item"
         v-for="(commentItem, index) in commentsList"
@@ -366,7 +385,7 @@
               v-if="commentItem.belongAvatarUrl === ''"
               width="40px"
               height="40px"
-              :avaterName="commentItem.belongName.split('')[0]"
+              :avatarName="commentItem.belongName.split('')[0]"
             ></default-avater>
             <img
               class="avater"
@@ -453,13 +472,16 @@ export default {
       postDetail: {}, // 帖子详细消息
       postId: undefined, // 帖子ID
       collectStatus: undefined, // 收藏状态
-      // 帖子 显示图片/视频
+      // 帖子 显示图片/视频 文档
       fileSuffix: undefined,
       imgType: "png jpg jpeg", // 图片类型
-      VidioType: "mp4 mpeg", // 视频类型
+      vidioType: "mp4 mpeg", // 视频类型
+      docType: "pdf xlsx xls doc docx ppt pptx", // 视频类型
       volume: 0.5, // 视频声音
       fileIsImg: undefined, // 是否 图片
       fileIsVideo: undefined, // 是否是视频
+      fileIsDoc: undefined, // 是否是视频
+      docPreviewUrl: undefined, // doc预览地址
       isFocus: false, // 是否聚集
       // 评论
       commentsList: [], // 帖子评论
@@ -525,13 +547,18 @@ export default {
     },
     isFileType(suffix) {
       // 判断文件是什么类型
-      console.log("fileIsImg=>", this.imgType.includes(this.fileSuffix));
-      this.fileIsImg = this.imgType.includes(this.fileSuffix);
-      // return str.includes(this.fileSuffix);
+      console.log("fileIsImg=>", this.imgType.includes(suffix));
+      this.fileIsImg = this.imgType.includes(suffix);
+      // return str.includes(suffix);
       if (!this.fileIsImg) {
-        console.log("fileIsVideo=>", this.VidioType.includes(this.fileSuffix));
-        this.fileIsVideo = this.VidioType.includes(this.fileSuffix);
-        // return str.includes(this.fileSuffix);
+        console.log("fileIsVideo=>", this.vidioType.includes(suffix));
+        this.fileIsVideo = this.vidioType.includes(suffix);
+        // return str.includes(suffix);
+      }
+      if (!this.fileIsVideo) {
+        console.log("fileIsDoc=>", this.docType.includes(suffix));
+        this.fileIsDoc = this.vidioType.includes(suffix);
+        this.docPreviewUrl = `https://view.officeapps.live.com/op/view.aspx?src=${this.postDetail.resourceUrl}`;
       }
     },
     // 获取路由中的参数
@@ -549,7 +576,7 @@ export default {
     // 点击收藏
     handleCollect() {
       this.collectForm.resource = this.postId;
-      this.collectForm.belong = this.userInfo.id;
+      this.collectForm.belong = this.postDetail.userId;
       addCollect(this.collectForm).then((res) => {
         this.collectStatus = this.collectStatus === "1" ? "0" : "1";
         this.$message.success(res.message);
@@ -608,6 +635,10 @@ export default {
         }
       });
     },
+    // 评论
+    // handleComment() {
+    //   console.log(this.commentsList);
+    // },
     // 登录表单重置
     resetComment() {
       (this.form = {
@@ -651,7 +682,7 @@ export default {
 </script>
 
 <style lang="scss">
-.post-container {
+.post-detail-container {
   width: 960px;
   padding-top: 80px;
   margin: 0 auto;
@@ -708,6 +739,10 @@ export default {
     .post-info {
       margin-top: 30px;
 
+      span {
+        margin-bottom: 30px;
+      }
+
       // 图片附件
       .img-container {
         display: flex;
@@ -716,6 +751,12 @@ export default {
 
       // 视频附件
       .movies-container {
+        display: flex;
+        justify-content: center;
+      }
+
+      // 文档附件
+      .doc-container {
         display: flex;
         justify-content: center;
       }
@@ -854,8 +895,75 @@ export default {
     border-radius: 10px;
     background-color: #fff;
 
-    .comment-title {
-      padding: 10px 30px;
+    .comment-container-title {
+      display: flex;
+      align-items: center;
+
+      .comment-title {
+        padding: 10px 30px;
+      }
+
+      // 最新 按钮 评论最多按钮
+      // .btn-group {
+      //   button {
+      //     appearance: none;
+      //     background-color: #fafbfc;
+      //     border: 1px solid rgba(27, 31, 35, 0.15);
+      //     border-radius: 6px;
+      //     box-shadow: rgba(27, 31, 35, 0.04) 0 1px 0,
+      //       rgba(255, 255, 255, 0.25) 0 1px 0 inset;
+      //     box-sizing: border-box;
+      //     color: #24292e;
+      //     cursor: pointer;
+      //     display: inline-block;
+      //     font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial,
+      //       sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+      //     font-size: 10px;
+      //     font-weight: 500;
+      //     line-height: 20px;
+      //     list-style: none;
+      //     padding: 3px 8px;
+      //     position: relative;
+      //     transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+      //     user-select: none;
+      //     -webkit-user-select: none;
+      //     touch-action: manipulation;
+      //     vertical-align: middle;
+      //     white-space: nowrap;
+      //     word-wrap: break-word;
+      //   }
+
+      //   button:hover {
+      //     background-color: #f3f4f6;
+      //     text-decoration: none;
+      //     transition-duration: 0.1s;
+      //   }
+
+      //   button:disabled {
+      //     background-color: #fafbfc;
+      //     border-color: rgba(27, 31, 35, 0.15);
+      //     color: #959da5;
+      //     cursor: default;
+      //   }
+
+      //   button:active {
+      //     background-color: #edeff2;
+      //     box-shadow: rgba(225, 228, 232, 0.2) 0 1px 0 inset;
+      //     transition: none 0s;
+      //   }
+
+      //   button:focus {
+      //     outline: 1px transparent;
+      //   }
+
+      //   button:before {
+      //     display: none;
+      //   }
+
+      //   button:-webkit-details-marker {
+      //     display: none;
+      //   }
+      // }
     }
 
     .comment-item {

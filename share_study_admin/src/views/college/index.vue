@@ -285,18 +285,28 @@ export default {
     // 导出excel
     handleExportExcel() {
       // 调用接口
-      try {
-        /* **写法 */
-        let link = document.createElement("a");
-        // 高校url
-        // link.href = "http://116.63.165.100:8080/api/college/download";
-        link.href = `${this.$http}/college/download`;
-        console.log(link);
-        link.click(); //模拟点击
-        document.body.removeChild(link);
-      } catch (error) {
-        console.log(error);
-      }
+      this.$axios({
+        url: "/api/college/download",
+        method: "get",
+        responseType: "blob",
+      }).then(
+        (response) => {
+          const blob = new Blob([response.data], {
+            type: "application/vnd.ms-excel",
+          });
+          const link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          // 这里也可以自己从headers中获取文件名.
+          link.download = "高校信息.xlsx";
+          link.click();
+          // document.body.removeChild(link);
+          this.$message.success("导出成功");
+        },
+        (error) => {
+          this.$message.error("导出excel出错!");
+          console.log("导出excel出错" + error);
+        }
+      );
     },
   },
 };

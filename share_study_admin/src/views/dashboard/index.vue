@@ -53,6 +53,13 @@ import BarChart from "./components/BarChart.vue";
 import BarChartLeft from "./components/BarChartLeft.vue";
 import LineChart from "./components/LineChart.vue";
 
+import {
+  getCollegeMap,
+  getResourceCollectTop,
+  getCollegeScoreTop,
+  getTeacherScoreTop,
+} from "@/api/chart.js";
+
 const lineChartData = {};
 export default {
   components: {
@@ -64,6 +71,24 @@ export default {
     LineChart,
   },
   name: "Dashboard",
+  data() {
+    return {
+      collegeMapList: [],
+      
+      
+    };
+  },
+  created() {
+    
+  },
+  mounted() {
+  },
+  methods: {
+
+
+
+
+  },
 };
 </script>
 

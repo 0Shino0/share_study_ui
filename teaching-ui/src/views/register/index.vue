@@ -73,14 +73,20 @@
             </el-select>
           </el-form-item>
           <el-form-item label="院校" :label-width="registerFormLabelWidth">
-            <el-select v-model="registerForm.code" placeholder="College">
-              <el-option label="哈尔滨商业大学" value="10240"></el-option>
+            <el-select v-model="registerForm.belong" placeholder="College">
+              <el-option
+                v-for="(collegeItem, index) in collegeList"
+                :key="collegeItem.id"
+                :label="collegeItem.name"
+                :value="collegeItem.id"
+              ></el-option>
+              <!-- <el-option label="哈尔滨商业大学" value="10240"></el-option>
               <el-option label="黑龙江财经学院" value="13298"></el-option>
               <el-option
                 label="黑龙江交通职业技术学院"
                 value="14053"
               ></el-option>
-              <el-option label="哈尔滨广厦学院" value="13306"></el-option>
+              <el-option label="哈尔滨广厦学院" value="13306"></el-option> -->
             </el-select>
           </el-form-item>
         </el-form>
@@ -131,7 +137,7 @@ export default {
         name: undefined, // 姓名
         email: undefined, // 邮箱
         gender: undefined, // 性别
-        code: undefined, // 院校代码
+        belong: undefined, // 院校代码
         avatar: undefined, // 头像
       },
       registerFormRules: {
@@ -142,13 +148,13 @@ export default {
         email: [{ required: true, trigger: "blur" }],
         gender: [{ required: true, trigger: "blur" }],
         avatar: [{ required: false, trigger: "blur" }],
-        code: [{ required: true, trigger: "blur" }],
+        belong: [{ required: true, trigger: "blur" }],
       },
       collegeList: [],
     };
   },
   mounted() {
-    // this.getCollegeListInfo();
+    this.getCollegeListInfo();
   },
   methods: {
     // 注册
@@ -189,7 +195,7 @@ export default {
         email: undefined, // 邮箱
         gender: undefined, // 性别
         avatar: undefined, // 头像
-        code: undefined, // 院校代码
+        belong: undefined, // 院校代码
       };
       this.resetForm("registerForm");
     },

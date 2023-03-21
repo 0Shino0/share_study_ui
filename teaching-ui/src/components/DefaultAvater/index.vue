@@ -1,6 +1,6 @@
 <template>
   <div class="default-avater" :style="avaterSize">
-    <span class="avater-name" :style="fontSize">{{ avaterName }}</span>
+    <span class="avater-name" :style="fontSize">{{ avatarName }}</span>
   </div>
 </template>
 
@@ -8,7 +8,7 @@
 export default {
   name: "DefaultAvater",
   props: {
-    avaterName: {
+    avatarName: {
       // 标识emit
       require: true,
       type: String,

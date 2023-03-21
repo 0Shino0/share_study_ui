@@ -16,7 +16,7 @@
             v-if="userInfo.avatar === ''"
             width="125px"
             height="125px"
-            :avaterName="userInfo.name.split('')[0]"
+            :avatarName="userInfo.name.split('')[0]"
           ></default-avater>
           <img
             v-else

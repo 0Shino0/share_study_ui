@@ -9,6 +9,7 @@ export function getMaterialExcel() {
   return request({
     url: `/resource/download`,
     method: "get",
+    responseType: 'blob'
   })
 }
 
