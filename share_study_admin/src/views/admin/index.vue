@@ -70,31 +70,6 @@
         :before-close="dialogCancel"
       >
         <el-form ref="queryForm" :model="dialogForm" :rules="dialogFormRules">
-          <!-- <el-form-item label="用户ID" :label-width="formLabelWidth">
-            <el-input
-              v-model="dialogForm.id"
-              autocomplete="off"
-              :disabled="true"
-            ></el-input>
-          </el-form-item> -->
-          <!-- <el-form-item label="管理员名" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.name" autocomplete="off"></el-input>
-          </el-form-item> -->
-          <!-- <el-form-item label="邮箱" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.email" autocomplete="off"></el-input>
-          </el-form-item> -->
-          <!-- <el-form-item label="所属高校" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.belong" autocomplete="off"></el-input>
-          </el-form-item> -->
-          <!-- <el-form-item label="贡献度" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.score" autocomplete="off"></el-input>
-          </el-form-item> -->
-          <!-- <el-form-item label="头像" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.avater" autocomplete="off"></el-input>
-          </el-form-item> -->
-          <!-- <el-form-item label="性别" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.gender" autocomplete="off"></el-input>
-          </el-form-item> -->
           <el-form-item label="角色状态" :label-width="formLabelWidth">
             <el-select v-model="dialogForm.role" placeholder="请选择">
               <el-option label="普通用户" value="0"></el-option>

@@ -623,10 +623,66 @@ export default {
 </script>
 
 <style lang="scss">
+/*大型屏幕pc 超大屏*/
+@media screen and (min-width: 1200px) {
+  .about-container {
+    width: 960px;
+  }
+}
+/*1200>=pc>=992 大屏，字体红色，背景黑色*/
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+  .about-container {
+    width: 960px;
+  }
+}
+/*768<=pad<992 中屏，字体黄色，背景红色*/
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .about-container {
+    width: 768px;
+  }
+}
+/*phone<768  小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 767px) and (min-width: 480px) {
+  .about-container {
+    width: 480px;
+  }
+}
+/* 超小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 480px) {
+  // 修改个人资料按钮
+  .about-container .about-header .about-update {
+    position: absolute;
+    width: 100px !important;
+    // 方案一
+    height: 30px !important;
+    padding: 4px 6px;
+    // 方案二
+    // min-height: 40px;
+
+    right: 10px !important;
+    bottom: 10px !important;
+    span {
+      font-size: 8px;
+    }
+  }
+
+  .description-container {
+    .description-item {
+      .count {
+        font-size: 8px;
+      }
+
+      .description-tag {
+        font-size: 8px;
+      }
+    }
+  }
+}
+
 .about-container {
-  width: 960px;
+  // width: 960px;
   // 方案一
-  height: 680px;
+  // height: 680px;
 
   // 方案二
   // min-height: 680px;

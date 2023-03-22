@@ -87,18 +87,6 @@ export function updateUserInfo(data) {
   })
 }
 
-/** 用户修改自己信息
- * @param {string} id
- * @method put
- * @returns {object}
-  */
-export function readCommentAll(id) {
-  return request({
-    url: `/user/comment/update/read/${id}`,
-    method: 'put',
-    data
-  })
-}
 
 
 

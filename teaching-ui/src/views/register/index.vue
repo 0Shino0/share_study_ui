@@ -209,9 +209,34 @@ export default {
 </script>
 
 <style lang="scss">
+/*大型屏幕pc 超大屏*/
+@media screen and (min-width: 1200px) {
+  .register {
+    width: 496px;
+  }
+}
+/*1200>=pc>=992 大屏，字体红色，背景黑色*/
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+  .register {
+    width: 496px;
+  }
+}
+/*768<=pad<992 中屏，字体黄色，背景红色*/
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .register {
+    width: 496px;
+  }
+}
+/*phone<768  小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 767px) and (min-width: 480px) {
+}
+/* 超小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 480px) {
+}
+
 .register {
-  max-width: 496px;
-  min-width: 460px;
+  // max-width: 496px;
+  // min-width: 460px;
   display: flex;
   flex-direction: column;
   justify-content: center;

@@ -54,7 +54,10 @@
       </el-upload>
 
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">发布</el-button>
+        <el-button type="primary" @click="onSubmit" v-if="postId === '1'"
+          >发布</el-button
+        >
+        <el-button type="primary" @click="updateSubmit" v-else>修改</el-button>
         <el-button @click="handleCancel">取消</el-button>
       </el-form-item>
     </el-form>
@@ -63,7 +66,7 @@
 
 <script>
 import { delOssFile, ossFileUpload } from "@/api/oss";
-import { addPost } from "@/api/post";
+import { addPost, getPostInfo, updatePost } from "@/api/post";
 import { getToken } from "@/utils/auth";
 import Loading from "@/components/Loading";
 
@@ -73,6 +76,9 @@ export default {
   },
   data() {
     return {
+      // 修改帖子相关
+      postId: undefined,
+      postDetail: {}, // 帖子详情
       userInfo: {}, // 用户信息
       // 发帖表单
       form: {
@@ -80,6 +86,12 @@ export default {
         info: "",
         belong: "",
         url: "",
+      },
+      updateForm: {
+        name: "",
+        url: "",
+        id: "",
+        info: "",
       },
       submitLoading: false, // 提交按钮 控制
       // 上传文件相关
@@ -103,6 +115,7 @@ export default {
         "rar",
         "7z",
         "gif",
+        "py",
       ], // 允许的文件类型
       fileLimit: 1, // 限制上传数
       headers: { "Content-Type": "multipart/form-data" }, // 上传请求头
@@ -111,13 +124,47 @@ export default {
   },
   mounted() {
     this.userInfo = this.getTokenData();
+    this.getParams(); // 获取路由中的参数
+    this.updatePost(this.postId);
+
+    this.$bus.$on("resetFormFromHeader", (val) => {
+      this.resetAddPost();
+    });
   },
   methods: {
+    // 获取路由中的参数
+    getParams() {
+      this.postId = this.$route.params.id;
+      // console.log(this.postId);
+    },
+    // 更新当前信息
+    async updatePost(id) {
+      if (id === "1") {
+        // 发帖
+        console.log(id);
+
+        return id;
+      } else {
+        // 修改
+        const { data } = await getPostInfo(id);
+        // this.postDetail = data;
+
+        // 转换
+        this.form.name = data.name;
+        this.form.info = data.info;
+        this.form.belong = data.id;
+        this.form.url = data.url;
+
+        // updateForm
+        this.updateForm.id = data.id;
+      }
+    },
     getTokenData() {
       let token = getToken();
       let data = JSON.parse(token);
       return data;
     },
+    // 发布帖子
     onSubmit() {
       this.$refs["form"].validate((valid) => {
         if (valid) {
@@ -155,6 +202,7 @@ export default {
                     if (this.fileUrl) {
                       // 删除oss文件
                       delOssFile(this.fileUrl);
+                      this.fileList = [];
                     }
 
                     this.submitLoading = false;
@@ -173,6 +221,87 @@ export default {
             addPost(this.form)
               .then((res) => {
                 this.$message.success("发布成功,正在跳转首页");
+                this.submitLoading = false;
+                this.resetAddPost();
+                this.$router.push({ path: "/" });
+              })
+              .catch((error) => {
+                this.resetAddPost();
+                this.$message.info("帖子发布失败，请重试");
+                // 上传成功，但发布失败情况
+                if (this.fileUrl) {
+                  // 删除oss文件
+                  delOssFile(this.fileUrl);
+                }
+
+                this.submitLoading = false;
+              });
+          }
+        }
+      });
+    },
+    // 修改帖子
+    updateSubmit() {
+      // let updateInfo
+      this.$refs["form"].validate((valid) => {
+        if (valid) {
+          this.submitLoading = true;
+          this.$message.info("正在修改中，请稍后");
+          // 上传接口
+          // 如果上传文件
+          if (this.fileList[0]) {
+            let FormDatas = new window.FormData();
+            FormDatas.append("file", this.fileList[0]);
+            console.log("FormDatas=>", FormDatas);
+            ossFileUpload(FormDatas)
+              .then((res) => {
+                const { data } = res;
+                // console.log(data);
+                this.$message.success("附件上传成功");
+                this.fileUrl = data;
+                this.submitLoading = false; //
+
+                this.updateForm.url = data; // updateForm的url
+                this.updateForm.name = this.form.name; // 标题
+                this.updateForm.info = this.form.info; // 描述
+                // 调用发布接口
+                this.updateForm.id = this.postId; // 配置id
+
+                updatePost(this.updateForm)
+                  .then((res) => {
+                    this.$message.success("修改成功,正在跳转中");
+                    this.submitLoading = false;
+                    this.resetAddPost();
+                    this.$router.push({ path: "/" });
+                  })
+                  .catch((error) => {
+                    this.resetAddPost();
+                    this.$message.info("帖子发布失败，请重试");
+                    // 上传成功，但发布失败情况
+                    if (this.fileUrl) {
+                      // 删除oss文件
+                      delOssFile(this.fileUrl);
+                      this.fileList = [];
+                    }
+
+                    this.submitLoading = false;
+                  });
+              })
+              .catch((error) => {
+                console.log(error);
+                this.$message.info("附件上传失败");
+                this.submitLoading = false; //
+              });
+          } else {
+            // 如果不上传文件
+            // 调用发布接口
+            this.updateForm.id = this.postId; // 配置id
+            this.updateForm.name = this.form.name; // 标题
+            this.updateForm.info = this.form.info; // 描述
+
+            updatePost(this.form)
+              .then((res) => {
+                this.$message.success("修改成功,正在跳转");
                 this.submitLoading = false;
                 this.resetAddPost();
                 this.$router.push({ path: "/" });
@@ -274,6 +403,46 @@ export default {
 </script>
 
 <style lang="scss">
+/*大型屏幕pc 超大屏*/
+@media screen and (min-width: 1200px) {
+  .form {
+    .el-form-item,
+    .upload-file {
+      width: 600px;
+    }
+  }
+}
+/*1200>=pc>=992 大屏，字体红色，背景黑色*/
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+  .form {
+    .el-form-item,
+    .upload-file {
+      width: 600px;
+    }
+  }
+}
+/*768<=pad<992 中屏，字体黄色，背景红色*/
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .form {
+    .el-form-item,
+    .upload-file {
+      width: 600px;
+    }
+  }
+}
+/*phone<768  小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 767px) and (min-width: 480px) {
+  .form {
+    .el-form-item,
+    .upload-file {
+      width: 480px;
+    }
+  }
+}
+/* 超小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 480px) {
+}
+
 .add-post-container {
   padding-top: 62px;
   text-align: center;
@@ -286,7 +455,7 @@ export default {
   .form {
     .el-form-item,
     .upload-file {
-      width: 600px;
+      // width: 600px;
       margin: 0 auto;
       margin-bottom: 20px;
     }

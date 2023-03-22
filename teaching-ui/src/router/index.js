@@ -35,7 +35,7 @@ const routes = [
     meta: { title: '首页'},
   },
   {
-    path: "/addPost",
+    path: "/addPost/:id",
     name: "addPost",
     component: () => import('@/views/addPost'),
     meta: { title: '发布帖子'},

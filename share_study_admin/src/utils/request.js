@@ -57,11 +57,6 @@ service.interceptors.response.use(
     // if the custom code is not 20000, it is judged as an error.
     if (res.code !== "00000") {
       // if (res.code !== 20000) {
-      Message({
-        message: res.message || 'Error',
-        type: 'error',
-        duration: 5 * 1000
-      })
 
       // 未登录
       if (res.code === "D0112") {
@@ -72,6 +67,12 @@ service.interceptors.response.use(
         // 未登录跳转至登录页
         router.push(`/login?redirect=${window.location.hash.replace(/#/, "")}`);
 
+      } else {
+        Message({
+          message: res.message || 'Error',
+          type: 'error',
+          duration: 5 * 1000
+        })
       }
 
       // 50008:非法令牌;50012:已登录的其他客户端;50014:令牌过期;

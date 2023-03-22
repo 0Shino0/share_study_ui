@@ -28,6 +28,31 @@ export function addPost(data) {
   })
 }
 
+/** 用户获取单个帖子信息
+ * @param {string} id
+ * @method get
+ * @returns {object}
+  */
+export function getPostInfo(id) {
+  return request({
+    url: `/user/resource/get/${id}`,
+    method: "get",
+  })
+}
+
+/** 用户帖子修改
+ * @param {object} data
+ * @method put
+ * @returns {object}
+  */
+export function updatePost(data) {
+  return request({
+    url: `/user/resource/update`,
+    method: "put",
+    data
+  })
+}
+
 /** 用户帖子详情
  * @param {number|string} id
  * @method post
@@ -93,6 +118,43 @@ export function addPostComment(data) {
     data
   })
 }
+
+/** 用户修改消息是否已读
+ * @param {string} id
+ * @method put
+ * @returns {object}
+  */
+export function readComment(id) {
+  return request({
+    url: `/user/comment/update/read/${id}`,
+    method: 'put',
+  })
+}
+
+/** 用户删除单条信息
+ * @param {string} id
+ * @method delete
+ * @returns {object}
+  */
+export function readCommentOne(id) {
+  return request({
+    url: `/user/resource/delete/${id}`,
+    method: 'delete',
+  })
+}
+
+/** 用户清空消息
+ * @param {null}
+ * @method del
+ * @returns {object}
+  */
+export function readCommentAll() {
+  return request({
+    url: `/user/comment/deleteBatch`,
+    method: 'delete',
+  })
+}
+
 
 /** 添加收藏 接口
  * @param {object} data = {belong resource}

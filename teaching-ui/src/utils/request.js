@@ -76,7 +76,7 @@ service.interceptors.response.use(
       // 未登录
       if (res.code === "D0112") {
         console.log("未登录");
-        console.log('Vue=>',Vue.prototype.$bus);
+        // console.log('Vue=>',Vue.prototype.$bus);
 
         // store.dispatch('user/logout').then(() => { // 退出登录
         //   // location.reload()
@@ -92,17 +92,16 @@ service.interceptors.response.use(
         }else if (window.location.href.split('#')[1] !== '/login') {
             router.push(`/login`);
           }
-
       }
 
       if (res.code === 'A0410') {
         console.log("请求必填参数为空");
-        console.log(res);
+        // console.log(res);
       }
 
       if (res.code === 'A0301') {
         console.log("访问未授权!!");
-        console.log(res);
+        // console.log(res);
       }
 
       // 50008:非法令牌;50012:已登录的其他客户端;50014:令牌过期;

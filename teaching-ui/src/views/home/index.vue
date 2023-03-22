@@ -143,18 +143,18 @@
           </div>
           <ul class="card-social">
             <li class="card-social__item">
-              <i class="iconfont icon-jifen"
-                ><span>&nbsp;{{ userInfo.score }}</span></i
+              <i class="iconfont icon-jifen">
+                <br /><span>{{ userInfo.score }}</span></i
               >
             </li>
             <li class="card-social__item">
-              <i class="el-icon-s-comment"
-                ><span>&nbsp;{{ userInfo.messageNumber }}</span></i
+              <i class="el-icon-s-comment">
+                <br /><span>{{ userInfo.messageNumber }}</span></i
               >
             </li>
             <li class="card-social__item">
-              <i class="el-icon-s-data"
-                ><span>&nbsp;{{ postLength }}</span></i
+              <i class="el-icon-s-data">
+                <br /><span>{{ postLength }}</span></i
               >
             </li>
           </ul>
@@ -271,7 +271,7 @@ export default {
     // 退出登录时重置信息
     this.$bus.$on("resetUserInfo", (val) => {
       // this.userInfo = this.getTokenData();
-      this.userInfo = undefined;
+      this.userInfo = {};
       this.postLength = undefined;
       this.postAveList = [];
       this.postList = [];
@@ -328,10 +328,7 @@ export default {
         } catch (error) {
           console.log(error);
         }
-      }, 2000);
-    },
-    handleLogin() {
-      this.$bus.$emit("handleLogin", true);
+      }, 300);
     },
   },
   computed: {
@@ -351,6 +348,87 @@ export default {
 </script>
 
 <style lang="scss">
+/*大型屏幕pc 超大屏*/
+@media screen and (min-width: 1200px) {
+}
+/*1200>=pc>=992 大屏，字体红色，背景黑色*/
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+}
+/*768<=pad<992 中屏，字体黄色，背景红色*/
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .main {
+    max-height: 730px;
+    .main-container {
+      max-height: 730px;
+
+      .main-left {
+      }
+
+      .main-right {
+        display: none;
+      }
+
+      // .main-right {
+      //   .card {
+      //     width: 100%;
+      //     width: 400px;
+      //   }
+      // }
+    }
+
+    .no-data {
+      display: flex;
+    }
+  }
+}
+/*phone<768  小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 767px) and (min-width: 480px) {
+  .main {
+    .main-container {
+      // .main-left {
+      // }
+
+      .main-right {
+        display: none;
+        // margin-top: 20px;
+        // .card {
+        //   width: 100%;
+        //   // width: 400px;
+        // }
+      }
+    }
+
+    .no-data {
+      display: flex;
+    }
+  }
+}
+/* 超小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 480px) {
+  .main {
+    .main-container {
+      // .main-left {
+      //   margin-bottom: 70px;
+      //   padding-top: 70px;
+      // }
+
+      .main-right {
+        display: none;
+      }
+      // .main-right {
+      //   margin-top: 20px;
+      //   width: 390px;
+
+      //   // padding-top: 70px;
+      //   .card {
+      //     width: calc(100% - 34px) !important;
+      //     margin: 0 auto;
+      //   }
+      // }
+    }
+  }
+}
+
 .main {
   min-height: 730px;
 
@@ -358,6 +436,7 @@ export default {
     min-height: 730px;
     position: relative;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     padding-top: 60px;
     margin: 0 auto;
@@ -368,7 +447,7 @@ export default {
 
       .post-container {
         max-width: 680px;
-        min-width: 460px;
+        // min-width: 460px;
         display: flex;
         flex-direction: column;
         justify-content: center;

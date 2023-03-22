@@ -299,6 +299,13 @@
           @click="commentOther(postDetail.userId, postDetail.userName)"
           ><span class="iconfont icon-message"></span>回复</el-button
         >
+        <el-button
+          class="btn-collect"
+          type="primary"
+          size="mini"
+          @click="toUpdatePost(postId)"
+          ><span class="iconfont icon-message"></span>修改</el-button
+        >
       </div>
     </div>
 
@@ -496,6 +503,26 @@ export default {
       },
       fileList: [], // 评论附件列表
       fileUrl: undefined,
+      fileType: [
+        "png",
+        "jpg",
+        "jpeg",
+        "pdf",
+        "xlsx",
+        "xls",
+        "doc",
+        "docx",
+        "ppt",
+        "pptx",
+        "mp3",
+        "mp4",
+        "mpeg",
+        "zip",
+        "rar",
+        "7z",
+        "gif",
+        "py",
+      ], // 允许的文件类型
       action: "/api/file/oss_file_upload", // 上传的地址
       limit: 1,
       // 收藏
@@ -544,6 +571,10 @@ export default {
         this.isFileType(this.fileSuffix);
       }
       this.skeletonLoading = false;
+    },
+    // 修改帖子信息
+    toUpdatePost(id) {
+      this.$router.push({ path: "/addPost/" + id });
     },
     isFileType(suffix) {
       // 判断文件是什么类型
@@ -643,7 +674,7 @@ export default {
     resetComment() {
       (this.form = {
         send: undefined, // 接收评论的id
-        content: undefined, // 内容
+        content: "", // 内容
         url: "", // 附件url
         resource: undefined, // 评论所属资料ID
       }),
@@ -666,6 +697,27 @@ export default {
     beforeRemove(file, fileList) {
       return this.$confirm(`确定移除 ${file.name}？`);
     },
+    // 上传之前的回调
+    beforeUpload(file) {
+      if (file.type != "" || file.type != null || file.type != undefined) {
+        //截取文件的后缀，判断文件类型
+        const FileExt = file.name.replace(/.+\./, "").toLowerCase();
+        //计算文件的大小
+        const isLt5M = file.size / 1024 / 1024 < 200; //这里做文件大小限制
+        //如果大于50M
+        if (!isLt5M) {
+          this.$message.error("上传文件大小不能超过 200MB!");
+          return false;
+        }
+        //如果文件类型不在允许上传的范围内
+        if (this.fileType.includes(FileExt)) {
+          return true;
+        } else {
+          this.$message.error("上传文件格式不正确!");
+          return false;
+        }
+      }
+    },
     uploadFile(item) {
       // this.$message.info("文件已上传至浏览器，点击发布上传至服务器");
       //上传文件的需要formdata类型;所以要转
@@ -682,8 +734,33 @@ export default {
 </script>
 
 <style lang="scss">
+/*大型屏幕pc 超大屏*/
+@media screen and (min-width: 1200px) {
+  .post-detail-container {
+    width: 960px;
+  }
+}
+/*1200>=pc>=992 大屏，字体红色，背景黑色*/
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+  .post-detail-container {
+    width: 960px;
+  }
+}
+/*768<=pad<992 中屏，字体黄色，背景红色*/
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .post-detail-container {
+    width: 768px;
+  }
+}
+/*phone<768  小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 767px) and (min-width: 480px) {
+}
+/* 超小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 480px) {
+}
+
 .post-detail-container {
-  width: 960px;
+  // width: 960px;
   padding-top: 80px;
   margin: 0 auto;
 
@@ -789,7 +866,7 @@ export default {
 
   // 发布评论
   .add-comment {
-    width: 900px;
+    width: calc(100% - 60px);
     background-color: #fff;
     border-radius: 10px;
     margin-right: 0px;
@@ -797,7 +874,7 @@ export default {
     margin-top: 20px;
 
     .add-comment-header {
-      width: 900px;
+      width: 100%;
       border-radius: 10px;
       display: flex;
 
@@ -811,15 +888,15 @@ export default {
       }
 
       .el-form {
-        max-width: 838px;
+        width: calc(100% - 60px);
 
         .el-form-item {
           margin-bottom: 0px;
-          width: 838px;
+          // width: 838px;
 
           .el-textarea {
             textarea {
-              max-width: 838px;
+              max-width: 100%;
               height: 66px;
               padding: 8px 12px 8px 12px;
               background-color: #e9ecef;
