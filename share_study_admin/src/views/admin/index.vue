@@ -2,59 +2,74 @@
   <div class="admin-container">
     <!-- <div class="admin-text">管理员管理</div> -->
     <div class="op-btn">
-      <el-button v-if="0" class="add-btn" type="success" size="mini" @click="handleAdd()">新增</el-button>
-      <el-button class="export-btn" type="success" size="mini" @click="handleExportExcel()">导出Excel</el-button>
+      <el-button
+        v-if="0"
+        class="add-btn"
+        type="success"
+        size="mini"
+        @click="handleAdd()"
+        >新增</el-button
+      >
+      <el-button
+        class="export-btn"
+        type="success"
+        size="mini"
+        @click="handleExportExcel()"
+        >导出Excel</el-button
+      >
     </div>
     <div class="table-container">
-      <el-table :data="
-                  tableAdminData.filter(
-                    (data) =>
-                      !search || data.name.toLowerCase().includes(search.toLowerCase())
-                  )
-                " stripe style="width: 100%" v-loading="loading">
-        <el-table-column v-for="item in tableAdminCol" :key="item.prop" :prop="item.prop" :label="item.label"
-          :width="tableColumnWidth">
+      <el-table
+        :data="
+          tableAdminData.filter(
+            (data) =>
+              !search || data.name.toLowerCase().includes(search.toLowerCase())
+          )
+        "
+        stripe
+        style="width: 100%"
+        v-loading="loading"
+      >
+        <el-table-column
+          v-for="item in tableAdminCol"
+          :key="item.prop"
+          :prop="item.prop"
+          :label="item.label"
+          :width="tableColumnWidth"
+        >
         </el-table-column>
         <el-table-column align="right">
           <template slot="header" slot-scope="scope">
-            <el-input v-model="search" size="mini" placeholder="输入管理员名称搜索" />
+            <el-input
+              v-model="search"
+              size="mini"
+              placeholder="输入管理员名称搜索"
+            />
           </template>
           <template slot-scope="scope" v-if="scope.row.role === '管理员'">
-            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
+              >编辑</el-button
+            >
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.$index, scope.row)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
       <!-- 分页 -->
       <Pagination :total="total" :emitName="$options.name"></Pagination>
 
-      <el-dialog title="标题" :visible.sync="dialogShow" :width="dialogWidth" :top="dialogTop" :before-close="dialogCancel">
+      <el-dialog
+        title="标题"
+        :visible.sync="dialogShow"
+        :width="dialogWidth"
+        :top="dialogTop"
+        :before-close="dialogCancel"
+      >
         <el-form ref="queryForm" :model="dialogForm" :rules="dialogFormRules">
-          <!-- <el-form-item label="用户ID" :label-width="formLabelWidth">
-            <el-input
-              v-model="dialogForm.id"
-              autocomplete="off"
-              :disabled="true"
-            ></el-input>
-          </el-form-item> -->
-          <!-- <el-form-item label="管理员名" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.name" autocomplete="off"></el-input>
-          </el-form-item> -->
-          <!-- <el-form-item label="邮箱" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.email" autocomplete="off"></el-input>
-          </el-form-item> -->
-          <!-- <el-form-item label="所属高校" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.belong" autocomplete="off"></el-input>
-          </el-form-item> -->
-          <!-- <el-form-item label="贡献度" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.score" autocomplete="off"></el-input>
-          </el-form-item> -->
-          <!-- <el-form-item label="头像" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.avater" autocomplete="off"></el-input>
-          </el-form-item> -->
-          <!-- <el-form-item label="性别" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.gender" autocomplete="off"></el-input>
-          </el-form-item> -->
           <el-form-item label="角色状态" :label-width="formLabelWidth">
             <el-select v-model="dialogForm.role" placeholder="请选择">
               <el-option label="普通用户" value="0"></el-option>
@@ -202,6 +217,8 @@ export default {
     }
     this.$bus.$on(`pagination${this.$options.name}`, ({ page, limit }) => {
       // console.log(page, limit);
+      this.currentPage = page;
+      this.pageSize = limit;
       this.getAdminPage(page, limit);
     });
   },
@@ -376,24 +393,28 @@ export default {
     // 导出excel
     handleExportExcel() {
       // 调用接口
-      try {
-        /* **写法 */
-        let link = document.createElement("a");
-        link.href = "http://116.63.165.100:8080/api/admin/download";
-        console.log(link);
-        link.click(); //模拟点击
-        document.body.removeChild(link);
-      } catch (error) {
-        console.log(error);
-      }
-      /* 存在无限点击 */
-      /* var blob = new Blob(await getAdminExcel(), {
-        type: "application/vnd.ms-excel",
-      });
-      console.log(blob);
-      this.$refs.download_excel.href = window.URL.createObjectURL(blob);
-      this.$refs.download_excel.download = "vnd.ms-excel";
-      this.$refs.download_excel.$el.click(); */
+      this.$axios({
+        url: "/api/admin/download",
+        method: "get",
+        responseType: "blob",
+      }).then(
+        (response) => {
+          const blob = new Blob([response.data], {
+            type: "application/vnd.ms-excel",
+          });
+          const link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          // 这里也可以自己从headers中获取文件名.
+          link.download = "管理员信息.xlsx";
+          link.click();
+          // document.body.removeChild(link);
+          this.$message.success("导出成功");
+        },
+        (error) => {
+          this.$message.error("导出excel出错!");
+          console.log("导出excel出错" + error);
+        }
+      );
     },
   },
 };

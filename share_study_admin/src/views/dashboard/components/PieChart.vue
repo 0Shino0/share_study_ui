@@ -6,6 +6,12 @@
 // import echarts from 'echarts'
 // require("echarts/theme/macarons"); // echarts theme
 import resize from "./mixins/resize";
+import {
+  getCollegeMap,
+  getResourceCollectTop,
+  getCollegeScoreTop,
+  getTeacherScoreTop,
+} from "@/api/chart.js";
 
 export default {
   mixins: [resize],
@@ -26,12 +32,12 @@ export default {
   data() {
     return {
       chart: null,
+      collegeScoreList: [],
+      collegeNameList: [],
     };
   },
   mounted() {
-    this.$nextTick(() => {
-      this.initChart();
-    });
+    this.getCollegeScoreTopInfo();
   },
   beforeDestroy() {
     if (!this.chart) {
@@ -41,12 +47,23 @@ export default {
     this.chart = null;
   },
   methods: {
+    async getCollegeScoreTopInfo() {
+      const { data } = await getCollegeScoreTop();
+      this.collegeScoreList = data.map((c) => {
+        return { value: c.score, name: c.name };
+      });
+      this.collegeNameList = data.map((c) => {
+        return c.name;
+      });
+      console.log(this.collegeScoreList);
+      this.initChart();
+    },
     initChart() {
       this.chart = this.$echarts.init(this.$el, "macarons");
 
       this.chart.setOption({
         title: {
-          text: "高校贡献比",
+          text: "高校总贡献比",
           right: 10,
           top: -2,
         },
@@ -57,28 +74,16 @@ export default {
         legend: {
           left: "center",
           bottom: "10",
-          data: [
-            "哈尔滨商业大学",
-            "北京大学",
-            "测试大学",
-            "门头沟大学",
-            "其余高校",
-          ],
+          data: this.collegeNameList,
         },
         series: [
           {
-            name: "每周贡献",
+            name: "总贡献",
             type: "pie",
             roseType: "radius",
             radius: [15, 95],
             center: ["50%", "38%"],
-            data: [
-              { value: 320, name: "哈尔滨商业大学" },
-              { value: 240, name: "北京大学" },
-              { value: 149, name: "测试大学" },
-              { value: 100, name: "门头沟大学" },
-              { value: 59, name: "其余高校" },
-            ],
+            data: this.collegeScoreList,
             animationEasing: "cubicInOut",
             animationDuration: 2600,
           },

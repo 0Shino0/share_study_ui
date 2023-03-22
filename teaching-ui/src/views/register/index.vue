@@ -73,8 +73,20 @@
             </el-select>
           </el-form-item>
           <el-form-item label="院校" :label-width="registerFormLabelWidth">
-            <el-select v-model="registerForm.code" placeholder="College">
-              <el-option label="哈尔滨商业大学" value="10240"></el-option>
+            <el-select v-model="registerForm.belong" placeholder="College">
+              <el-option
+                v-for="(collegeItem, index) in collegeList"
+                :key="collegeItem.id"
+                :label="collegeItem.name"
+                :value="collegeItem.id"
+              ></el-option>
+              <!-- <el-option label="哈尔滨商业大学" value="10240"></el-option>
+              <el-option label="黑龙江财经学院" value="13298"></el-option>
+              <el-option
+                label="黑龙江交通职业技术学院"
+                value="14053"
+              ></el-option>
+              <el-option label="哈尔滨广厦学院" value="13306"></el-option> -->
             </el-select>
           </el-form-item>
         </el-form>
@@ -88,7 +100,7 @@
 </template>
 
 <script>
-import { register } from "@/api/login";
+import { register, getCollegeList } from "@/api/login";
 
 export default {
   name: "Register",
@@ -125,7 +137,7 @@ export default {
         name: undefined, // 姓名
         email: undefined, // 邮箱
         gender: undefined, // 性别
-        code: undefined, // 院校代码
+        belong: undefined, // 院校代码
         avatar: undefined, // 头像
       },
       registerFormRules: {
@@ -136,9 +148,13 @@ export default {
         email: [{ required: true, trigger: "blur" }],
         gender: [{ required: true, trigger: "blur" }],
         avatar: [{ required: false, trigger: "blur" }],
-        code: [{ required: true, trigger: "blur" }],
+        belong: [{ required: true, trigger: "blur" }],
       },
+      collegeList: [],
     };
+  },
+  mounted() {
+    this.getCollegeListInfo();
   },
   methods: {
     // 注册
@@ -179,18 +195,48 @@ export default {
         email: undefined, // 邮箱
         gender: undefined, // 性别
         avatar: undefined, // 头像
-        code: undefined, // 院校代码
+        belong: undefined, // 院校代码
       };
       this.resetForm("registerForm");
+    },
+    //
+    async getCollegeListInfo() {
+      const { data } = await getCollegeList();
+      this.collegeList = data;
     },
   },
 };
 </script>
 
 <style lang="scss">
+/*大型屏幕pc 超大屏*/
+@media screen and (min-width: 1200px) {
+  .register {
+    width: 496px;
+  }
+}
+/*1200>=pc>=992 大屏，字体红色，背景黑色*/
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+  .register {
+    width: 496px;
+  }
+}
+/*768<=pad<992 中屏，字体黄色，背景红色*/
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .register {
+    width: 496px;
+  }
+}
+/*phone<768  小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 767px) and (min-width: 480px) {
+}
+/* 超小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 480px) {
+}
+
 .register {
-  max-width: 496px;
-  min-width: 460px;
+  // max-width: 496px;
+  // min-width: 460px;
   display: flex;
   flex-direction: column;
   justify-content: center;

@@ -89,9 +89,11 @@ const actions = {
 
         // commit('SET_NAME', name)
         // commit('SET_AVATAR', avatar)
-        resolve({...data,isLogin:true})
+        resolve({ ...data, isLogin: true })
+        return { ...data, isLogin: true };
       }).catch(error => {
         reject(error)
+        return error;
       })
     })
   },

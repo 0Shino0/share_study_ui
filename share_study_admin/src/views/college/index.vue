@@ -2,32 +2,67 @@
   <div class="college-container">
     <!-- <div class="college-text">高校</div> -->
     <div class="op-btn">
-      <el-button class="add-btn" type="success" size="mini" @click="handleAdd()">新增</el-button>
-      <el-button class="export-btn" type="success" size="mini" @click="handleExportExcel()">导出Excel</el-button>
+      <el-button class="add-btn" type="success" size="mini" @click="handleAdd()"
+        >新增</el-button
+      >
+      <el-button
+        class="export-btn"
+        type="success"
+        size="mini"
+        @click="handleExportExcel()"
+        >导出Excel</el-button
+      >
     </div>
     <div class="table-container">
-      <el-table :data="
-                  tableCollegeData.filter(
-                    (data) =>
-                      !search || data.name.toLowerCase().includes(search.toLowerCase())
-                  )
-                " stripe style="width: 100%" v-loading="loading">
-        <el-table-column v-for="item in tableCollegeCol" :key="item.prop" :prop="item.prop" :label="item.label"
-          :width="tableColumnWidth">
+      <el-table
+        :data="
+          tableCollegeData.filter(
+            (data) =>
+              !search || data.name.toLowerCase().includes(search.toLowerCase())
+          )
+        "
+        stripe
+        style="width: 100%"
+        v-loading="loading"
+      >
+        <el-table-column
+          v-for="item in tableCollegeCol"
+          :key="item.prop"
+          :prop="item.prop"
+          :label="item.label"
+          :width="tableColumnWidth"
+        >
         </el-table-column>
         <el-table-column align="right">
           <template slot="header" slot-scope="scope">
-            <el-input v-model="search" size="mini" placeholder="输入资料名搜索" />
+            <el-input
+              v-model="search"
+              size="mini"
+              placeholder="输入资料名搜索"
+            />
           </template>
           <template slot-scope="scope">
-            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
+              >编辑</el-button
+            >
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.$index, scope.row)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
       <Pagination :total="total" :emitName="$options.name"></Pagination>
 
-      <el-dialog title="标题" :visible.sync="dialogShow" :width="dialogWidth" :top="dialogTop" :before-close="dialogCancel">
+      <el-dialog
+        title="标题"
+        :visible.sync="dialogShow"
+        :width="dialogWidth"
+        :top="dialogTop"
+        :before-close="dialogCancel"
+      >
         <el-form :model="dialogForm" ref="queryForm">
           <!-- <el-form-item label="用户ID" :label-width="formLabelWidth">
             <el-input v-model="dialogForm.id" autocomplete="off"></el-input>
@@ -147,6 +182,8 @@ export default {
     // console.log(this.$options.name);
     this.$bus.$on(`pagination${this.$options.name}`, ({ page, limit }) => {
       // console.log(page, limit);
+      this.currentPage = page;
+      this.pageSize = limit;
       this.getCollegePage(page, limit);
     });
   },
@@ -206,17 +243,25 @@ export default {
       this.$refs["queryForm"].validate((valid) => {
         if (valid) {
           if (this.dialogForm.id != null) {
-            updateCollege(this.dialogForm).then((response) => {
-              this.dialogShow = false;
-              this.getCollegePage(1, 10);
-              this.reset();
-            });
+            updateCollege(this.dialogForm)
+              .then((response) => {
+                this.dialogShow = false;
+                this.getCollegePage(this.currentPage, this.pageSize);
+                this.reset();
+              })
+              .catch((error) => {
+                console.log(error);
+              });
           } else {
-            addCollegeName(this.dialogForm).then((response) => {
-              this.dialogShow = false;
-              this.getCollegePage(1, 10);
-              this.reset();
-            });
+            addCollegeName(this.dialogForm)
+              .then((response) => {
+                this.dialogShow = false;
+                this.getCollegePage(this.currentPage, this.pageSize);
+                this.reset();
+              })
+              .catch((error) => {
+                console.log(error);
+              });
           }
         }
       });
@@ -240,17 +285,28 @@ export default {
     // 导出excel
     handleExportExcel() {
       // 调用接口
-      try {
-        /* **写法 */
-        let link = document.createElement("a");
-        // 高校url
-        link.href = "http://116.63.165.100:8080/api/college/download";
-        console.log(link);
-        link.click(); //模拟点击
-        document.body.removeChild(link);
-      } catch (error) {
-        console.log(error);
-      }
+      this.$axios({
+        url: "/api/college/download",
+        method: "get",
+        responseType: "blob",
+      }).then(
+        (response) => {
+          const blob = new Blob([response.data], {
+            type: "application/vnd.ms-excel",
+          });
+          const link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          // 这里也可以自己从headers中获取文件名.
+          link.download = "高校信息.xlsx";
+          link.click();
+          // document.body.removeChild(link);
+          this.$message.success("导出成功");
+        },
+        (error) => {
+          this.$message.error("导出excel出错!");
+          console.log("导出excel出错" + error);
+        }
+      );
     },
   },
 };

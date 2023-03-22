@@ -7,55 +7,163 @@
     infinite-scroll-immediate="false"
     infinite-scroll-distance="1"
   >
-    <!-- 无限滚动数据 -->
-    <div
-      v-if="userInfo && userInfo.isLogin && postLength !=0"
-      class="post-container infinite-list"
-    >
-      <router-link
-        class="infinite-list-item"
-        v-for="item in postList"
-        :key="item.resourceId"
-        :to="'/postDetail/' + item.resourceId"
-      >
-        <div class="post-item">
-          <el-card class="post-card" shadow="hover">
-            <div class="post-avater-info">
-              <span class="post-user-name">{{ item.userName }}</span>
-              <span>{{ item.collegeName }}</span>
-              <span>发布时间{{ item.createTime }}</span>
-            </div>
-            <div class="title item">{{ item.resourceName }}</div>
-            <!-- 简介 -->
-            <div class="post-description text item">
-              {{ item.resourceInfo }}
-            </div>
-            <!-- 收藏 -->
-            <ul class="icon-container">
-              <!-- 
-          el-icon-star-on
-          el-icon-star-off
-          -->
-              <li class="icon-item">
-                <i class="el-icon-star-off"> </i>
-                <span>{{ item.resourceScore }}</span>
-              </li>
-              <li class="icon-item">
-                <i class="el-icon-view"> </i>
-                <span>666</span>
-              </li>
-              <li class="icon-item">
-                <i class="el-icon-s-comment"> </i>
-                <span>{{ item.commentCount }}</span>
-              </li>
-            </ul>
-          </el-card>
+    <!-- 骨架屏 -->
+    <el-skeleton animated :loading="skeletonLoading">
+      <template #template>
+        <div class="main-container">
+          <div class="main-left">
+            <el-row class="post-container">
+              <el-card
+                class="post-card"
+                shadow="hover"
+                v-for="i in skeletonCount"
+                :key="i"
+              >
+                <el-row :gutter="20" class="post-avater-info">
+                  <el-col :span="2">
+                    <el-skeleton-item></el-skeleton-item>
+                  </el-col>
+                  <el-col :span="4">
+                    <el-skeleton-item></el-skeleton-item>
+                  </el-col>
+                  <el-col :span="7">
+                    <el-skeleton-item></el-skeleton-item>
+                  </el-col>
+                </el-row>
+                <el-row class="title item" style="margin: 8px 0">
+                  <el-col :span="10">
+                    <el-skeleton-item></el-skeleton-item>
+                  </el-col>
+                </el-row>
+                <!-- 简介 -->
+                <el-row class="post-description text item">
+                  <el-skeleton-item></el-skeleton-item>
+                </el-row>
+                <!-- 收藏 -->
+                <el-row :gutter="10" class="icon-container">
+                  <el-col :span="2" class="icon-item">
+                    <el-skeleton-item></el-skeleton-item>
+                  </el-col>
+                  <el-col :span="2" class="icon-item">
+                    <el-skeleton-item></el-skeleton-item>
+                  </el-col>
+                  <el-col :span="2" class="icon-item">
+                    <el-skeleton-item></el-skeleton-item>
+                  </el-col>
+                </el-row>
+              </el-card>
+            </el-row>
+          </div>
+          <div class="main-right">
+            <el-row>
+              <el-col> </el-col>
+            </el-row>
+          </div>
         </div>
-      </router-link>
-      <p class="post-card-loading" v-if="loading">加载中...</p>
-      <p class="post-card-loading" v-if="noMore">没有更多了</p>
+      </template>
+    </el-skeleton>
+
+    <div class="main-container">
+      <div class="main-left">
+        <!-- 无限滚动数据 -->
+        <div
+          v-if="userInfo && userInfo.isLogin && postLength != 0"
+          class="post-container infinite-list"
+        >
+          <router-link
+            class="infinite-list-item"
+            v-for="item in postList"
+            :key="item.resourceId"
+            :to="
+              '/postDetail/' +
+              item.resourceId +
+              '?collectStatus=' +
+              item.collectStatus
+            "
+          >
+            <div class="post-item">
+              <el-card class="post-card" shadow="hover">
+                <div class="post-avater-info">
+                  <span class="post-user-name">{{ item.userName }}</span>
+                  <span>{{ item.collegeName }}</span>
+                  <span>发布时间{{ item.createTime }}</span>
+                </div>
+                <div class="title item">{{ item.resourceName }}</div>
+                <!-- 简介 -->
+                <div class="post-description text item">
+                  {{ item.resourceInfo }}
+                </div>
+                <!-- 收藏 -->
+                <ul class="icon-container">
+                  <!-- 
+                el-icon-star-on
+                el-icon-star-off
+                -->
+                  <li class="icon-item">
+                    <i class="el-icon-star-off"> </i>
+                    <span>{{ item.resourceScore }}</span>
+                  </li>
+                  <!-- <li class="icon-item">
+                      <i class="el-icon-view"> </i>
+                      <span>666</span>
+                    </li> -->
+                  <li class="icon-item">
+                    <i class="el-icon-s-comment"> </i>
+                    <span>{{ item.commentCount }}</span>
+                  </li>
+                </ul>
+              </el-card>
+            </div>
+          </router-link>
+          <p class="post-card-loading" v-if="loading">加载中...</p>
+          <!-- <p class="post-card-loading" v-if="noMore">没有更多了</p> -->
+        </div>
+      </div>
+
+      <div class="main-right">
+        <!-- 头部卡片 展示个人信息 -->
+        <div class="card">
+          <div class="card-info">
+            <div class="card-avatar">
+              <default-avatar
+                v-if="userInfo.avatar === ''"
+                width="60px"
+                height="60px"
+                :avatarName="userInfo.name.split('')[0]"
+              ></default-avatar>
+              <img
+                v-else
+                :src="userInfo.avatar"
+                style="width: 60px; border-radius: 50%"
+                alt="头像"
+              />
+            </div>
+            <div class="card-title">{{ userInfo.name }}</div>
+            <div class="card-subtitle">{{ userInfo.collegeName }}</div>
+          </div>
+          <ul class="card-social">
+            <li class="card-social__item">
+              <i class="iconfont icon-jifen">
+                <br /><span>{{ userInfo.score }}</span></i
+              >
+            </li>
+            <li class="card-social__item">
+              <i class="el-icon-s-comment">
+                <br /><span>{{ userInfo.messageNumber }}</span></i
+              >
+            </li>
+            <li class="card-social__item">
+              <i class="el-icon-s-data">
+                <br /><span>{{ postLength }}</span></i
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
-    <div class="no-data" v-if="postLength === 0">
+
+    <!-- 无数据时使用 -->
+    <div class="no-data" v-if="postLength === 0 || noMore">
       <div class="loader">
         <div>
           <ul>
@@ -103,7 +211,7 @@
             </li>
           </ul>
         </div>
-        <span>暂时还没有帖子~~~,快点击右上角发帖吧！</span></span>
+        <span>没有帖子了呢~~~,快点击右上角发帖吧！</span>
       </div>
     </div>
   </div>
@@ -111,6 +219,7 @@
 
 <script>
 import Loading from "@/components/Loading/index.vue";
+import DefaultAvatar from "@/components/DefaultAvater";
 // import { mapState } from "vuex";
 import { getPostPage } from "@/api/post";
 
@@ -118,10 +227,13 @@ export default {
   name: "home",
   components: {
     Loading,
+    DefaultAvatar,
   },
   data() {
     return {
-      loading: false,
+      loading: false, // 无限滚动 触底 loading
+      skeletonLoading: true, // 骨架屏loading
+      skeletonCount: 6,
       pageFinish: false,
       count: 1, // 标记 默认第二页
       // 帖子相关
@@ -142,7 +254,7 @@ export default {
     this.getPostPageInfo(1, 100);
 
     // 登录时获取信息
-    this.$bus.$on("getPostPageInfo", (val) => {
+    this.$bus.$on("getPostPageInfoFromHeader", (val) => {
       this.userInfo = this.getTokenData();
       this.getPostPageInfo(1, 100);
       // this.load()
@@ -159,7 +271,7 @@ export default {
     // 退出登录时重置信息
     this.$bus.$on("resetUserInfo", (val) => {
       // this.userInfo = this.getTokenData();
-      this.userInfo = undefined;
+      this.userInfo = {};
       this.postLength = undefined;
       this.postAveList = [];
       this.postList = [];
@@ -188,6 +300,8 @@ export default {
       this.postList = this.postAveList[0];
       this.userInfo = this.getTokenData();
       console.log(this.postAveList[this.count]);
+
+      this.skeletonLoading = false;
     },
     // 均分数组
     aveArr(data, num) {
@@ -214,10 +328,7 @@ export default {
         } catch (error) {
           console.log(error);
         }
-      }, 2000);
-    },
-    handleLogin() {
-      this.$bus.$emit("handleLogin", true);
+      }, 300);
     },
   },
   computed: {
@@ -237,173 +348,363 @@ export default {
 </script>
 
 <style lang="scss">
+/*大型屏幕pc 超大屏*/
+@media screen and (min-width: 1200px) {
+}
+/*1200>=pc>=992 大屏，字体红色，背景黑色*/
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+}
+/*768<=pad<992 中屏，字体黄色，背景红色*/
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .main {
+    max-height: 730px;
+    .main-container {
+      max-height: 730px;
+
+      .main-left {
+      }
+
+      .main-right {
+        display: none;
+      }
+
+      // .main-right {
+      //   .card {
+      //     width: 100%;
+      //     width: 400px;
+      //   }
+      // }
+    }
+
+    .no-data {
+      display: flex;
+    }
+  }
+}
+/*phone<768  小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 767px) and (min-width: 480px) {
+  .main {
+    .main-container {
+      // .main-left {
+      // }
+
+      .main-right {
+        display: none;
+        // margin-top: 20px;
+        // .card {
+        //   width: 100%;
+        //   // width: 400px;
+        // }
+      }
+    }
+
+    .no-data {
+      display: flex;
+    }
+  }
+}
+/* 超小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 480px) {
+  .main {
+    .main-container {
+      // .main-left {
+      //   margin-bottom: 70px;
+      //   padding-top: 70px;
+      // }
+
+      .main-right {
+        display: none;
+      }
+      // .main-right {
+      //   margin-top: 20px;
+      //   width: 390px;
+
+      //   // padding-top: 70px;
+      //   .card {
+      //     width: calc(100% - 34px) !important;
+      //     margin: 0 auto;
+      //   }
+      // }
+    }
+  }
+}
+
 .main {
   min-height: 730px;
 
-  .post-container {
-    max-width: 680px;
-    min-width: 460px;
+  .main-container {
+    min-height: 730px;
+    position: relative;
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     justify-content: center;
-    // flex-wrap: no-wrap;
     padding-top: 60px;
     margin: 0 auto;
 
-    // .infinite-list-item:first-child {
-    //   margin-top: 300px;
-    // }
+    // 左侧帖子
+    .main-left {
+      width: 700px;
 
-    .post-card-loading {
-      align-items: center;
-      margin: 10px auto;
-    }
+      .post-container {
+        max-width: 680px;
+        // min-width: 460px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin: 0 auto;
+        // flex-wrap: no-wrap;
 
-    // post 帖子
-    .post-item {
-      .post-card {
-        position: relative;
-        height: 127px;
+        // .infinite-list-item:first-child {
+        //   margin-top: 300px;
+        // }
 
-        .el-card__body {
-          padding-top: 30px;
-          // padding-bottom: 20px;
+        .post-card-loading {
+          align-items: center;
+          margin: 10px auto;
+        }
 
-          .item {
-          }
+        // post 帖子
+        .post-item {
+          .post-card {
+            position: relative;
+            height: 127px;
+            background-color: #f9fbff; // card 颜色
 
-          .post-avater-info {
-            // display: flex;
-            position: absolute;
-            top: 8px;
-            left: 18px;
+            .el-card__body {
+              padding-top: 30px;
+              // padding-bottom: 20px;
 
-            .post-user-name {
-              padding-left: 0;
-            }
-
-            span {
-              font-size: 12px;
-              padding-right: 12px;
-              padding-left: 12px;
-              border-right: 1px solid #8a919f;
-              color: #8a919f;
-            }
-          }
-
-          .title {
-            font-weight: 700;
-            font-size: 16px;
-            line-height: 24px;
-            color: #1d2129;
-            margin-bottom: 8px;
-            margin-top: 8px;
-            display: -webkit-box;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 1;
-          }
-
-          .text {
-            color: #8a919f;
-            font-size: 13px;
-            line-height: 22px;
-            display: -webkit-box;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 1;
-          }
-
-          .item {
-            margin-bottom: 8px;
-          }
-
-          .icon-container {
-            display: flex;
-
-            .icon-item {
-              text-decoration: none;
-              list-style: none;
-              margin-right: 20px;
-              color: #8a919f;
-              cursor: pointer;
-              font-size: 12px;
-
-              span {
-                margin-left: 4px;
+              .item {
               }
-            }
 
-            .icon-item:hover {
-              color: #409eff;
+              .post-avater-info {
+                // display: flex;
+                position: absolute;
+                top: 8px;
+                left: 18px;
+
+                .post-user-name {
+                  padding-left: 0;
+                }
+
+                span {
+                  font-size: 12px;
+                  padding-right: 12px;
+                  padding-left: 12px;
+                  border-right: 1px solid #8a919f;
+                  color: #8a919f;
+                }
+              }
+
+              .title {
+                font-weight: 700;
+                font-size: 16px;
+                line-height: 24px;
+                color: #1d2129;
+                margin-bottom: 8px;
+                margin-top: 8px;
+                display: -webkit-box;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 1;
+              }
+
+              .text {
+                color: #8a919f;
+                font-size: 13px;
+                line-height: 22px;
+                display: -webkit-box;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 1;
+              }
+
+              .item {
+                margin-bottom: 8px;
+              }
+
+              .icon-container {
+                display: flex;
+
+                .icon-item {
+                  text-decoration: none;
+                  list-style: none;
+                  margin-right: 20px;
+                  color: #8a919f;
+                  cursor: pointer;
+                  font-size: 12px;
+
+                  span {
+                    margin-left: 4px;
+                  }
+                }
+
+                .icon-item:hover {
+                  color: #409eff;
+                }
+              }
+
+              // .clearfix:before,
+              // .clearfix:after {
+              //   display: table;
+              //   content: "";
+              // }
+
+              // .clearfix:after {
+              //   clear: both;
+              // }
             }
           }
 
-          // .clearfix:before,
-          // .clearfix:after {
-          //   display: table;
-          //   content: "";
-          // }
-
-          // .clearfix:after {
-          //   clear: both;
-          // }
+          .post-card:hover {
+            background-color: #fafafa;
+          }
         }
       }
 
-      .post-card:hover {
-        background-color: #fafafa;
+      // 动画效果
+      .post-container {
+        -webkit-animation: fade-in-fwd 0.6s cubic-bezier(0.39, 0.575, 0.565, 1)
+          both;
+        animation: fade-in-fwd 0.6s cubic-bezier(0.39, 0.575, 0.565, 1) both;
+      }
+
+      @-webkit-keyframes fade-in-fwd {
+        0% {
+          -webkit-transform: translateZ(-80px);
+          transform: translateZ(-80px);
+          opacity: 0;
+        }
+
+        100% {
+          -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes fade-in-fwd {
+        0% {
+          -webkit-transform: translateZ(-80px);
+          transform: translateZ(-80px);
+          opacity: 0;
+        }
+
+        100% {
+          -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+          opacity: 1;
+        }
+      }
+    }
+
+    // 右侧信息
+    .main-right {
+      // position: fixed;
+      // 头部展示个人信息
+      .card {
+        width: 190px;
+        height: 254px;
+        background: #f9fbff;
+        // background: #f5f5f5;
+        padding: 2rem 1.5rem;
+        transition: box-shadow 0.3s ease, transform 0.2s ease;
+      }
+
+      .card-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+      }
+
+      /*Image*/
+      .card-avatar {
+        --size: 60px;
+        background: linear-gradient(to top, #f1e1c1 0%, #fcbc97 100%);
+        width: var(--size);
+        height: var(--size);
+        border-radius: 50%;
+        transition: transform 0.2s ease;
+        margin-bottom: 1rem;
+      }
+
+      /*Card footer*/
+      .card-social {
+        transform: translateY(200%);
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+        opacity: 0;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+      }
+
+      .card-social__item {
+        list-style: none;
+      }
+
+      .card-social__item i {
+        display: block;
+        height: 18px;
+        line-height: 18px;
+        width: 18px;
+        fill: #515f65;
+        cursor: pointer;
+        transition: fill 0.2s ease, transform 0.2s ease;
+      }
+
+      /*Text*/
+      .card-title {
+        color: #333;
+        font-size: 1.5em;
+        font-weight: 600;
+        line-height: 2rem;
+      }
+
+      .card-subtitle {
+        color: #859ba8;
+        font-size: 0.8em;
+      }
+
+      /*Hover*/
+      .card:hover {
+        box-shadow: 0 8px 50px #23232333;
+      }
+
+      .card:hover .card-info {
+        transform: translateY(-5%);
+      }
+
+      .card:hover .card-social {
+        transform: translateY(100%);
+        opacity: 1;
+      }
+
+      .card-social__item i:hover {
+        fill: #232323;
+        transform: scale(1.1);
+      }
+
+      .card-avatar:hover {
+        transform: scale(1.1);
       }
     }
   }
 
-  // 动画效果
-  .post-container {
-    -webkit-animation: fade-in-fwd 0.6s cubic-bezier(0.39, 0.575, 0.565, 1) both;
-    animation: fade-in-fwd 0.6s cubic-bezier(0.39, 0.575, 0.565, 1) both;
-  }
-
-  @-webkit-keyframes fade-in-fwd {
-    0% {
-      -webkit-transform: translateZ(-80px);
-      transform: translateZ(-80px);
-      opacity: 0;
-    }
-
-    100% {
-      -webkit-transform: translateZ(0);
-      transform: translateZ(0);
-      opacity: 1;
-    }
-  }
-
-  @keyframes fade-in-fwd {
-    0% {
-      -webkit-transform: translateZ(-80px);
-      transform: translateZ(-80px);
-      opacity: 0;
-    }
-
-    100% {
-      -webkit-transform: translateZ(0);
-      transform: translateZ(0);
-      opacity: 1;
-    }
-  }
-
-  // loading
-  .no-data{
+  .no-data {
     display: flex;
     justify-content: center;
-    align-items: center;
-    margin-top: 90px;
+    margin-top: 40px;
+    margin-bottom: 100px;
 
+    // loading
     .loader {
-      --background: linear-gradient(135deg, #23C4F8, #275EFE);
+      --background: linear-gradient(135deg, #23c4f8, #275efe);
       --shadow: rgba(39, 94, 254, 0.28);
-      --text: #6C7486;
+      --text: #6c7486;
       --page: rgba(255, 255, 255, 0.36);
       --page-fold: rgba(255, 255, 255, 0.52);
       --duration: 3s;
@@ -412,7 +713,8 @@ export default {
       position: relative;
     }
 
-    .loader:before, .loader:after {
+    .loader:before,
+    .loader:after {
       --r: -6deg;
       content: "";
       position: absolute;
@@ -524,11 +826,13 @@ export default {
         opacity: 1;
       }
 
-      35%, 100% {
+      35%,
+      100% {
         opacity: 0;
       }
 
-      50%, 100% {
+      50%,
+      100% {
         transform: rotateY(0deg);
       }
     }
@@ -543,11 +847,13 @@ export default {
         opacity: 1;
       }
 
-      50%, 100% {
+      50%,
+      100% {
         opacity: 0;
       }
 
-      65%, 100% {
+      65%,
+      100% {
         transform: rotateY(0deg);
       }
     }
@@ -562,11 +868,13 @@ export default {
         opacity: 1;
       }
 
-      65%, 100% {
+      65%,
+      100% {
         opacity: 0;
       }
 
-      80%, 100% {
+      80%,
+      100% {
         transform: rotateY(0deg);
       }
     }
@@ -581,15 +889,16 @@ export default {
         opacity: 1;
       }
 
-      80%, 100% {
+      80%,
+      100% {
         opacity: 0;
       }
 
-      95%, 100% {
+      95%,
+      100% {
         transform: rotateY(0deg);
       }
     }
-
   }
 }
 </style>

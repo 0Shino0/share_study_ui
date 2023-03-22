@@ -16,7 +16,7 @@
             v-if="userInfo.avatar === ''"
             width="125px"
             height="125px"
-            :avaterName="userInfo.name.split('')[0]"
+            :avatarName="userInfo.name.split('')[0]"
           ></default-avater>
           <img
             v-else
@@ -59,6 +59,75 @@
       <!-- 帖子 -->
       <div class="about-body-left">
         <el-tabs v-model="activeName" @tab-click="handleClick">
+          <el-tab-pane label="我的帖子" name="mypost">
+            <!-- 我的帖子 -->
+            <div class="post-container">
+              <div
+                class="post-item"
+                v-for="(postItem, index) in postList"
+                :key="postItem.collectId"
+              >
+                <!-- 作者信息 -->
+                <div class="post-author">
+                  <!-- 头像 -->
+                  <div class="post-avater" v-if="postItem.userAvatarUrl">
+                    <img
+                      class="avater"
+                      :src="postItem.userAvatarUrl"
+                      alt="作者"
+                    />
+                  </div>
+                </div>
+                <!-- 评论详细 -->
+                <div class="post-detail">
+                  <!-- 用户描述 -->
+                  <div class="avater-description">
+                    <!-- 姓名 -->
+                    <div class="post-name">
+                      <h5>{{ postItem.userName }}</h5>
+                    </div>
+                    <!-- 所属高校 -->
+                    <div class="post-college">
+                      {{ postItem.collegeName }}
+                    </div>
+                  </div>
+                  <!-- 帖子信息 -->
+                  <div class="post-info">
+                    <span>{{ postItem.resourceName }}</span>
+                  </div>
+
+                  <div class="post-action">
+                    <!-- 附件信息 -->
+                    <div class="post-download" v-if="postItem.resourceUrl">
+                      <a
+                        class="download"
+                        target="blank"
+                        :href="postItem.resourceUrl"
+                        download="下载"
+                        ><span class="iconfont icon-fujian"></span>附件下载</a
+                      >
+                    </div>
+                    <!-- 评论 -->
+                    <div
+                      class="add-post-item"
+                      @click="handlePushPost(postItem.resourceId)"
+                    >
+                      <span class="iconfont icon-message"></span>
+                      <span class="add-action">查看详情</span>
+                    </div>
+                  </div>
+
+                  <!-- 回复 -->
+                  <div class="post-send-name">
+                    <span>发布于{{ postItem.createTime }}</span>
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="collect-none" v-if="collectList === []">
+                <h2>无</h2>
+              </div> -->
+            </div>
+          </el-tab-pane>
           <el-tab-pane label="收到评论" name="comment">
             <!-- 我的评论 -->
             <!-- 评论分页 -->
@@ -134,7 +203,7 @@
                   </div>
                   <!-- 帖子信息 -->
                   <div class="collect-info">
-                    <span>{{ collectItem.resourceInfo }}</span>
+                    <span>{{ collectItem.resourceName }}</span>
                   </div>
 
                   <div class="collect-action">
@@ -189,22 +258,19 @@
                 <el-input v-model="selfForm.account"></el-input>
                 <!-- <span class="form-item-action">修改</span> -->
               </el-form-item>
-              <el-form-item label="密码">
-                <el-input v-model="selfForm.password"></el-input>
-                <!-- <span class="form-item-action">修改</span> -->
-              </el-form-item>
               <el-form-item label="邮箱">
                 <el-input v-model="selfForm.email"></el-input>
                 <!-- <span class="form-item-action">修改</span> -->
               </el-form-item>
-              <el-form-item label="性别">
-                <!-- <el-input v-model="selfForm.gender"></el-input> -->
+              <!-- <el-form-item label="密码">
+                <el-input v-model="selfForm.password"></el-input>
+              </el-form-item> -->
+              <!-- <el-form-item label="性别">
                 <el-select v-model="selfForm.gender" placeholder="请选择">
                   <el-option label="女" value="0"></el-option>
                   <el-option label="男" value="1"></el-option>
                 </el-select>
-                <!-- <span class="form-item-action" @click="handleUpdateUser(event)">修改</span> -->
-              </el-form-item>
+              </el-form-item> -->
             </el-form>
           </el-tab-pane>
         </el-tabs>
@@ -283,7 +349,7 @@ export default {
     return {
       // 用户信息
       // userInfo: {},
-      activeName: "comment",
+      activeName: "userInfo",
       userCommentList: [],
       collectList: [],
       collectTotal: 0,
@@ -557,10 +623,66 @@ export default {
 </script>
 
 <style lang="scss">
+/*大型屏幕pc 超大屏*/
+@media screen and (min-width: 1200px) {
+  .about-container {
+    width: 960px;
+  }
+}
+/*1200>=pc>=992 大屏，字体红色，背景黑色*/
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+  .about-container {
+    width: 960px;
+  }
+}
+/*768<=pad<992 中屏，字体黄色，背景红色*/
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .about-container {
+    width: 768px;
+  }
+}
+/*phone<768  小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 767px) and (min-width: 480px) {
+  .about-container {
+    width: 480px;
+  }
+}
+/* 超小屏，字体黑色，背景蓝色*/
+@media screen and (max-width: 480px) {
+  // 修改个人资料按钮
+  .about-container .about-header .about-update {
+    position: absolute;
+    width: 100px !important;
+    // 方案一
+    height: 30px !important;
+    padding: 4px 6px;
+    // 方案二
+    // min-height: 40px;
+
+    right: 10px !important;
+    bottom: 10px !important;
+    span {
+      font-size: 8px;
+    }
+  }
+
+  .description-container {
+    .description-item {
+      .count {
+        font-size: 8px;
+      }
+
+      .description-tag {
+        font-size: 8px;
+      }
+    }
+  }
+}
+
 .about-container {
-  width: 960px;
+  // width: 960px;
   // 方案一
-  height: 680px;
+  // height: 680px;
 
   // 方案二
   // min-height: 680px;
@@ -679,6 +801,133 @@ export default {
           // 方案二
           // min-height: 350px;
           // overflow-y: auto;
+        }
+
+        // 我的帖子分页
+        .post-container {
+          margin-top: 20px;
+          border-radius: 10px;
+          background-color: #fff;
+
+          .post-title {
+            padding: 10px 30px;
+          }
+
+          .post-item {
+            padding: 10px 30px;
+            display: flex;
+            position: relative;
+            // border: 1px solid red;
+
+            // 帖子作者
+            .post-author {
+              position: relative;
+              display: flex;
+              padding-left: 10px;
+
+              // margin: 10px 0 0 0px;
+              // border-bottom: 1px solid #909399;
+              // padding-bottom: 10px;
+
+              .post-avater {
+                .avater {
+                  width: 40px;
+                }
+              }
+            }
+
+            // 评论详细
+            .post-detail {
+              .avater-description {
+                margin-left: 10px;
+                padding-right: 10px;
+                // border-right: 1px solid #909399;
+                display: flex;
+
+                // 姓名
+                .post-name {
+                  border-right: 1px solid #909399;
+                  padding-right: 10px;
+                  font-size: 14px;
+                }
+
+                // 高校
+                .post-college {
+                  padding-left: 5px;
+                  font-size: 8px;
+                  margin-top: 2px;
+                }
+              }
+
+              // 评论信息
+              .post-info {
+                margin-top: 20px;
+                margin-left: 20px;
+
+                span {
+                  font-size: 12px;
+                }
+              }
+
+              .post-action {
+                display: flex;
+
+                // 附件下载
+                .post-download {
+                  margin: 20px 0px 0px 10px;
+                  font-size: 12px;
+
+                  .download {
+                    color: #909399;
+                  }
+
+                  .download:hover {
+                    color: #029dff;
+                  }
+                }
+
+                // 回复
+                .add-post-item {
+                  margin: 20px 0px 0px 10px;
+                  font-size: 12px;
+                  cursor: pointer;
+                  color: #909399;
+
+                  // .icon-message {}
+
+                  .add-action {
+                    font-size: 10px;
+                  }
+                }
+
+                .add-post-item:hover {
+                  color: #029dff;
+                }
+              }
+            }
+
+            .post-send-name {
+              position: absolute;
+              top: 10px;
+              right: 30px;
+
+              span {
+                font-size: 12px;
+              }
+            }
+          }
+
+          // 奇数选择器
+          .post-item:nth-child(odd) {
+            background-color: #fafafa;
+          }
+
+          // 无收藏
+          .post-none {
+            text-align: center;
+            margin-top: 150px;
+            color: #7f757d;
+          }
         }
 
         // 评论分页
@@ -903,12 +1152,16 @@ export default {
         }
 
         .el-tabs__header {
-          margin-left: 355px;
-          margin-right: 355px;
+          width: 100%;
+          text-align: center;
+          // margin-left: 33%;
+          // margin-right: 33%;
         }
 
         .el-tabs__nav-scroll {
           text-align: center;
+          display: flex;
+          justify-content: center;
 
           .el-tabs__nav {
             display: flex;

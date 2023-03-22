@@ -14,7 +14,12 @@ import { Message } from 'element-ui'
 
 import Loading from '@/components/Loading';
 
-import { resetForm,getTokenData } from "@/utils/index"
+import { resetForm, getTokenData } from "@/utils/index"
+
+// vue中使用 video.js
+import videojs from "video.js";
+import "video.js/dist/video-js.css";
+
 
 // import Dialog from "@/components/Dialog.vue";
 
@@ -24,6 +29,7 @@ Vue.prototype.globalInfo = {
 }
 Vue.prototype.$message = Message; // 全局element
 Vue.prototype.$axios = axios; // axios请求
+Vue.prototype.$video = videojs; // 全局video
 // Vue.prototype.$userInfo = getTokenData(); // 全局用户信息
 
 

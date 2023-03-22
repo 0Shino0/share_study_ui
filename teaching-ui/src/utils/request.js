@@ -65,6 +65,8 @@ service.interceptors.response.use(
     // if the custom code is not 20000, it is judged as an error.
     if (res.code !== "00000") {
       // if (res.code !== 20000) {
+
+      // 暂时关闭全局 error
       Message({
         message: res.message || 'Error',
         type: 'error',
@@ -74,7 +76,7 @@ service.interceptors.response.use(
       // 未登录
       if (res.code === "D0112") {
         console.log("未登录");
-        console.log('Vue=>',Vue.prototype.$bus);
+        // console.log('Vue=>',Vue.prototype.$bus);
 
         // store.dispatch('user/logout').then(() => { // 退出登录
         //   // location.reload()
@@ -90,12 +92,16 @@ service.interceptors.response.use(
         }else if (window.location.href.split('#')[1] !== '/login') {
             router.push(`/login`);
           }
-
       }
 
       if (res.code === 'A0410') {
         console.log("请求必填参数为空");
-        console.log(res);
+        // console.log(res);
+      }
+
+      if (res.code === 'A0301') {
+        console.log("访问未授权!!");
+        // console.log(res);
       }
 
       // 50008:非法令牌;50012:已登录的其他客户端;50014:令牌过期;
@@ -119,6 +125,7 @@ service.interceptors.response.use(
   },
   error => {
     console.log('err' + error) // for debug
+    // console.log(error.message);
     Message({
       message: error.message,
       type: 'error',
