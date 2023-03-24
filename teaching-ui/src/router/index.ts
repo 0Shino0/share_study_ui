@@ -1,32 +1,36 @@
-import home from '@/views/home/index.vue';
-import mine from '@/views/mine/index.vue';
+
 
 import {
   createRouter,
   createWebHistory,
-  } from 'vue-router'
+} from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
 
-const routes = [
+const routes:Array<RouteRecordRaw> = [
   {
     path: '/home',
     name: 'home',
-    component: home,
+    component: () => import('@/views/home/index.vue'),
     meta: {
-      title: '',
+      title: '首页',
       keepAlive: false
     }
   },
   {
-    path: '/mine',
-    name: 'mine',
-    component: mine,
+    path: '/test',
+    name: 'test',
+    component: () => import('@/views/test/index.vue'),
     meta: {
-      title: '',
+      title: '测试页',
       keepAlive: false
     }
   },
 ]
 
+// const router = createRouter({
+//   history: createWebHistory(import.meta.env.BASE_URL),
+//   routes,
+// })
 const router = createRouter({
   history: createWebHistory(),
   routes

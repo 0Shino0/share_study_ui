@@ -1,24 +1,38 @@
-<script setup lang="ts">
+<script lang="ts">
+import { ref, inject, onMounted, onBeforeUnmount } from "vue";
+import eventBus from "@/libs/eventBus";
 
-import { h, getCurrentInstance } from 'vue';
+export default {
+  setup() {
+    const $bus: any = inject("$bus");
+    let count = ref(1);
 
-const { proxy }:any = getCurrentInstance(); // 获取上下文
-proxy.$message({
-  message: h('p', null, [
-    h('span', null, 'Message can be '),
-    h('i', { style: 'color: teal' }, 'VNode'),
-  ]),
-})
+    function test(val = "test") {
+      console.log("val=>", val);
+      return val;
+    }
 
+    onMounted(() => {
+      $bus.on("test", test);
+    });
+
+    /* 方法 */
+    function incre() {
+      count.value++;
+    }
+
+    return {
+      count,
+
+      incre,
+    };
+  },
+};
 </script>
 
 <template>
-  <div>
-
-  </div>
+  <div @click="incre">Home</div>
+  {{ count }}
 </template>
 
-<style lang="scss">
-// @import '@/assets/scss/home/index.scss';
-
-</style>
+<style lang="scss"></style>
