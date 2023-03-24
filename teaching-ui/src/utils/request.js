@@ -66,12 +66,6 @@ service.interceptors.response.use(
     if (res.code !== "00000") {
       // if (res.code !== 20000) {
 
-      // 暂时关闭全局 error
-      Message({
-        message: res.message || 'Error',
-        type: 'error',
-        duration: 5 * 1000
-      })
 
       // 未登录
       if (res.code === "D0112") {
@@ -83,7 +77,8 @@ service.interceptors.response.use(
         // })
         // console.log("getToken=>", getToken());
         // 未登录 => 跳转首页
-        console.log(getToken());
+        // console.log(getToken());
+        
         if (getToken()) {
           console.log('noLogin');
           // 未登录
@@ -92,33 +87,41 @@ service.interceptors.response.use(
         }else if (window.location.href.split('#')[1] !== '/login') {
             router.push(`/login`);
           }
-      }
-
-      if (res.code === 'A0410') {
-        console.log("请求必填参数为空");
+      }else if (res.code === 'A0410') {
+        // console.error('请求必填参数为空!!!');
+        return Promise.reject(new Error(res.message || 'Error'))
         // console.log(res);
-      }
-
-      if (res.code === 'A0301') {
+      } else if (res.code === 'A0301') {
+        // console.error('请求必填参数为空!!!');
         console.log("访问未授权!!");
+        return Promise.reject(new Error(res.message || 'Error'))
         // console.log(res);
+      } else {
+            // 暂时关闭全局 error
+            Message({
+              message: res.message || 'Error',
+              type: 'error',
+              duration: 5 * 1000
+            })
+            // 50008:非法令牌;50012:已登录的其他客户端;50014:令牌过期;
+            if (res.code === "50008" || res.code === "50012" || res.code === "50014") {
+              // to re-login
+              MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
+                confirmButtonText: 'Re-Login',
+                cancelButtonText: 'Cancel',
+                type: 'warning'
+              }).then(() => {
+                // token鉴权-清除token
+                store.dispatch('user/resetToken').then(() => {
+                  // location.reload()
+                })
+              })
+            }
+            return Promise.reject(new Error(res.message || 'Error'))
       }
 
-      // 50008:非法令牌;50012:已登录的其他客户端;50014:令牌过期;
-      if (res.code === "50008" || res.code === "50012" || res.code === "50014") {
-        // to re-login
-        MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
-          confirmButtonText: 'Re-Login',
-          cancelButtonText: 'Cancel',
-          type: 'warning'
-        }).then(() => {
-          // token鉴权-清除token
-          store.dispatch('user/resetToken').then(() => {
-            // location.reload()
-          })
-        })
-      }
-      return Promise.reject(new Error(res.message || 'Error'))
+
+
     } else {
       return res
     }

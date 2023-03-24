@@ -1,7 +1,7 @@
 <template>
   <div
     class="main"
-    style="overflow: auto; height: 600px; margin-top: 10px"
+    style="overflow: auto; margin-top: 10px"
     v-infinite-scroll="load"
     infinite-scroll-disabled="disabled"
     infinite-scroll-immediate="false"
@@ -159,6 +159,37 @@
             </li>
           </ul>
         </div>
+
+        <!-- 更新消息 -->
+        <div class="upgrate-card">
+          <div class="cart-container">
+            <div class="upgrate-card-title">更新公告</div>
+            <el-collapse v-model="activeName" accordion>
+              <el-collapse-item title="2023年3月23日" name="1">
+                <div>
+                  -
+                  富文本支持：更新了发帖页面，短篇为原来的发帖页，长篇为更新后的富文本编辑。支持
+                  大部分word操作。
+                </div>
+                <div>- 移动端适配：目前已经初步适配移动端，后续还会优化。</div>
+              </el-collapse-item>
+              <el-collapse-item title="2023年3月22日" name="2">
+                <div>
+                  - docker时区问题：修复了实际发帖时间与北京时间的偏差。
+                </div>
+              </el-collapse-item>
+              <el-collapse-item title="之前的更新" name="3">
+                <div>
+                  - 骨架屏支持：支持首页以及帖子详情页面的骨架屏，优化首屏加载。
+                </div>
+                <div>
+                  - 文件上传优化：开放了大部分编程源文件格式的文件上传。
+                </div>
+                <div>- 文件的预览：支持图片、视频、文档的预览。</div>
+              </el-collapse-item>
+            </el-collapse>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -245,6 +276,9 @@ export default {
       componentKey: undefined,
       userInfo: {},
       searchInfo: null, // 搜索信息
+      // 更新信息
+      activeName: "1",
+      upgrateInfo: [{}],
     };
   },
   created() {
@@ -357,9 +391,9 @@ export default {
 /*768<=pad<992 中屏，字体黄色，背景红色*/
 @media screen and (min-width: 768px) and (max-width: 991px) {
   .main {
-    max-height: 730px;
+    // max-height: 730px;
     .main-container {
-      max-height: 730px;
+      // max-height: 730px;
 
       .main-left {
       }
@@ -430,10 +464,11 @@ export default {
 }
 
 .main {
-  min-height: 730px;
+  // min-height: 730px;
+  height: 100%;
 
   .main-container {
-    min-height: 730px;
+    // min-height: 730px;
     position: relative;
     display: flex;
     flex-wrap: wrap;
@@ -603,6 +638,25 @@ export default {
     // 右侧信息
     .main-right {
       // position: fixed;
+      .upgrate-card {
+        width: 190px;
+        // height: 254px;
+        margin-top: 10px;
+        background: #f9fbff;
+        // background: #f5f5f5;
+        padding: 1rem 1.5rem;
+        transition: box-shadow 0.3s ease, transform 0.2s ease;
+
+        .upgrate-card-title {
+          margin-bottom: 5px;
+          font-weight: bold;
+        }
+      }
+
+      .upgrate-card:hover {
+        box-shadow: 0 8px 50px #23232333;
+      }
+
       // 头部展示个人信息
       .card {
         width: 190px;

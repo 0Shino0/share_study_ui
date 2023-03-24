@@ -239,7 +239,9 @@
       </div>
       <!-- 帖子信息 -->
       <div class="post-info">
-        <span>{{ postDetail.resourceInfo }}</span>
+        <div class="insert-html" ref="inserthtml">
+          <!-- {{ postDetail.resourceInfo }} -->
+        </div>
 
         <!-- 如果附件是以 图片 / 视频的形式 则显示在帖子中 -->
         <div class="img-container" v-if="fileIsImg">
@@ -272,13 +274,13 @@
       <div class="post-download">
         <a
           class="download"
-          target="blank"
           :href="postDetail.resourceUrl"
+          target="blank"
           download="下载"
-          ><span class="iconfont icon-fujian"></span>附件查看</a
+          v-if="postDetail.resourceUrl != ''"
+          ><span class="iconfont icon-fujian"></span>附件查看/下载</a
         >
       </div>
-
       <!-- 收藏按钮 -->
       <div class="button-container">
         <el-button
@@ -304,6 +306,7 @@
           type="primary"
           size="mini"
           @click="toUpdatePost(postId)"
+          v-if="postDetail.userId === userInfo.id"
           ><span class="iconfont icon-message"></span>修改</el-button
         >
       </div>
@@ -487,7 +490,7 @@ export default {
       volume: 0.5, // 视频声音
       fileIsImg: undefined, // 是否 图片
       fileIsVideo: undefined, // 是否是视频
-      fileIsDoc: undefined, // 是否是视频
+      fileIsDoc: undefined, // 是否是文档
       docPreviewUrl: undefined, // doc预览地址
       isFocus: false, // 是否聚集
       // 评论
@@ -507,6 +510,7 @@ export default {
         "png",
         "jpg",
         "jpeg",
+        "gif",
         "pdf",
         "xlsx",
         "xls",
@@ -520,8 +524,16 @@ export default {
         "zip",
         "rar",
         "7z",
-        "gif",
         "py",
+        "java",
+        "c",
+        "cpp",
+        "go",
+        "html",
+        "js",
+        "ts",
+        "sql",
+        "css",
       ], // 允许的文件类型
       action: "/api/file/oss_file_upload", // 上传的地址
       limit: 1,
@@ -570,11 +582,16 @@ export default {
         console.log(this.fileSuffix);
         this.isFileType(this.fileSuffix);
       }
+
+      // 渲染信息
+      console.log(this.$refs.inserthtml.innerHTML);
+      this.$refs.inserthtml.innerHTML += this.postDetail.resourceInfo;
       this.skeletonLoading = false;
     },
     // 修改帖子信息
     toUpdatePost(id) {
-      this.$router.push({ path: "/addPost/" + id });
+      // this.$router.push({ path: "/addPost/" + id });
+      this.$router.push({ path: "/sendPost/" + id });
     },
     isFileType(suffix) {
       // 判断文件是什么类型
@@ -589,7 +606,9 @@ export default {
       if (!this.fileIsVideo) {
         console.log("fileIsDoc=>", this.docType.includes(suffix));
         this.fileIsDoc = this.vidioType.includes(suffix);
-        this.docPreviewUrl = `https://view.officeapps.live.com/op/view.aspx?src=${this.postDetail.resourceUrl}`;
+        if (this.fileIsDoc) {
+          this.docPreviewUrl = `https://view.officeapps.live.com/op/view.aspx?src=${this.postDetail.resourceUrl}`;
+        }
       }
     },
     // 获取路由中的参数
@@ -816,8 +835,26 @@ export default {
     .post-info {
       margin-top: 30px;
 
-      span {
+      // 富文本样式
+      .insert-html {
         margin-bottom: 30px;
+
+        pre {
+          background: #2d2d2d;
+          color: rgb(201, 209, 217);
+          font-family: Consolas;
+          text-align: left;
+          padding: 1em;
+          padding-left: 0.8em;
+          margin: 1em;
+          border-radius: 5px;
+          counter-reset: line;
+          white-space: pre;
+          word-spacing: normal;
+          word-break: normal;
+          word-wrap: normal;
+          line-height: 1.5;
+        }
       }
 
       // 图片附件

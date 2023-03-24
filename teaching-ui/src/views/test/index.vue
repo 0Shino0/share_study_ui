@@ -2,24 +2,26 @@
   <div class="test">
     <!-- <Loading /> -->
     <!-- <vue-emojis></vue-emojis> -->
-    <!-- <wang-editor></wang-editor> -->
+    <wang-editor></wang-editor>
   </div>
 </template>
 
 <script>
-import Loading from "@/components/Loading/index.vue";
-import VueEmojis from "@/components/VueEmojis";
-// import WangEditor from "@/components/WangEditor";
+// import Loading from "@/components/Loading/index.vue";
+// import VueEmojis from "@/components/VueEmojis";
+import WangEditor from "@/components/WangEditor";
 
 export default {
   name: "test",
   components: {
-    Loading,
-    VueEmojis,
-    // WangEditor,
+    // Loading,
+    // VueEmojis,
+    WangEditor,
   },
   data() {
-    return {};
+    return {
+      
+    };
   },
 };
 </script>

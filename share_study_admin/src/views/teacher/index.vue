@@ -129,8 +129,12 @@ export default {
           prop: "name",
           label: "老师姓名",
         },
+        // {
+        //   prop: "belong",
+        //   label: "所属高校",
+        // },
         {
-          prop: "belong",
+          prop: "belongName",
           label: "所属高校",
         },
         {
@@ -254,7 +258,7 @@ export default {
   },
   created() {
     if (this.tableTeacherData) {
-      this.getTeacherPage(1, 100);
+      this.getTeacherPage(this.currentPage, this.pageSize);
     }
     this.$bus.$on(`pagination${this.$options.name}`, ({ page, limit }) => {
       // console.log(page, limit);
@@ -271,6 +275,7 @@ export default {
       this.loading = true;
       try {
         const { data } = await getTeacherPageInfo(current, pageSize);
+        this.total = data.total;
         // console.log(data);
         /* 加工数组
           所属高校 => 字符串
@@ -282,24 +287,24 @@ export default {
         console.log(data);
         let filterArr = data.records.filter((c) => c.role === 0);
         console.log(filterArr);
-        const newArr = await Promise.all(
-          filterArr.map(async (current) => {
-            // 所属高校 (会有延迟问题)待定
-            // let belong = await getCollegeName(current.belong);
-            // current.belong = belong.data.name;
-            current.belong = await this.getCollege(current.belong);
+        // const newArr = await Promise.all(
+        const newArr = filterArr.map((current) => {
+          // 所属高校 (会有延迟问题)待定
+          // let belong = await getCollegeName(current.belong);
+          // current.belong = belong.data.name;
+          // current.belong = await this.getCollege(current.belong);
 
-            current.role = "普通用户";
-            // 状态
-            current.status = current.status === 0 ? "正常" : "禁用";
-            // 时间格式化
-            /* current.createTime =
+          current.role = "普通用户";
+          // 状态
+          current.status = current.status === 0 ? "正常" : "禁用";
+          // 时间格式化
+          /* current.createTime =
             current.createTime.slice(0, 3).toString().replace(/,/g, "-") +
             " " +
             current.createTime.slice(3, 6).toString().replace(/,/g, ":"); */
-            return current;
-          })
-        );
+          return current;
+        });
+        // );
         this.tableTeacherData = newArr;
         this.resetLoading(300);
       } catch (error) {

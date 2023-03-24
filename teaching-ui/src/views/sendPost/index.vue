@@ -1,7 +1,24 @@
 <template>
   <div class="add-post-container">
     <Loading v-show="submitLoading"></Loading>
-    <h2>发帖</h2>
+    <el-upload
+      class="upload-file"
+      :action="action"
+      :http-request="uploadFile"
+      :on-preview="handlePreview"
+      :on-remove="handleRemove"
+      :before-remove="beforeRemove"
+      :before-upload="beforeUpload"
+      multiple
+      :limit="fileLimit"
+      :on-exceed="handleExceed"
+      :file-list="fileList"
+    >
+      <el-button size="small" type="primary"
+        ><span class="iconfont icon-fujian"></span> 附件上传</el-button
+      >
+      <div slot="tip" class="el-upload__tip"></div>
+    </el-upload>
     <el-form
       class="form"
       ref="form"
@@ -9,17 +26,14 @@
       :rules="formRules"
       label-width="40px"
     >
-      <el-form-item label="标题">
-        <el-input v-model="form.name"></el-input>
-      </el-form-item>
-      <el-form-item label="描述">
-        <el-input
-          type="textarea"
-          maxlength="2000"
-          show-word-limit
-          v-model="form.info"
-        ></el-input>
-      </el-form-item>
+      <!-- WangEditor -->
+      <wang-editor
+        v-if="propTitle !== '' || postId === '1'"
+        :postId="postId"
+        :title="propTitle"
+        :info="propInfo"
+        class="wang-editor"
+      ></wang-editor>
 
       <!--
         <el-upload
@@ -37,32 +51,7 @@
           :headers="headers"//上传文件的请求头
           >
        -->
-      <el-upload
-        class="upload-file"
-        :action="action"
-        :http-request="uploadFile"
-        :on-preview="handlePreview"
-        :on-remove="handleRemove"
-        :before-remove="beforeRemove"
-        :before-upload="beforeUpload"
-        multiple
-        :limit="fileLimit"
-        :on-exceed="handleExceed"
-        :file-list="fileList"
-      >
-        <el-button size="small" type="primary"
-          ><span class="iconfont icon-fujian"></span> 附件上传</el-button
-        >
-        <div slot="tip" class="el-upload__tip"></div>
-      </el-upload>
-
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit" v-if="postId === '1'"
-          >发布</el-button
-        >
-        <el-button type="primary" @click="updateSubmit" v-else>修改</el-button>
-        <el-button @click="handleCancel">取消</el-button>
-      </el-form-item>
+      <!-- <div class="test" ref="test">测试<br /></div> -->
     </el-form>
   </div>
 </template>
@@ -72,15 +61,20 @@ import { delOssFile, ossFileUpload } from "@/api/oss";
 import { addPost, getPostInfo, updatePost } from "@/api/post";
 import { getToken } from "@/utils/auth";
 import Loading from "@/components/Loading";
+import WangEditor from "@/components/WangEditor";
 
 export default {
   components: {
     Loading,
+    WangEditor,
   },
   data() {
     return {
       // 修改帖子相关
       postId: undefined,
+      propTitle: "",
+      propInfo: "",
+      postUrl: "", // 帖子传递过来的 url
       postDetail: {}, // 帖子详情
       userInfo: {}, // 用户信息
       // 发帖表单
@@ -140,17 +134,50 @@ export default {
       fileUrl: undefined,
     };
   },
+
   mounted() {
     this.userInfo = this.getTokenData();
+    this.$nextTick(() => {
+      this.updatePost(this.postId);
+    });
     this.getParams(); // 获取路由中的参数
-    this.updatePost(this.postId);
     this.noToken(); // 未登录
 
     this.$bus.$on("resetFormFromHeader", (val) => {
       this.resetAddPost();
     });
+
+    // 提交 发布
+    this.$bus.$on("tranHtmlFromEditor", (info, title) => {
+      console.log("info=>", info);
+      console.log("title=>", title);
+
+      this.form.name = title;
+      this.form.info = info;
+      // 发布接口
+      this.onSubmit();
+      // this.$refs.test.innerHTML += info;
+      // console.log(this.$refs.test);
+    });
+
+    // 修改
+    this.$bus.$on("updateHtmlFromEditor", (info, title) => {
+      console.log("info=>", info);
+      console.log("title=>", title);
+
+      this.updateForm.name = title;
+      this.updateForm.info = info;
+      // 发布接口
+      this.updateSubmit();
+      // this.$refs.test.innerHTML += info;
+      // console.log(this.$refs.test);
+    });
   },
   methods: {
+    handleloadTimer() {
+      this.loadTimer = new Date().getTime();
+    },
+    // 未登录不能进入
     noToken() {
       console.log("getTokenData=>", this.getTokenData());
       const token = this.getTokenData();
@@ -181,6 +208,13 @@ export default {
         this.form.info = data.info;
         this.form.belong = data.id;
         this.form.url = data.url;
+
+        this.postUrl = data.url;
+
+        this.propTitle = data.name;
+        this.propInfo = data.info;
+        // console.log("data=>", data);
+        // this.$bus.$emit("updateHtmlFromSendPost", data.name, data.info);
 
         // updateForm
         this.updateForm.id = data.id;
@@ -285,33 +319,38 @@ export default {
               .then((res) => {
                 const { data } = res;
                 // console.log(data);
-                this.$message.success("附件上传成功");
+                // this.$message.success("附件上传成功");
                 this.fileUrl = data;
                 this.submitLoading = false; //
-
+                console.log(data);
                 this.updateForm.url = data; // updateForm的url
-                this.updateForm.name = this.form.name; // 标题
-                this.updateForm.info = this.form.info; // 描述
+                // this.updateForm.name = this.form.name; // 标题
+                // this.updateForm.info = this.form.info; // 描述
                 // 调用修改接口
                 this.updateForm.id = this.postId; // 配置id
 
                 updatePost(this.updateForm)
                   .then((res) => {
+                    console.log(res);
                     this.$message.success("修改成功,正在跳转中");
                     this.submitLoading = false;
                     this.resetAddPost();
                     this.$router.push({ path: "/" });
                   })
                   .catch((error) => {
+                    console.log(error);
                     this.resetAddPost();
-                    this.$message.info("帖子发布失败，请重试");
-                    // 上传成功，但发布失败情况
+                    this.$message.info("帖子修改失败，请重试");
+                    // 上传成功，但修改失败情况
                     if (this.fileUrl) {
                       // 删除oss文件
                       delOssFile(this.fileUrl);
                       this.fileList = [];
                       this.fileUrl = undefined;
                     }
+
+                    // this.$router.back(); // 原页表表单中的内容会保留；
+                    // this.$router.go(0); // 刷新
 
                     this.submitLoading = false;
                   });
@@ -323,12 +362,13 @@ export default {
               });
           } else {
             // 如果不上传文件
+            this.updateForm.url = this.postUrl;
             // 调用发布接口
             this.updateForm.id = this.postId; // 配置id
-            this.updateForm.name = this.form.name; // 标题
-            this.updateForm.info = this.form.info; // 描述
+            // this.updateForm.name = this.form.name; // 标题
+            // this.updateForm.info = this.form.info; // 描述
 
-            updatePost(this.form)
+            updatePost(this.updateForm)
               .then((res) => {
                 this.$message.success("修改成功,正在跳转");
                 this.submitLoading = false;
@@ -337,7 +377,8 @@ export default {
               })
               .catch((error) => {
                 this.resetAddPost();
-                this.$message.info("帖子发布失败，请重试");
+                this.$message.info("帖子修改失败，请重试");
+
                 // 上传成功，但发布失败情况
                 if (this.fileUrl) {
                   // 删除oss文件
@@ -410,22 +451,7 @@ export default {
     //上传文件的事件
     uploadFile(item) {
       this.$message.info("文件已上传至浏览器，点击发布上传至服务器");
-      //上传文件的需要formdata类型;所以要转
-      // console.log(item.file);
       this.fileList.push(item.file);
-      // console.log(this.fileList);
-      // let FormDatas = new window.FormData();
-      // FormDatas.append("file", item.file);
-      // console.log("FormDatas=>", FormDatas);
-
-      // console.log("FormDatas=>", FormDatas);
-      // console.log(data);
-
-      // 调用接口
-      // ossFileUpload(FormDatas).then((res) => {
-      //   const data = res.data;
-      //   this.fileUrl = data;
-      // });
     },
   },
 };
@@ -490,10 +516,29 @@ export default {
     }
 
     .el-form-item {
-      textarea {
-        height: 200px;
+      // textarea {
+      //   height: 200px;
+      // }
+    }
+  }
+
+  .upload-file {
+    .el-upload {
+      width: 100%;
+      button {
+        height: 50px;
+        width: 100%;
+        padding: 8px 12px;
       }
     }
+
+    .el-upload__tip {
+      margin-top: 0;
+    }
+  }
+
+  .wang-editor {
+    text-align: start;
   }
 }
 </style>

@@ -1,7 +1,9 @@
 <template>
   <div id="app" @focus="cancelFocus" tabindex="0" style="overflow: auto">
     <keep-alive>
-      <Header></Header>
+      <Header
+        v-if="$route.path != '/login' && $route.path != '/register'"
+      ></Header>
     </keep-alive>
     <transition name="app-transform">
       <router-view />
@@ -19,6 +21,9 @@ export default {
   components: { Footer, Header },
   data() {
     return {};
+  },
+  mounted() {
+    console.log(this.$route.path);
   },
   methods: {
     cancelFocus() {

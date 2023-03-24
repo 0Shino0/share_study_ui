@@ -32,7 +32,9 @@
             @click="pushAddPost"
             >返回<span class="iconfont icon-left-open"></span
           ></el-button> -->
-          <el-button type="primary" class="op-btn" @click="pushAddPost">发帖<span
+          <el-button type="primary" class="op-btn" @click="pushAddPost">短篇<span
+              class="iconfont icon-add"></span></el-button>
+          <el-button type="primary" class="op-btn" @click="pushSendPost">长篇<span
               class="iconfont icon-add"></span></el-button>
           <!-- <el-button type="primary" class="op-btn"
             >搜索<span class="iconfont icon-fenxiang"></span
@@ -136,7 +138,6 @@ export default {
       // isLogin: false , // 标识是否登录
       userInfo: {},
       // 信息
-      logoInfo: {},
       showHeader: true, // 标记顶部导航是否显示
       showDialog: false,
       currentPath: null,
@@ -271,7 +272,7 @@ export default {
           // 往上滚动
           scrollType = 0;
         }
-        // console.log(currentScrollTop);
+        console.log(currentScrollTop);
         initScrollTop = currentScrollTop;
         if (scrollType == 1 && currentScrollTop > 100) {
           this.showHeader = false;
@@ -298,6 +299,16 @@ export default {
         this.$message.info("你已经在发帖页面了");
       }
 
+      this.$bus.$emit('resetFormFromHeader',1)
+    },
+    // 跳转 sendPost页面
+    pushSendPost() {
+      // console.log(this.$route.path);
+      if (this.$route.path !== "/sendPost/1") {
+        this.$router.push({ path: "/sendPost/1" });
+      } else {
+        this.$message.info("你已经在发帖页面了");
+      }
       this.$bus.$emit('resetFormFromHeader',1)
     },
     // 跳转到帖子详情页面
@@ -383,11 +394,11 @@ export default {
 
   .header .header-content .user-info-panel .op-btn button {
     font-size: 8px;
-    width: 70px !important;
+    width: 55px !important;
     padding: 4px 8px !important;
 
     span{
-      font-size: 8px;
+      font-size: 4px;
     }
   }
 
@@ -406,6 +417,19 @@ export default {
       font-size: 6px;
     }
   }
+
+  .header .header-content .logo{
+    width: 120px !important;
+  }
+
+  .header .header-content .logo img {
+    width: 120px !important;
+    position: absolute;
+    top: -10px !important;
+    left: -5px;
+}
+
+
 }
 
 

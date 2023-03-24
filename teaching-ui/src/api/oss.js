@@ -3,18 +3,6 @@ import qs from 'qs';
 
 /* oss存储相关 */
 
-/** 用户头像上传
- * @param {file} file
- * @method post
- * @returns {object}
-  */
-export function getResourceInfoPage(file) {
-  return request({
-    url: `/file/oss_avatar_upload`,
-    method: 'post',
-    file
-  })
-}
 
 /** 用户头像上传
  * @param {file} data

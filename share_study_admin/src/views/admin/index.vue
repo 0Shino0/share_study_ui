@@ -123,8 +123,12 @@ export default {
           prop: "name",
           label: "管理员名",
         },
+        // {
+        //   prop: "belong",
+        //   label: "所属高校",
+        // },
         {
-          prop: "belong",
+          prop: "belongName",
           label: "所属高校",
         },
         {
@@ -242,26 +246,26 @@ export default {
         /* map+async
           Promise.all的用法
        */
-        const newArr = await Promise.all(
-          data.records.map(async (current) => {
-            // 所属高校 (会有延迟问题)待定
-            // console.log(await this.getCollege(current.belong));
-            // 进一步优化 map+async 2s -> 500ms左右  异步批处理任务优化
-            current.belong = await this.getCollege(current.belong);
-            // 角色状态 - 管理员 超级管理员
-            current.role = current.role === 1 ? "管理员" : "超级管理员";
-            // 状态
-            current.status = current.status === 0 ? "正常" : "禁用";
-            // 时间格式化
-            // console.log(current.createTime);
-            /* current.createTime =
+        // const newArr = await Promise.all(
+        const newArr = data.records.map((current) => {
+          // 所属高校 (会有延迟问题)待定
+          // console.log(await this.getCollege(current.belong));
+          // 进一步优化 map+async 2s -> 500ms左右  异步批处理任务优化
+          // current.belong = await this.getCollege(current.belong);
+          // 角色状态 - 管理员 超级管理员
+          current.role = current.role === 1 ? "管理员" : "超级管理员";
+          // 状态
+          current.status = current.status === 0 ? "正常" : "禁用";
+          // 时间格式化
+          // console.log(current.createTime);
+          /* current.createTime =
               current.createTime.slice(0, 3).toString().replace(/,/g, "-") +
               " " +
               current.createTime.slice(3, 6).toString().replace(/,/g, ":"); */
-            // console.log(current);
-            return current;
-          })
-        );
+          // console.log(current);
+          return current;
+        });
+        // );
         //
         this.resetLoading(300);
 

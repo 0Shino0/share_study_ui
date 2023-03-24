@@ -15,7 +15,7 @@ export function login(data) {
 
 /** 获取高校name / code
  * @param {string} id
- * @method put
+ * @method get
  * @returns {object}
   */
 export function getCollegeList() {

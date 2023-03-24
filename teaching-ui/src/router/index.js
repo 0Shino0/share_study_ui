@@ -41,6 +41,12 @@ const routes = [
     meta: { title: '发布帖子'},
   },
   {
+    path: "/sendPost/:id",
+    name: "sendPost",
+    component: () => import('@/views/sendPost'),
+    meta: { title: '发布帖子测试'},
+  },
+  {
     path: "/postDetail/:id",
     name: "postDetail",
     component: () => import('@/views/postDetail'),
