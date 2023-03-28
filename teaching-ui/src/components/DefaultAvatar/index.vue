@@ -23,20 +23,20 @@ export default defineComponent({
   setup(props, context) {
     // 在这里声明数据，或者编写函数并在这里执行它
     // 在使用 setup 的情况下，请牢记一点：不能再用 this 来获取 Vue 实例
-    console.log(props);
+    // console.log(props);
 
     const avatarSize = computed(
       () => `width:${props.width};height:${props.height}`
     );
-    const fontSize = computed(
-      () => `fontSize:${parseInt(props.width.split("px")[0]) / 2}px;`
-    );
-
-    onMounted(() => {
-      console.log(props);
-      console.log(avatarSize.value);
-      console.log(fontSize.value);
+    const fontSize = computed(() => {
+      if (props.width) {
+        return `font-size:${parseInt(props.width.split("px")[0]) / 2}px;`;
+      } else {
+        return "font-size:20px;";
+      }
     });
+
+    onMounted(() => {});
 
     return {
       // 需要给 `<template />` 用的数据或函数，在这里 `return` 出去
@@ -50,13 +50,13 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="default-avater" :style="avatarSize">
+  <div class="default-avatar" :style="avatarSize">
     <span class="avater-name" :style="fontSize">{{ avatarName }}</span>
   </div>
 </template>
 
 <style lang="scss">
-.default-avater {
+.default-avatar {
   // min-width: 40px;
   // height: 40px;
   background: #aaaaaa;

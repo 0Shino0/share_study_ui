@@ -1,9 +1,21 @@
 <script setup lang="ts">
 import Header from "@/layout/Header.vue";
+
+import { useRoute } from "vue-router";
+import $bus from "@/libs/eventBus";
+
+const cancelFocus = () => {
+  $bus.emit("cancelFocus", false);
+};
+
+const route = useRoute();
 </script>
 
 <template>
-  <Header></Header>
+  <!-- <KeepAlive> -->
+  <Header v-if="route.path != '/login' && route.path != '/register'"></Header>
+  <!-- </KeepAlive> -->
+
   <router-view />
 </template>
 
@@ -20,7 +32,7 @@ html {
   outline: none;
   // 方案一
   height: 750px;
-  overflow: hidden;
+  // overflow: hidden;
   background-color: #e9ecef;
 
   // 方案二

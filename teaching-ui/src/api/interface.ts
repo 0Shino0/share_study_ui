@@ -16,7 +16,7 @@ import { AxiosRequestConfig } from 'axios'
 //   id: number
 // }
 
-export interface YResultOr { // 定义interface规范返回结果的类型
+export interface YApiResult { // 定义interface规范返回结果的类型
   code: string,
   data: any,
   message: string,

@@ -1,3 +1,4 @@
+import { YApiResult } from './interface';
 import request from '@/utils/request'
 
 /** 用户登录

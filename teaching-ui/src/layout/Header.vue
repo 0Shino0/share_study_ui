@@ -5,82 +5,111 @@ import {
   onMounted,
   computed,
   ref,
-  reactive,
   inject,
-  getCurrentInstance,
+  nextTick,
 } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import eventBus from "@libs/eventBus";
+
+import $bus from "@libs/eventBus";
+import { removeToken } from "@/utils/auth";
 
 import DefaultAvatar from "@/components/DefaultAvatar/index.vue";
-import { login as loginApi } from "@/api/login";
 import { getUserCommentPage, readCommentAll } from "@/api/post";
 import { getToken } from "@/utils/auth";
+import { useUserStore } from "@/store/index";
+import { UserInfoMember } from "@/store/index";
 
-export interface UserInfoMenber {
-  account: string;
-  avatar: string;
-  collegeName: string;
-  createTime: string;
-  email: string;
-  gender: number;
+export interface CommentListMember {
   id: string;
-  isLogin: boolean;
-  messageNumber: number;
-  name: string;
-  role: number;
-  score: number;
+  resourceId: string;
+  belongName: string;
+  createTime: string;
+  content: string;
 }
 
 export default defineComponent({
   components: {
     DefaultAvatar,
   },
-  setup(props, context) {
+  setup() {
     // 在这里声明数据，或者编写函数并在这里执行它
     // 在使用 setup 的情况下，请牢记一点：不能再用 this 来获取 Vue 实例
     // 获取路由信息
     const router = useRouter();
     const route = useRoute();
+    const userStore = useUserStore();
     const $message: any = inject("$message");
-    const $bus: any = inject("$bus");
+
     // 用户信息
-    const userInfo = ref<UserInfoMenber | {}>({
-      account: "",
-      avatar: "",
-      collegeName: "",
-      createTime: "",
-      email: "",
-      gender: 0,
-      id: "",
-      isLogin: false,
-      messageNumber: 0,
-      name: "",
-      role: 0,
-      score: 0,
-    });
+    const userInfo = ref<UserInfoMember>();
+    //   {
+    //   account: "",
+    //   avatar: "",
+    //   collegeName: "",
+    //   createTime: "",
+    //   email: "",
+    //   gender: 0,
+    //   id: "",
+    //   isLogin: false,
+    //   messageNumber: 0,
+    //   name: "",
+    //   role: 0,
+    //   score: 0,
+    // }
     // 信息
     const showHeader = ref<boolean>(true);
     const showDialog = ref<boolean>(false);
     const currentPath = ref<string>("");
     const searchInfo = ref<string>("");
     // 收到的评论
-    const userCommentList = reactive([]);
-    const userCommentLength = ref<string>("0");
+    const userCommentList = ref<CommentListMember[]>([]);
+    const userCommentLength = ref<number>(0);
     const currentPage = ref<number>(1);
     const pageSize = ref<number>(10);
 
+    // 事件
+    const updateUserInfoEvent = (val: any) => {
+      // 会被调用多次
+      if (val) {
+        userInfo.value = val;
+        getUserCommentPageInfo(currentPage.value, pageSize.value);
+      }
+    };
+
+    const noLoginEvent = (val: any) => {
+      userInfo.value = {
+        account: "",
+        avatar: "",
+        collegeName: "",
+        createTime: "",
+        email: "",
+        gender: 0,
+        id: "",
+        isLogin: false,
+        messageNumber: 0,
+        name: "",
+        role: 0,
+        score: 0,
+      };
+      // console.log(val);
+      noLogin();
+    };
+
+    // created
+    console.log(route.path);
+    userInfo.value = getTokenData();
+    getUserCommentPageInfo(currentPage.value, pageSize.value);
+
     // 生命周期钩子
     onMounted(() => {
-      loginApi({ account: "test4", password: "123456" });
-      $bus.emit("test", 1);
-      console.log(context);
-      // console.log(userInfo.value.isLogin);
-      // console.log(showHeader.value);
-      // console.log(aboutPath.value);
-      userInfo.value = getTokenData();
-      // getUserCommentPageInfo(currentPage.value, pageSize.value);
-      $message.info("这是一段消息");
+      console.log("mounted");
+      initScroll();
+
+      // 未登录
+      $bus.on("noLogin", noLoginEvent);
+      // 用户信息变更
+      $bus.on("updateUserInfo", updateUserInfoEvent);
+      // $message.info("这是一段消息");
     });
 
     // 计算属性 computed
@@ -95,14 +124,16 @@ export default defineComponent({
 
     // 方法 methods
     async function getUserCommentPageInfo(current: number, pageSize: number) {
-      const { data } = await getUserCommentPage(current, pageSize);
-      userCommentList.values = data.records;
-      userCommentLength.value = data.records.length;
+      const result = await getUserCommentPage(current, pageSize);
+      // console.log(result);
+
+      if (result === undefined) return;
+      userCommentList.value = result.data.records;
+      userCommentLength.value = result.data.records.length;
     }
 
     // 消息已读
     async function commentReadAll() {
-      console.log(1);
       try {
         await readCommentAll();
         // 获取最新消息
@@ -125,10 +156,7 @@ export default defineComponent({
 
     // 跳转登录页面
     function login() {
-      if (
-        window.location.href.split("#")[1] !== "/login" ||
-        window.location.href.split("/")[1] !== "/login"
-      ) {
+      if (window.location.href.split("#")[1] !== "/login") {
         router.push({ path: "/login" });
       } else {
         $message.info("你已经处在登录页了~");
@@ -149,17 +177,51 @@ export default defineComponent({
 
     // 退出
     function logout() {
-      userInfo.value = {}; // 修改登录状态
+      if (route.path != "/login") {
+        router.push({ path: "/login" });
+      }
+      removeToken(); // 清除token
+      // 重置store
+      userStore.$reset();
+      userInfo.value = {
+        account: "",
+        avatar: "",
+        collegeName: "",
+        createTime: "",
+        email: "",
+        gender: 0,
+        id: "",
+        isLogin: false,
+        messageNumber: 0,
+        name: "",
+        role: 0,
+        score: 0,
+      };
+      // 修改登录状态
       // this.$store.dispatch("user/logout"); // 清除user相关token
       $message({
         type: "info",
         message: "退出成功",
       });
+
       $bus.emit("resetUserInfo", undefined);
     }
     // 未登录情况
     function noLogin() {
-      userInfo.value = {}; // 修改登录状态
+      userInfo.value = {
+        account: "",
+        avatar: "",
+        collegeName: "",
+        createTime: "",
+        email: "",
+        gender: 0,
+        id: "",
+        isLogin: false,
+        messageNumber: 0,
+        name: "",
+        role: 0,
+        score: 0,
+      }; // 修改登录状态
       // console.log('userInfo=>', userInfo);
       // this.$store.dispatch("user/logout"); // 清除user相关token
       $bus.emit("resetUserInfo", {});
@@ -235,6 +297,7 @@ export default defineComponent({
     return {
       // 需要给 `<template />` 用的数据或函数，在这里 `return` 出去
       // 变量
+      userInfo,
       showHeader,
       showDialog,
       currentPath,
@@ -300,67 +363,51 @@ export default defineComponent({
           <el-button type="primary" class="op-btn" @click="pushSendPost"
             >长篇<span class="iconfont icon-add"></span
           ></el-button>
-          <!-- <el-button type="primary" class="op-btn"
-            >搜索<span class="iconfont icon-fenxiang"></span
-          ></el-button> -->
         </div>
-        <!-- 头像 退出登录 -->
+
         <div
           class="userInfo-avatar"
-          v-if="userInfo && userInfo.isLogin"
+          v-if="userInfo && userInfo.id != ''"
           :style="{ 'margin-left': '20px' }"
         >
           <!-- 有头像时 -->
           <el-dropdown placement="bottom" trigger="click">
-            <default-avater
+            <default-avatar
               class="dropdown-avatar"
               width="40px"
               height="40px"
               :avatarName="userInfo.name.split('')[0]"
               v-if="userInfo.avatar === ''"
-            ></default-avater>
+            ></default-avatar>
             <el-avatar
               v-else
               class="dropdown-avatar"
               size="large"
               :src="userInfo.avatar"
             ></el-avatar>
-
-            <el-dropdown-menu slot="dropdown" class="user-dropdown">
-              <router-link to="/">
-                <el-dropdown-item> 首页 </el-dropdown-item>
-              </router-link>
-              <router-link :to="aboutPath">
-                <el-dropdown-item> 个人中心 </el-dropdown-item>
-              </router-link>
-              <!-- <a target="_blank" href="https://github.com/PanJiaChen/vue-admin-template/">
-                <el-dropdown-item>Github</el-dropdown-item>
-              </a>
-              <a target="_blank" href="https://panjiachen.github.io/vue-element-admin-site/#/">
-                <el-dropdown-item>Docs</el-dropdown-item>
-              </a> -->
-              <el-dropdown-item divided @click.native="logout">
-                <span style="display: block">退出登录</span>
-              </el-dropdown-item>
-            </el-dropdown-menu>
+            <!--   头像 退出登录 -->
+            <template #dropdown class="user-dropdown">
+              <el-dropdown-menu>
+                <router-link to="/">
+                  <el-dropdown-item> 首页 </el-dropdown-item>
+                </router-link>
+                <router-link :to="aboutPath">
+                  <el-dropdown-item> 个人中心 </el-dropdown-item>
+                </router-link>
+                <!-- <a target="_blank" href="https://github.com/PanJiaChen/vue-admin-template/">
+                  <el-dropdown-item>Github</el-dropdown-item>
+                </a>
+                <a target="_blank" href="https://panjiachen.github.io/vue-element-admin-site/#/">
+                  <el-dropdown-item>Docs</el-dropdown-item>
+                </a> -->
+                <el-dropdown-item divided @click.native="logout">
+                  <span style="display: block">退出登录</span>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
           </el-dropdown>
 
           <!-- 无头像使用默认头像 -->
-          <!-- <el-dropdown placement="bottom">
-          <default-avater width="40px" height="40px" :avatarName="userInfo.name.split('')[0]"></default-avater>
-
-            <el-dropdown-menu slot="dropdown" class="user-dropdown">
-              <router-link to="/">
-                <el-dropdown-item> 首页 </el-dropdown-item>
-              </router-link>
-              <router-link :to="aboutPath">
-                <el-dropdown-item> 个人中心 </el-dropdown-item>
-              </router-link>
-              <el-dropdown-item divided @click.native="logout">
-                <span style="display: block">退出登录</span>
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown> -->
 
           <!-- badge提示 -->
           <el-dropdown
@@ -375,44 +422,46 @@ export default defineComponent({
                 :value="userCommentLength"
                 class="item"
               >
-                <el-button
-                  size="large"
-                  icon="el-icon-message-solid"
+                <el-button size="large"
+                  ><el-icon><ChatDotRound /></el-icon
                 ></el-button>
               </el-badge>
             </div>
-
-            <el-dropdown-menu
-              placement="bottom"
-              slot="dropdown"
-              class="comment-dropdown"
-            >
-              <el-dropdown-item
-                v-for="commentItem in userCommentList"
-                :key="commentItem.id"
-                @click.native="toPostDetail(commentItem.resourceId)"
+            <template #dropdown>
+              <el-dropdown-menu
+                placement="bottom"
+                slot="dropdown"
+                class="comment-dropdown"
               >
-                <!-- click.native:  -->
-                <div class="dropdown-card">
-                  <div class="dropdown-avatar"></div>
-                  <div class="dropdown-textBox">
-                    <div class="dropdown-textContent">
-                      <p class="dropdown-h1">{{ commentItem.belongName }}</p>
-                      <span class="dropdown-span">{{
-                        commentItem.createTime.split(" ")[0]
-                      }}</span>
+                <el-dropdown-item
+                  v-for="commentItem in userCommentList"
+                  :key="commentItem.id"
+                  @click.native="toPostDetail(commentItem.resourceId)"
+                >
+                  <div class="dropdown-card">
+                    <div class="dropdown-avatar"></div>
+                    <div class="dropdown-textBox">
+                      <div class="dropdown-textContent">
+                        <p class="dropdown-h1">{{ commentItem.belongName }}</p>
+                        <span class="dropdown-span">{{
+                          commentItem.createTime.split(" ")[0]
+                        }}</span>
+                      </div>
+                      <p class="dropdown-p">{{ commentItem.content }}</p>
                     </div>
-                    <p class="dropdown-p">{{ commentItem.content }}</p>
                   </div>
-                </div>
-              </el-dropdown-item>
-              <el-dropdown-item v-if="userCommentList.length === 0"
-                >暂无消息</el-dropdown-item
-              >
-              <el-dropdown-item v-else @click.native="commentReadAll"
-                >清空消息</el-dropdown-item
-              >
-            </el-dropdown-menu>
+                </el-dropdown-item>
+                <el-dropdown-item v-if="userCommentList.length === 0"
+                  >暂无消息</el-dropdown-item
+                >
+                <el-dropdown-item
+                  class="dropdown-no-comment"
+                  v-else
+                  @click.native="commentReadAll"
+                  >清空消息</el-dropdown-item
+                >
+              </el-dropdown-menu>
+            </template>
           </el-dropdown>
         </div>
         <!-- 登录注册 -->
@@ -716,9 +765,12 @@ export default defineComponent({
 
             // 消息提示组件
             .el-badge {
+              height: 50px;
               .el-button {
+                height: 50px;
                 // padding: 12px 10px 12px 10px;
                 // padding: 0;
+                font-size: 22px;
                 border: none;
               }
 
@@ -887,6 +939,11 @@ export default defineComponent({
 .dropdown-card:hover > .dropdown-avatar {
   transition: 0.5s ease-in-out;
   background: linear-gradient(#9198e5, #712020);
+}
+
+.dropdown-no-comment {
+  text-align: center;
+  justify-content: center;
 }
 
 // }

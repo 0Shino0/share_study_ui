@@ -119,6 +119,18 @@ export function addPostComment(data: object) {
   })
 }
 
+/** 新增评论
+ * @param {string} data
+ * @method post
+ * @returns {object}
+  */
+export function delPostComment(id: string) {
+  return request({
+    url: `/post/comment/delete/${id}`,
+    method: "delete",
+  })
+}
+
 /** 用户修改消息是否已读
  * @param {string} id
  * @method put

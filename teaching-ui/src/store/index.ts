@@ -1,5 +1,5 @@
-import { resolve } from 'path'
-import { defineStore } from 'pinia'
+export * from './user'
+
 
 // 作用	Vue Component	Vuex	Pinia
 // 数据管理	data	state	state
@@ -12,34 +12,36 @@ import { defineStore } from 'pinia'
 // Pinia 还提供了一个 storeToRefs API 用于把 state 的数据转换为 ref 变量。
 
 // 为 store state 声明类型
-export interface AllStateTypes {
-  count: number,
-  locale: any,
-  userStatus: number
-  roomList: Array<any>,
-  pageNo: number,
-  pageSize: number,
-  total: number,
-  cityCode: string,
-  roomDetail: any,
-  roomId: null,
-  orderVisible: boolean
-}
+// export interface AllStateTypes {
+//   count: number,
+//   locale: any,
+//   userStatus: number
+//   roomList: Array<any>,
+//   pageNo: number,
+//   pageSize: number,
+//   total: number,
+//   cityCode: string,
+//   roomDetail: any,
+//   roomId: null,
+//   orderVisible: boolean
+// }
 
-export const useStore = defineStore('main', {
-  // store选项
-  state: () => ({
-      userInfo: {}
-  }),
+// export const useStore = defineStore('main', {
+//   // store选项
+//   state: () => ({
+//     userInfo: {}
+//   }),
 
-  actions: {
-    // 更新 用户信息
-    async updateUserInfo():Promise<object> {
-      return new Promise((resolve) => {
-        
-      })
-    }
-  }
-}) 
+//   actions: {
+//     // 更新 用户信息
+//     async updateUserInfo(): Promise<object> {
+//       return new Promise((resolve) => {
+
+//       })
+//     }
+//   }
+// })
+
+
 
 
