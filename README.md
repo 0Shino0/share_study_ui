@@ -2,7 +2,7 @@
 
 ## 后台
 
-share_study_admin
+服务端接口由AntonyCheng开发 [https://github.com/AntonyCheng/share_study](https://github.com/AntonyCheng/share_study)
 
 ## 前台
 
