@@ -1,8 +1,10 @@
 ## 前端存储库
 
+服务端接口由AntonyCheng开发 [https://github.com/AntonyCheng/share_study](https://github.com/AntonyCheng/share_study)
+
 ## 后台
 
-服务端接口由AntonyCheng开发 [https://github.com/AntonyCheng/share_study](https://github.com/AntonyCheng/share_study)
+share_study_admin
 
 ## 前台
 
