@@ -7,9 +7,9 @@ import router from "@/router";
 
 const getDefaultState = () => {
   return {
-    token: getToken(),
     // name: '',
     // avatar: ''
+    token: getToken(),
     userInfo: {},
     isLogin: false,
   }

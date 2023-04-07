@@ -325,7 +325,7 @@
           <img :src="userInfo.avatar" alt="当前用户" v-else />
         </div>
         <el-form class="form" ref="form" :model="form" label-width="0">
-          <el-form-item label="">
+          <el-form-item label="" class="add-comment-form-item">
             <el-input
               type="textarea"
               v-model="form.content"
@@ -346,7 +346,7 @@
           </div>
           <el-upload
             class="add-comment-upload"
-            action="action"
+            :action="action"
             :on-preview="handlePreview"
             :on-remove="handleRemove"
             :before-remove="beforeRemove"
@@ -486,7 +486,7 @@ export default {
       fileSuffix: undefined,
       imgType: "png jpg jpeg", // 图片类型
       vidioType: "mp4 mpeg", // 视频类型
-      docType: "pdf xlsx xls doc docx ppt pptx", // 视频类型
+      docType: "pdf xlsx xls doc docx ppt pptx", // 文档类型
       volume: 0.5, // 视频声音
       fileIsImg: undefined, // 是否 图片
       fileIsVideo: undefined, // 是否是视频
@@ -567,7 +567,7 @@ export default {
     async getPostDetailInfo() {
       const { data } = await getPostDetail(this.postId);
       this.postDetail = data;
-      console.log(this.postDetail);
+      // console.log(this.postDetail);
       // 获取 要回复的人
       this.sendId = data.userId;
       this.sendName = data.userName;
@@ -584,7 +584,7 @@ export default {
       }
 
       // 渲染信息
-      console.log(this.$refs.inserthtml.innerHTML);
+      // console.log(this.$refs.inserthtml.innerHTML);
       this.$refs.inserthtml.innerHTML += this.postDetail.resourceInfo;
       this.skeletonLoading = false;
     },
@@ -595,17 +595,17 @@ export default {
     },
     isFileType(suffix) {
       // 判断文件是什么类型
-      console.log("fileIsImg=>", this.imgType.includes(suffix));
+      // console.log("fileIsImg=>", this.imgType.includes(suffix));
       this.fileIsImg = this.imgType.includes(suffix);
       // return str.includes(suffix);
       if (!this.fileIsImg) {
-        console.log("fileIsVideo=>", this.vidioType.includes(suffix));
+        // console.log("fileIsVideo=>", this.vidioType.includes(suffix));
         this.fileIsVideo = this.vidioType.includes(suffix);
         // return str.includes(suffix);
       }
       if (!this.fileIsVideo) {
-        console.log("fileIsDoc=>", this.docType.includes(suffix));
-        this.fileIsDoc = this.vidioType.includes(suffix);
+        // console.log("fileIsDoc=>", this.docType.includes(suffix));
+        this.fileIsDoc = this.docType.includes(suffix);
         if (this.fileIsDoc) {
           this.docPreviewUrl = `https://view.officeapps.live.com/op/view.aspx?src=${this.postDetail.resourceUrl}`;
         }
@@ -615,7 +615,7 @@ export default {
     getParams() {
       this.postId = this.$route.params.id;
       this.collectStatus = this.$route.query.collectStatus;
-      console.log(this.collectStatus);
+      // console.log(this.collectStatus);
       // console.log(this.postId);
     },
     // 聚焦输入框
@@ -927,7 +927,7 @@ export default {
       .el-form {
         width: calc(100% - 60px);
 
-        .el-form-item {
+        .add-comment-form-item {
           margin-bottom: 0px;
           // width: 838px;
 

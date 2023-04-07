@@ -45,7 +45,7 @@ export const constantRoutes = [
     path: '/login',
     component: () => import('@/views/login/index'),
     hidden: true
-    
+
   },
 
   {
@@ -112,6 +112,18 @@ export const constantRoutes = [
         name: 'Material',
         component: () => import('@/views/material/index'),
         meta: { title: '资料管理', icon: 'form' }
+      }
+    ]
+  },
+  { // 审核
+    path: '/',
+    component: Layout,
+    children: [
+      {
+        path: 'audit',
+        name: 'Audit',
+        component: () => import('@/views/audit/index'),
+        meta: { title: '帖子审核', icon: 'skill' }
       }
     ]
   },

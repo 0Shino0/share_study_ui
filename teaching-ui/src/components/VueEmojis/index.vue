@@ -62,7 +62,7 @@ export default {
   },
   mounted() {
     this.emojis = this.emojis.map((emoji) => ({ text: emoji }));
-    console.log(this.emojis);
+    // console.log(this.emojis);
   },
   methods: {
     handleEmoji(item) {

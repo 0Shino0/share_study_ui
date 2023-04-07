@@ -41,7 +41,7 @@
           ></el-button> -->
         </div>
         <!-- 头像 退出登录 -->
-        <div class="userInfo-avatar" v-if="userInfo && userInfo.isLogin" :style="{ 'margin-left': '20px' }">
+        <div class="userInfo-avatar" v-if="userInfo && userInfo.id != undefined" :style="{ 'margin-left': '20px' }">
           <!-- 有头像时 -->
           <el-dropdown placement="bottom" trigger="click">
             <default-avater class="dropdown-avatar" width="40px" height="40px" :avatarName="userInfo.name.split('')[0]" v-if="userInfo.avatar === ''"></default-avater>
@@ -190,15 +190,17 @@ export default {
   watch: {
     searchInfo(newVal) {
       // console.log(2);
-      console.log(newVal);
+      // console.log(newVal);
       this.$bus.$emit("tranSearchInfo", newVal);
     },
   },
-  methods: {    // 获取评论资料
+  methods: {
+    // 获取评论资料
     async getUserCommentPageInfo(current, pageSize) {
-      const { data } = await getUserCommentPage(current, pageSize);
-      this.userCommentList = data.records;
-      this.userCommentLength = data.records.length;
+      const result = await getUserCommentPage(current, pageSize);
+      if (result === undefined) return;
+      this.userCommentList = result.data.records;
+      this.userCommentLength = result.data.records.length;
     },
     // 消息已读
     async commentReadAll() {
@@ -272,7 +274,7 @@ export default {
           // 往上滚动
           scrollType = 0;
         }
-        console.log(currentScrollTop);
+        // console.log(currentScrollTop);
         initScrollTop = currentScrollTop;
         if (scrollType == 1 && currentScrollTop > 100) {
           this.showHeader = false;
@@ -395,10 +397,10 @@ export default {
   .header .header-content .user-info-panel .op-btn button {
     font-size: 8px;
     width: 55px !important;
-    padding: 4px 8px !important;
+    padding: 8px 8px !important;
 
     span{
-      font-size: 4px;
+      font-size: 8px;
     }
   }
 

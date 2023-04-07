@@ -47,13 +47,17 @@
             />
           </template>
           <template slot-scope="scope">
-            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
+            <el-button
+              size="mini"
+              @click="handleEdit(scope.$index, scope.row)"
+              v-if="scope.row.role === '普通用户'"
               >编辑</el-button
             >
             <el-button
               size="mini"
               type="danger"
               @click="handleDelete(scope.$index, scope.row)"
+              v-if="scope.row.role === '普通用户'"
               >删除</el-button
             >
           </template>
@@ -72,8 +76,9 @@
         <el-form :model="dialogForm" ref="queryForm" :rules="dialogFormRules">
           <el-form-item label="角色状态" :label-width="formLabelWidth">
             <el-select v-model="dialogForm.role" placeholder="请选择">
-              <el-option label="普通用户" value="普通用户"></el-option>
-              <el-option label="管理员" value="管理员"></el-option>
+              <el-option label="普通用户" value="0"></el-option>
+              <el-option label="管理员" value="1"></el-option>
+              <!-- <el-option label="超级管理员" value="2"></el-option> -->
             </el-select>
           </el-form-item>
           <el-form-item label="状态" :label-width="formLabelWidth">
@@ -284,17 +289,22 @@ export default {
           时间 数组-字符串
         */
         // 过滤数组
-        console.log(data);
-        let filterArr = data.records.filter((c) => c.role === 0);
-        console.log(filterArr);
+        // console.log(data);
+        // let filterArr = data.records.filter((c) => c.role != 2);
+        // console.log(filterArr);
+
         // const newArr = await Promise.all(
-        const newArr = filterArr.map((current) => {
+        const newArr = data.records.map((current) => {
           // 所属高校 (会有延迟问题)待定
           // let belong = await getCollegeName(current.belong);
           // current.belong = belong.data.name;
           // current.belong = await this.getCollege(current.belong);
 
-          current.role = "普通用户";
+          if (current.role === 2) {
+            current.role = "超级管理员";
+          } else {
+            current.role = current.role === 0 ? "普通用户" : "管理员";
+          }
           // 状态
           current.status = current.status === 0 ? "正常" : "禁用";
           // 时间格式化
@@ -322,11 +332,17 @@ export default {
     // 编辑操作
     async handleEdit(index, row) {
       // 标识编辑操作
+      // console.log(row);
       this.isAdd = false;
       const id = row.id;
       const result = await getTeacherInfo(id);
       // 角色
-      result.data.role = "普通用户";
+      // result.data.role = "普通用户";
+      if (result.data.role === 2) {
+        result.data.role = "超级管理员";
+      } else {
+        result.data.role = result.data.role === 0 ? "普通用户" : "管理员";
+      }
       // 状态
       result.data.status = result.data.status === 0 ? "正常" : "禁用";
       this.dialogForm = result.data;
@@ -392,7 +408,14 @@ export default {
           if (this.dialogForm.id != null) {
             /* 对字符文字转义 */
             // 角色
-            this.dialogForm.role = this.dialogForm.role === "管理员" ? 1 : 0;
+            if (this.dialogForm.role === "超级管理员") {
+              this.dialogForm.role === 2;
+            } else {
+              this.dialogForm.role =
+                this.dialogForm.role === "普通用户" ? 0 : 1;
+            }
+
+            // this.dialogForm.role = this.dialogForm.role === "管理员" ? 1 : 0;
             // 状态
             this.dialogForm.status = this.dialogForm.status === "正常" ? 0 : 1;
 

@@ -27,11 +27,12 @@ export function ossAvatarUpload(data) {
  * @returns {object}
   */
 export function ossFileUpload(data) {
-  console.log(data);
+  // console.log(data);
   return request({
     url: `/file/oss_file_upload`,
     method: 'post',
     data,
+    timeout: 3 *60 *1000, // 上传设置180秒
     headers: {
       'Conten-Type': "multipart/form-data"
       // 'Content-Type': 'application/x-www-form-urlencoded'

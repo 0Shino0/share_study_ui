@@ -121,6 +121,15 @@
       </div>
 
       <div class="main-right">
+        <!-- logo -->
+        <div class="main-right-wecome">
+          <img
+            src="@/assets/img/support-team.png"
+            alt="Welcome"
+            style="width: 237px"
+          />
+        </div>
+
         <!-- 头部卡片 展示个人信息 -->
         <div class="card">
           <div class="card-info">
@@ -165,7 +174,28 @@
           <div class="cart-container">
             <div class="upgrate-card-title">更新公告</div>
             <el-collapse v-model="activeName" accordion>
-              <el-collapse-item title="2023年3月23日" name="1">
+              <el-collapse-item title="2023年4月2日" name="4">
+                <div>- 界面美化：在登录注册以及首页加入一些插图，美化界面</div>
+                <div>
+                  - 项目重构：Vue3 + Element Plus + TypeScript + Pinia +
+                  Vite对本项目进行重构重构基本完成，进入测试阶段，测试地址<a
+                    href="http://43.142.74.200:82/"
+                    >http://43.142.74.200:82/</a
+                  >
+                  。
+                </div>
+              </el-collapse-item>
+              <el-collapse-item title="2023年3月24日" name="3">
+                <div>
+                  -
+                  帖子修改：修改帖子经过测试已经相对完善，但是还有一些小Bug，比如发帖时没有添加附件那么修改时添加附件就会报错。
+                </div>
+                <div>
+                  - 目前目标：利用Vue3 + Element Plus + TypeScript + Pinia +
+                  Vite对本项目进行重构。
+                </div>
+              </el-collapse-item>
+              <el-collapse-item title="2023年3月23日" name="2">
                 <div>
                   -
                   富文本支持：更新了发帖页面，短篇为原来的发帖页，长篇为更新后的富文本编辑。支持
@@ -173,12 +203,12 @@
                 </div>
                 <div>- 移动端适配：目前已经初步适配移动端，后续还会优化。</div>
               </el-collapse-item>
-              <el-collapse-item title="2023年3月22日" name="2">
+              <el-collapse-item title="2023年3月22日" name="1">
                 <div>
                   - docker时区问题：修复了实际发帖时间与北京时间的偏差。
                 </div>
               </el-collapse-item>
-              <el-collapse-item title="之前的更新" name="3">
+              <el-collapse-item title="之前的更新" name="0">
                 <div>
                   - 骨架屏支持：支持首页以及帖子详情页面的骨架屏，优化首屏加载。
                 </div>
@@ -189,6 +219,15 @@
               </el-collapse-item>
             </el-collapse>
           </div>
+        </div>
+
+        <!-- logo  -->
+        <div class="main-right-wecome">
+          <img
+            src="@/assets/img/forpeople.png"
+            alt="forpeople"
+            style="width: 237px"
+          />
         </div>
       </div>
     </div>
@@ -273,11 +312,10 @@ export default {
       postAveList: [], //
       postList: [],
       filterPostList: [],
-      componentKey: undefined,
       userInfo: {},
       searchInfo: null, // 搜索信息
       // 更新信息
-      activeName: "1",
+      activeName: "4",
       upgrateInfo: [{}],
     };
   },
@@ -288,20 +326,21 @@ export default {
     this.getPostPageInfo(1, 100);
 
     // 登录时获取信息
-    this.$bus.$on("getPostPageInfoFromHeader", (val) => {
-      this.userInfo = this.getTokenData();
-      this.getPostPageInfo(1, 100);
-      // this.load()
+    // this.$bus.$on("getPostPageInfoFromHeader", (val) => {
+    //   this.userInfo = this.getTokenData();
+    //   this.getPostPageInfo(1, 100);
+    //   // this.load()
 
-      // this.$forceUpdate()
-      // this.$forceUpdate(); // 组件重新渲染
+    //   // this.$forceUpdate()
+    //   // this.$forceUpdate(); // 组件重新渲染
 
-      // key
-      // this.componentKey += 1;
-      // console.log(this.componentKey);
+    //   // key
+    //   // this.componentKey += 1;
+    //   // console.log(this.componentKey);
 
-      // v-if
-    });
+    //   // v-if
+    // });
+
     // 退出登录时重置信息
     this.$bus.$on("resetUserInfo", (val) => {
       // this.userInfo = this.getTokenData();
@@ -310,6 +349,7 @@ export default {
       this.postAveList = [];
       this.postList = [];
     });
+
     // console.log(this.isLogin);
     // 传递searchInfo
     this.$bus.$on("tranSearchInfo", (val) => {
@@ -333,7 +373,7 @@ export default {
       this.postAveList = this.aveArr(data.records, this.pageSize);
       this.postList = this.postAveList[0];
       this.userInfo = this.getTokenData();
-      console.log(this.postAveList[this.count]);
+      // console.log(this.postAveList[this.count]);
 
       this.skeletonLoading = false;
     },
@@ -343,7 +383,7 @@ export default {
       for (let i = 0, len = data.length; i < len; i += num) {
         result.push(data.slice(i, i + num));
       }
-      console.log("result=>", result);
+      // console.log("result=>", result);
       return result;
     },
     // 无限滚动加载方法

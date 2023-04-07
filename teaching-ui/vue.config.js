@@ -13,7 +13,8 @@ function resolve(dir) {
         "node-sass": "^4.12.0",  // npm 降级为14.20.1解决
 */
 
-const port = process.env.port || process.env.npm_config_port || 3004 // dev port
+// const port = process.env.port || process.env.npm_config_port || 3004 // dev port
+const port = process.env.port || process.env.npm_config_port || 82 // dev port
 module.exports = defineConfig({
   transpileDependencies: true,
   lintOnSave: false,
@@ -30,14 +31,24 @@ module.exports = defineConfig({
       // detail: https://cli.vuejs.org/config/#devserver-proxy
       [process.env.VUE_APP_BASE_API]: {
         target: `http://120.46.214.246:8080`,
+        // target: `http://localhost:8080`, // 本地测试
         // target: `http://116.63.165.100:8080`,
         // target: `http://localhost:10011`, // 本地测试
-        // target: `http://localhost:8080`, // 本地测试
         changeOrigin: true,
         pathRewrite: {
           ['^' + 'api']: ''
         }
       }
+      // ['/api/oss']: { // oss请求接口
+      //   // target: `http://120.46.214.246:8080`,
+      //   // target: `http://116.63.165.100:8080`,
+      //   // target: `http://localhost:10011`, // 本地测试
+      //   target: `http://localhost:8080`, // 本地测试
+      //   changeOrigin: true,
+      //   pathRewrite: {
+      //     ['^'+ '/oss']: ''
+      //   }
+      // },
     },
     // disableHostCheck: true
   },

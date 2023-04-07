@@ -9,10 +9,10 @@
       :rules="formRules"
       label-width="40px"
     >
-      <el-form-item label="标题">
+      <el-form-item label="标题" class="add-post-form-item">
         <el-input v-model="form.name"></el-input>
       </el-form-item>
-      <el-form-item label="描述">
+      <el-form-item label="描述" class="add-post-form-item">
         <el-input
           type="textarea"
           maxlength="2000"
@@ -56,7 +56,7 @@
         <div slot="tip" class="el-upload__tip"></div>
       </el-upload>
 
-      <el-form-item>
+      <el-form-item class="add-post-form-item add-post-form-btn">
         <el-button type="primary" @click="onSubmit" v-if="postId === '1'"
           >发布</el-button
         >
@@ -152,7 +152,7 @@ export default {
   },
   methods: {
     noToken() {
-      console.log("getTokenData=>", this.getTokenData());
+      // console.log("getTokenData=>", this.getTokenData());
       const token = this.getTokenData();
 
       if (token === null || token === undefined) {
@@ -168,7 +168,7 @@ export default {
     async updatePost(id) {
       if (id === "1") {
         // 发帖
-        console.log(id);
+        // console.log(id);
 
         return id;
       } else {
@@ -202,11 +202,23 @@ export default {
           if (this.fileList[0]) {
             let FormDatas = new window.FormData();
             FormDatas.append("file", this.fileList[0]);
-            console.log("FormDatas=>", FormDatas);
+            // console.log("FormDatas=>", FormDatas);
+
+            // this.$axios({
+            //   // url: `http://localhost:8080/api/file/oss_file_upload`,
+            //   url: `/api/file/oss_file_upload`,
+            //   method: "post",
+            //   data: FormDatas,
+            //   timeout: 3 * 60 * 1000, // 上传设置180秒
+            //   headers: {
+            //     "Conten-Type": "multipart/form-data",
+            //     // 'Content-Type': 'application/x-www-form-urlencoded'
+            //   },
+            // })
             ossFileUpload(FormDatas)
               .then((res) => {
                 const { data } = res;
-                console.log(data);
+                // console.log(data);
                 this.$message.success("附件上传成功");
                 this.fileUrl = data;
                 this.form.url = data; // form的url
@@ -237,7 +249,7 @@ export default {
                   });
               })
               .catch((error) => {
-                console.log(error);
+                // console.log(error);
                 this.$message.info("附件上传失败");
                 this.submitLoading = false; //
               });
@@ -280,7 +292,19 @@ export default {
           if (this.fileList[0]) {
             let FormDatas = new window.FormData();
             FormDatas.append("file", this.fileList[0]);
-            console.log("FormDatas=>", FormDatas);
+            // console.log("FormDatas=>", FormDatas);
+
+            //
+            // this.$axios({
+            //   url: `/ossapi/file/oss_file_upload`,
+            //   method: "post",
+            //   data: FormDatas,
+            //   timeout: 3 * 60 * 1000, // 上传设置180秒
+            //   headers: {
+            //     "Conten-Type": "multipart/form-data",
+            //     // 'Content-Type': 'application/x-www-form-urlencoded'
+            //   },
+            // })
             ossFileUpload(FormDatas)
               .then((res) => {
                 const { data } = res;
@@ -317,7 +341,7 @@ export default {
                   });
               })
               .catch((error) => {
-                console.log(error);
+                // console.log(error);
                 this.$message.info("附件上传失败");
                 this.submitLoading = false; //
               });
@@ -371,10 +395,10 @@ export default {
     },
     // 上传图片相关
     handleRemove(file, fileList) {
-      console.log(file, fileList);
+      // console.log(file, fileList);
     },
     handlePreview(file) {
-      console.log(file);
+      // console.log(file);
     },
     handleExceed(files, fileList) {
       this.$message.warning(
@@ -435,7 +459,7 @@ export default {
 /*大型屏幕pc 超大屏*/
 @media screen and (min-width: 1200px) {
   .form {
-    .el-form-item,
+    .add-post-form-item,
     .upload-file {
       width: 600px;
     }
@@ -444,7 +468,7 @@ export default {
 /*1200>=pc>=992 大屏，字体红色，背景黑色*/
 @media screen and (min-width: 992px) and (max-width: 1199px) {
   .form {
-    .el-form-item,
+    .add-post-form-item,
     .upload-file {
       width: 600px;
     }
@@ -453,7 +477,7 @@ export default {
 /*768<=pad<992 中屏，字体黄色，背景红色*/
 @media screen and (min-width: 768px) and (max-width: 991px) {
   .form {
-    .el-form-item,
+    .add-post-form-item,
     .upload-file {
       width: 600px;
     }
@@ -462,7 +486,7 @@ export default {
 /*phone<768  小屏，字体黑色，背景蓝色*/
 @media screen and (max-width: 767px) and (min-width: 480px) {
   .form {
-    .el-form-item,
+    .add-post-form-item,
     .upload-file {
       width: 480px;
     }
@@ -482,14 +506,14 @@ export default {
   }
 
   .form {
-    .el-form-item,
+    .add-post-form-item,
     .upload-file {
       // width: 600px;
       margin: 0 auto;
       margin-bottom: 20px;
     }
 
-    .el-form-item {
+    .add-post-form-item {
       textarea {
         height: 200px;
       }

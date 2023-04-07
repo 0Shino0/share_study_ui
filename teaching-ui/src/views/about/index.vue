@@ -496,8 +496,8 @@ export default {
     async uploadAvater(item) {
       let FormDatas = new window.FormData();
       FormDatas.append("file", item.file);
-      console.log(item.file);
-      console.log("FormDatas=>", FormDatas);
+      // console.log(item.file);
+      // console.log("FormDatas=>", FormDatas);
 
       this.$message.info("请输入密码以继续上传");
 
@@ -578,7 +578,7 @@ export default {
           // 更新头像数据
           updateUserInfo(this.dialogForm)
             .then((res) => {
-              console.log("update finish" + res);
+              // console.log("update finish" + res);
               this.submitLoad = false;
               this.showDialog = false;
               this.$message.success("上传成功");
@@ -595,7 +595,7 @@ export default {
               });
             })
             .catch((error) => {
-              console.log("update error! Error message:" + error);
+              // console.log("update error! Error message:" + error);
               this.$message.error("上传失败，请重新上传");
               this.resetDialogForm();
               this.submitLoad = false;
@@ -615,7 +615,7 @@ export default {
       userInfo: (state) => Object.assign({}, state.user.userInfo),
     }),
     queryId: function () {
-      console.log(this.$route.query.id);
+      // console.log(this.$route.query.id);
       return this.$route.query.id;
     },
   },

@@ -149,8 +149,8 @@ export default {
 
     // 提交 发布
     this.$bus.$on("tranHtmlFromEditor", (info, title) => {
-      console.log("info=>", info);
-      console.log("title=>", title);
+      // console.log("info=>", info);
+      // console.log("title=>", title);
 
       this.form.name = title;
       this.form.info = info;
@@ -162,8 +162,8 @@ export default {
 
     // 修改
     this.$bus.$on("updateHtmlFromEditor", (info, title) => {
-      console.log("info=>", info);
-      console.log("title=>", title);
+      // console.log("info=>", info);
+      // console.log("title=>", title);
 
       this.updateForm.name = title;
       this.updateForm.info = info;
@@ -174,12 +174,9 @@ export default {
     });
   },
   methods: {
-    handleloadTimer() {
-      this.loadTimer = new Date().getTime();
-    },
     // 未登录不能进入
     noToken() {
-      console.log("getTokenData=>", this.getTokenData());
+      // console.log("getTokenData=>", this.getTokenData());
       const token = this.getTokenData();
 
       if (token === null || token === undefined) {
@@ -195,7 +192,7 @@ export default {
     async updatePost(id) {
       if (id === "1") {
         // 发帖
-        console.log(id);
+        // console.log(id);
 
         return id;
       } else {
@@ -236,11 +233,11 @@ export default {
           if (this.fileList[0]) {
             let FormDatas = new window.FormData();
             FormDatas.append("file", this.fileList[0]);
-            console.log("FormDatas=>", FormDatas);
+            // console.log("FormDatas=>", FormDatas);
             ossFileUpload(FormDatas)
               .then((res) => {
                 const { data } = res;
-                console.log(data);
+                // console.log(data);
                 this.$message.success("附件上传成功");
                 this.fileUrl = data;
                 this.form.url = data; // form的url
@@ -271,7 +268,7 @@ export default {
                   });
               })
               .catch((error) => {
-                console.log(error);
+                // console.log(error);
                 this.$message.info("附件上传失败");
                 this.submitLoading = false; //
               });
@@ -314,7 +311,7 @@ export default {
           if (this.fileList[0]) {
             let FormDatas = new window.FormData();
             FormDatas.append("file", this.fileList[0]);
-            console.log("FormDatas=>", FormDatas);
+            // console.log("FormDatas=>", FormDatas);
             ossFileUpload(FormDatas)
               .then((res) => {
                 const { data } = res;
@@ -322,7 +319,7 @@ export default {
                 // this.$message.success("附件上传成功");
                 this.fileUrl = data;
                 this.submitLoading = false; //
-                console.log(data);
+                // console.log(data);
                 this.updateForm.url = data; // updateForm的url
                 // this.updateForm.name = this.form.name; // 标题
                 // this.updateForm.info = this.form.info; // 描述
@@ -331,7 +328,7 @@ export default {
 
                 updatePost(this.updateForm)
                   .then((res) => {
-                    console.log(res);
+                    // console.log(res);
                     this.$message.success("修改成功,正在跳转中");
                     this.submitLoading = false;
                     this.resetAddPost();
@@ -356,7 +353,7 @@ export default {
                   });
               })
               .catch((error) => {
-                console.log(error);
+                // console.log(error);
                 this.$message.info("附件上传失败");
                 this.submitLoading = false; //
               });
@@ -461,7 +458,6 @@ export default {
 /*大型屏幕pc 超大屏*/
 @media screen and (min-width: 1200px) {
   .form {
-    .el-form-item,
     .upload-file {
       width: 600px;
     }
@@ -470,7 +466,6 @@ export default {
 /*1200>=pc>=992 大屏，字体红色，背景黑色*/
 @media screen and (min-width: 992px) and (max-width: 1199px) {
   .form {
-    .el-form-item,
     .upload-file {
       width: 600px;
     }
@@ -479,7 +474,6 @@ export default {
 /*768<=pad<992 中屏，字体黄色，背景红色*/
 @media screen and (min-width: 768px) and (max-width: 991px) {
   .form {
-    .el-form-item,
     .upload-file {
       width: 600px;
     }
@@ -488,7 +482,6 @@ export default {
 /*phone<768  小屏，字体黑色，背景蓝色*/
 @media screen and (max-width: 767px) and (min-width: 480px) {
   .form {
-    .el-form-item,
     .upload-file {
       width: 480px;
     }
@@ -508,17 +501,10 @@ export default {
   }
 
   .form {
-    .el-form-item,
     .upload-file {
       // width: 600px;
       margin: 0 auto;
       margin-bottom: 20px;
-    }
-
-    .el-form-item {
-      // textarea {
-      //   height: 200px;
-      // }
     }
   }
 

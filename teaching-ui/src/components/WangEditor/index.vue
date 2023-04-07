@@ -79,7 +79,7 @@ export default {
   methods: {
     // 提交
     handleSubmit() {
-      console.log("html=>", this.html);
+      // console.log("html=>", this.html);
       this.$bus.$emit("tranHtmlFromEditor", this.html, this.postTitle);
     },
     // 修改
@@ -90,7 +90,7 @@ export default {
     onCreated(editor) {
       this.editor = Object.seal(editor); // 一定要用 Object.seal() ，否则会报错
 
-      console.log(editor.getAllMenuKeys());
+      // console.log(editor.getAllMenuKeys());
       // console.log(editor.config.menus);
 
       this.toolbarConfig = {
@@ -138,7 +138,7 @@ export default {
       const text = event.clipboardData.getData("text/plain"); // 获取粘贴的纯文本
       const rtf = event.clipboardData.getData("text/rtf"); // 获取 rtf 数据（如从 word wsp 复制粘贴）
       // console.log('html=>',html);
-      console.log("text=>", text);
+      // console.log("text=>", text);
       // console.log('rtf=>',rtf);
 
       // 自定义插入内容
@@ -158,9 +158,9 @@ export default {
     //   this.html = "<p>模拟 Ajax 异步设置内容 HTML</p>";
     // }, 1500);
     this.$nextTick(() => {
-      console.log("id=>", this.postId);
-      console.log("title=>", this.title);
-      console.log("info=>", this.info);
+      // console.log("id=>", this.postId);
+      // console.log("title=>", this.title);
+      // console.log("info=>", this.info);
       this.postTitle = this.title;
       this.html = this.info;
     });

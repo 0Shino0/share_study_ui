@@ -8,6 +8,7 @@
     <transition name="app-transform">
       <router-view />
     </transition>
+
     <!-- <Footer></Footer> -->
   </div>
 </template>
