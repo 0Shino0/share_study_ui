@@ -142,7 +142,7 @@ export default defineComponent({
       resetAddPost(formRef.value);
     };
 
-    const tranHtmlFromEditorEvent = (WangEditorForm: WangEditorFormMember) => {
+    const tranHtmlFromEditorEvent = (WangEditorForm) => {
       console.log("info=>", WangEditorForm.html);
       console.log("title=>", WangEditorForm.postTitle);
 
@@ -154,11 +154,9 @@ export default defineComponent({
       // console.log(this.$refs.test);
     };
 
-    const updateHtmlFromEditorEvent = (
-      WangEditorForm: WangEditorFormMember
-    ) => {
-      // console.log("info=>", WangEditorForm.html);
-      // console.log("title=>", WangEditorForm.postTitle);
+    const updateHtmlFromEditorEvent = (WangEditorForm) => {
+      console.log("info=>", WangEditorForm.html);
+      console.log("title=>", WangEditorForm.postTitle);
 
       updateForm.value.name = WangEditorForm.postTitle;
       updateForm.value.info = WangEditorForm.html;
@@ -360,8 +358,8 @@ export default defineComponent({
                 submitLoading.value = false; //
 
                 updateForm.value.url = data; // updateForm的url
-                updateForm.value.name = form.value.name; // 标题
-                updateForm.value.info = form.value.info; // 描述
+                // updateForm.value.name = form.value.name; // 标题
+                // updateForm.value.info = form.value.info; // 描述
                 // 调用修改接口
                 updateForm.value.id = postId.value; // 配置id
 
@@ -395,10 +393,10 @@ export default defineComponent({
             // 如果不上传文件
             // 调用发布接口
             updateForm.value.id = postId.value; // 配置id
-            updateForm.value.name = form.value.name; // 标题
-            updateForm.value.info = form.value.info; // 描述
+            // updateForm.value.name = form.value.name; // 标题
+            // updateForm.value.info = form.value.info; // 描述
 
-            updatePostInfo(form.value)
+            updatePostInfo(updateForm.value)
               .then((res) => {
                 $message.success("修改成功,正在跳转");
                 submitLoading.value = false;
@@ -621,7 +619,6 @@ export default defineComponent({
 /*大型屏幕pc 超大屏*/
 @media screen and (min-width: 1200px) {
   .form {
-    .el-form-item,
     .upload-file {
       width: 600px;
     }
@@ -630,7 +627,6 @@ export default defineComponent({
 /*1200>=pc>=992 大屏，字体红色，背景黑色*/
 @media screen and (min-width: 992px) and (max-width: 1199px) {
   .form {
-    .el-form-item,
     .upload-file {
       width: 600px;
     }
@@ -639,7 +635,6 @@ export default defineComponent({
 /*768<=pad<992 中屏，字体黄色，背景红色*/
 @media screen and (min-width: 768px) and (max-width: 991px) {
   .form {
-    .el-form-item,
     .upload-file {
       width: 600px;
     }
@@ -648,7 +643,6 @@ export default defineComponent({
 /*phone<768  小屏，字体黑色，背景蓝色*/
 @media screen and (max-width: 767px) and (min-width: 480px) {
   .form {
-    .el-form-item,
     .upload-file {
       width: 480px;
     }
@@ -668,18 +662,11 @@ export default defineComponent({
   }
 
   .form {
-    .el-form-item,
     .upload-file {
       // width: 600px;
       margin: 0 auto;
       margin-bottom: 20px;
     }
-
-    // .el-form-item {
-    //   // textarea {
-    //   //   height: 200px;
-    //   // }
-    // }
   }
 
   .upload-file {

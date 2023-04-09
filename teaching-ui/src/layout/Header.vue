@@ -3,6 +3,7 @@
 import {
   defineComponent,
   onMounted,
+  onBeforeUnmount,
   computed,
   ref,
   inject,
@@ -95,6 +96,12 @@ export default defineComponent({
       noLogin();
     };
 
+    // 事件 Event
+    const changeShowHeaderEvent = (val: any) => {
+      // console.log(val);
+      showHeader.value = val;
+    };
+
     // created
     console.log(route.path);
     userInfo.value = getTokenData();
@@ -110,6 +117,16 @@ export default defineComponent({
       // 用户信息变更
       $bus.on("updateUserInfo", updateUserInfoEvent);
       // $message.info("这是一段消息");
+      $bus.on("changeShowHeaderEvent", changeShowHeaderEvent);
+    });
+
+    onBeforeUnmount(() => {
+      // 未登录
+      $bus.off("noLogin", noLoginEvent);
+      // 用户信息变更
+      $bus.off("updateUserInfo", updateUserInfoEvent);
+      // $message.info("这是一段消息");
+      $bus.off("changeShowHeaderEvent", changeShowHeaderEvent);
     });
 
     // 计算属性 computed
@@ -259,6 +276,7 @@ export default defineComponent({
 
       return scrollTop;
     }
+
     // 跳转 addPost页面
     function pushAddPost(): void {
       // console.log(this.$route.path);
@@ -324,7 +342,8 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="header" v-show="showHeader">
+  <!-- v-show="showHeader" -->
+  <div class="header" :class="showHeader ? 'header-up' : 'header-down'">
     <div class="header-content">
       <!-- logo -->
       <router-link class="logo" to="/">
@@ -575,6 +594,18 @@ export default defineComponent({
     top: -10px !important;
     left: -5px;
   }
+}
+
+.header-down {
+  height: 0;
+  overflow: hidden;
+  transition: all 400ms;
+}
+
+.header-up {
+  transition: all 400ms;
+  // height: 5em;
+  height: 60px;
 }
 
 .header {

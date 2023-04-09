@@ -281,9 +281,12 @@ export default defineComponent({
     // 获取表单相关数据数据
     const getdialogFormInfo = async (id: string) => {
       const { data } = await getInfo(id);
-      let key: keyof SelfFormMember;
+      // let key: keyof SelfFormMember;
+      let key: string;
       for (key in data) {
-        dialogForm.value[key] = data[key];
+        if (dialogForm.value.hasOwnProperty(key)) {
+          dialogForm.value[key] = data[key];
+        }
       }
     };
     // 获取表单相关数据数据

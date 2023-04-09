@@ -6,6 +6,7 @@ import {
   onBeforeUnmount,
   ref,
   computed,
+  nextTick,
 } from "vue";
 import { useRoute } from "vue-router";
 // import { Emitter } from "mitt";
@@ -43,6 +44,8 @@ export default defineComponent({
     const route = useRoute();
 
     // console.log("$bus=>", $bus);
+    // dom
+    const mainRef = ref<HTMLElement>();
 
     // 标识
     const loading = ref<boolean>(false);
@@ -76,7 +79,7 @@ export default defineComponent({
     const tokenData = ref<UserInfoMember | null>(null);
 
     // 更新信息
-    const activeName = ref<string>("0"); // 当前选中
+    const activeName = ref<string>("4"); // 当前选中
     const upgrateInfo = ref<object[]>([]);
 
     // 事件
@@ -121,12 +124,17 @@ export default defineComponent({
 
     // 生命周期钩子
     onMounted(() => {
-      console.log(route.path);
+      // console.log(route.path);
       getPostPageInfo(1, 100);
       tokenData.value = getTokenData();
+
       if (tokenData.value != null) {
         userInfo.value = tokenData.value;
       }
+
+      // nextTick(() => {
+      //   initScroll();
+      // });
     });
 
     // 在组件卸载之前移除侦听
@@ -184,6 +192,48 @@ export default defineComponent({
         }
       }, 300);
     };
+    // 滚动事件
+    // 滚动事件相关
+    // const initScroll = (): void => {
+    //   let initScrollTop: number = getScorllTop();
+    //   let scrollType: number = 0;
+    //   console.log(mainRef.value);
+    //   mainRef.value!.addEventListener("scroll", () => {
+    //     // console.log("initScroll");
+    //     let currentScrollTop = getScorllTop();
+    //     if (currentScrollTop > initScrollTop) {
+    //       // 往下滚动
+    //       scrollType = 1;
+    //     } else {
+    //       // 往上滚动
+    //       scrollType = 0;
+    //     }
+    //     console.log(currentScrollTop);
+    //     initScrollTop = currentScrollTop;
+    //     if (scrollType == 1 && currentScrollTop > 100) {
+    //       // showHeader.value = false;
+    //       $bus.emit("changeShowHeaderEvent", false);
+    //     } else {
+    //       // showHeader.value = true;
+    //       $bus.emit("changeShowHeaderEvent", true);
+    //     }
+    //   });
+    // };
+    // const getScorllTop = (): number => {
+    //   // 获取滚动条滚动的高度
+    //   // console.log(mainRef.value);
+
+    //   // let scrollTop =
+    //   //   document.documentElement.scrollTop ||
+    //   //   window.pageYOffset ||
+    //   //   document.body.scrollTop;
+    //   let scrollTop =
+    //     mainRef.value!.scrollTop ||
+    //     window.pageYOffset ||
+    //     document.body.scrollTop;
+
+    //   return scrollTop;
+    // };
 
     // 计算方法 computed
     const noMore = computed(() => {
@@ -201,6 +251,7 @@ export default defineComponent({
     return {
       // 需要给 `<template />` 用的数据或函数，在这里 `return` 出去
       // 变量
+      mainRef,
       loading,
       skeletonLoading,
       skeletonCount,
@@ -231,6 +282,7 @@ export default defineComponent({
   <!-- style="overflow: auto" -->
   <div
     class="main"
+    ref="mainRef"
     v-infinite-scroll="load"
     infinite-scroll-disabled="disabled"
     infinite-scroll-immediate="false"
@@ -350,6 +402,16 @@ export default defineComponent({
       </div>
 
       <div class="main-right">
+        <!-- welcome-svg -->
+        <!-- logo -->
+        <div class="main-right-wecome">
+          <img
+            src="@/assets/img/support-team.png"
+            alt="Welcome"
+            style="width: 237px"
+          />
+        </div>
+
         <!-- 头部卡片 展示个人信息 -->
         <div class="card">
           <div class="card-info">
@@ -394,7 +456,18 @@ export default defineComponent({
           <div class="cart-container">
             <div class="upgrate-card-title">更新公告</div>
             <el-collapse v-model="activeName" accordion>
-              <el-collapse-item title="2023年3月24日" name="0">
+              <el-collapse-item title="2023年4月2日" name="4">
+                <div>- 界面美化：在登录注册以及首页加入一些插图，美化界面</div>
+                <div>
+                  - 项目重构：Vue3 + Element Plus + TypeScript + Pinia +
+                  Vite对本项目进行重构重构基本完成，进入测试阶段，测试地址<a
+                    href="http://43.142.74.200:82/"
+                    >http://43.142.74.200:82/</a
+                  >
+                  。
+                </div>
+              </el-collapse-item>
+              <el-collapse-item title="2023年3月24日" name="3">
                 <div>
                   -
                   帖子修改：修改帖子经过测试已经相对完善，但是还有一些小Bug，比如发帖时没有添加附件那么修改时添加附件就会报错。
@@ -404,7 +477,7 @@ export default defineComponent({
                   Vite对本项目进行重构。
                 </div>
               </el-collapse-item>
-              <el-collapse-item title="2023年3月23日" name="1">
+              <el-collapse-item title="2023年3月23日" name="2">
                 <div>
                   -
                   富文本支持：更新了发帖页面，短篇为原来的发帖页，长篇为更新后的富文本编辑。支持
@@ -412,12 +485,12 @@ export default defineComponent({
                 </div>
                 <div>- 移动端适配：目前已经初步适配移动端，后续还会优化。</div>
               </el-collapse-item>
-              <el-collapse-item title="2023年3月22日" name="2">
+              <el-collapse-item title="2023年3月22日" name="1">
                 <div>
                   - docker时区问题：修复了实际发帖时间与北京时间的偏差。
                 </div>
               </el-collapse-item>
-              <el-collapse-item title="之前的更新" name="3">
+              <el-collapse-item title="之前的更新" name="0">
                 <div>
                   - 骨架屏支持：支持首页以及帖子详情页面的骨架屏，优化首屏加载。
                 </div>
@@ -428,6 +501,15 @@ export default defineComponent({
               </el-collapse-item>
             </el-collapse>
           </div>
+        </div>
+
+        <!-- logo  -->
+        <div class="main-right-wecome">
+          <img
+            src="@/assets/img/forpeople.png"
+            alt="forpeople"
+            style="width: 237px"
+          />
         </div>
       </div>
     </div>

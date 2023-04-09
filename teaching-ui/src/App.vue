@@ -25,11 +25,13 @@ html {
   font-size: 16px;
   // background-color: #E9ECEF;
   // background-color: #f9fbff;
+  // overflow: hidden;
   background-color: #e9ecef;
 }
 
 #app {
   outline: none;
+  // overflow-x: hidden;
   // 方案一
   height: 750px;
   // overflow: hidden;

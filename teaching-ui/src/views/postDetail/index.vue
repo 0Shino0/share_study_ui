@@ -172,7 +172,10 @@ export default defineComponent({
     // 方法 methods
     // 获取帖子详细消息
     const getPostDetailInfo = async () => {
-      const { data } = await getPostDetail(postId.value);
+      const result = await getPostDetail(postId.value);
+      if (result === undefined) return;
+
+      const data = result.data;
       postDetail.value = data;
       console.log(postDetail.value);
       // 获取 要回复的人
@@ -213,7 +216,8 @@ export default defineComponent({
       }
       if (!fileIsVideo.value) {
         console.log("fileIsDoc=>", docType.value.includes(suffix));
-        fileIsDoc.value = vidioType.value.includes(suffix);
+        fileIsDoc.value = docType.value.includes(suffix);
+
         if (fileIsDoc.value) {
           docPreviewUrl.value = `https://view.officeapps.live.com/op/view.aspx?src=${postDetail.value.resourceUrl}`;
         }
@@ -252,9 +256,9 @@ export default defineComponent({
       commentsList.value = data.records;
     };
     const delComment = (id: string) => {
-      ElMessageBox.confirm("是否删除该评论???", "删除", {
-        confirmButtonText: "OK",
-        cancelButtonText: "Cancel",
+      ElMessageBox.confirm("是否删除该评论?", "删除", {
+        confirmButtonText: "删除",
+        cancelButtonText: "取消",
         type: "warning",
       })
         .then(() => {
@@ -720,10 +724,15 @@ export default defineComponent({
           <img :src="postDetail.resourceUrl" alt="图片" style="width: 600px" />
         </div>
 
-        <div class="movies-container" v-else-if="fileIsVideo">
+        <div
+          class="movies-container"
+          v-else-if="fileIsVideo"
+          style="height: 400px"
+        >
           <video-player
             :src="postDetail.resourceUrl"
             :volume="volume"
+            style="width: 100%; height: 100%"
           ></video-player>
           <!-- <audio :src="" alt="视频"></audio> -->
         </div>
@@ -731,7 +740,7 @@ export default defineComponent({
         <div
           class="doc-container"
           style="width: 100%; margin-top: 30px"
-          v-else-if="docPreviewUrl"
+          v-else-if="fileIsDoc"
         >
           <iframe
             :src="docPreviewUrl"
@@ -919,6 +928,7 @@ export default defineComponent({
             </div>
             <div
               class="add-comment-item"
+              v-if="commentItem.belong === userInfo.id"
               @click="delComment(commentItem.commentId)"
             >
               <span class="iconfont icon-message"></span>
