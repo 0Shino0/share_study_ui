@@ -1,5 +1,11 @@
 <template>
-  <div id="app" @focus="cancelFocus" tabindex="0" style="overflow: auto">
+  <div
+    id="app"
+    @focus="cancelFocus"
+    tabindex="0"
+    infinite-scroll-immediate="false"
+    infinite-scroll-distance="1"
+  >
     <keep-alive>
       <Header
         v-if="$route.path != '/login' && $route.path != '/register'"
@@ -26,6 +32,18 @@ export default {
   mounted() {
     console.log(this.$route.path);
   },
+  watch: {
+    $route(to, from) {
+      // console.log(to);
+      // console.log(from);
+      if (to.path === "/") {
+        console.log(document.documentElement);
+        document.documentElement.style.overflow = "hidden";
+      } else {
+        document.documentElement.style.overflow = "auto";
+      }
+    },
+  },
   methods: {
     cancelFocus() {
       this.$bus.$emit("cancelFocus", false);
@@ -47,7 +65,6 @@ html {
   outline: none;
   // 方案一
   height: 750px;
-  overflow: hidden;
   background-color: #e9ecef;
 
   // 方案二

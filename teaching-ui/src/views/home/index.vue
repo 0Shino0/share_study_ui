@@ -1,11 +1,12 @@
 <template>
   <div
     class="main"
-    style="overflow: auto; margin-top: 10px"
+    ref="mainRef"
     v-infinite-scroll="load"
     infinite-scroll-disabled="disabled"
     infinite-scroll-immediate="false"
     infinite-scroll-distance="1"
+    style="overflow: auto"
   >
     <!-- 骨架屏 -->
     <el-skeleton animated :loading="skeletonLoading">
@@ -324,6 +325,8 @@ export default {
   },
   mounted() {
     this.getPostPageInfo(1, 100);
+    // 监听滚动事件
+    this.initScroll();
 
     // 登录时获取信息
     // this.$bus.$on("getPostPageInfoFromHeader", (val) => {
@@ -388,6 +391,7 @@ export default {
     },
     // 无限滚动加载方法
     async load() {
+      console.log("load");
       this.loading = true;
       setTimeout(() => {
         // this.count += 4;
@@ -404,6 +408,46 @@ export default {
         }
       }, 300);
     },
+    // 滚动事件相关
+    initScroll() {
+      let initScrollTop = this.getScorllTop();
+      let scrollType = 0;
+      // console.log();
+      this.$refs.mainRef.addEventListener("scroll", () => {
+        // console.log("initScroll");
+        let currentScrollTop = this.getScorllTop();
+        if (currentScrollTop > initScrollTop) {
+          // 往下滚动
+          scrollType = 1;
+        } else {
+          // 往上滚动
+          scrollType = 0;
+        }
+        initScrollTop = currentScrollTop;
+        if (scrollType == 1 && currentScrollTop > 100) {
+          // this.showHeader = false;
+          this.$bus.$emit("changeShowHeaderEvent", false);
+        } else {
+          this.$bus.$emit("changeShowHeaderEvent", true);
+        }
+      });
+    },
+    getScorllTop() {
+      // 获取滚动条滚动的高度
+      // let scrollTop =
+      //   document.documentElement.scrollTop ||
+      //   window.pageYOffset ||
+      //   document.body.scrollTop;
+      // console.log(this.$refs.mainRef.scrollTop);
+      // console.log(this.$refs.mainRef.pageYOffset);
+      // console.log(document.body.scrollTop);
+      let scrollTop =
+        this.$refs.mainRef.scrollTop ||
+        window.pageYOffset ||
+        document.body.scrollTop;
+
+      return scrollTop;
+    },
   },
   computed: {
     // ...mapState({
@@ -415,6 +459,7 @@ export default {
       return this.postList.length >= this.postLength;
     },
     disabled() {
+      console.log("disabled");
       return this.loading || this.noMore;
     },
   },
@@ -428,6 +473,12 @@ export default {
 /*1200>=pc>=992 大屏，字体红色，背景黑色*/
 @media screen and (min-width: 992px) and (max-width: 1199px) {
 }
+/*pc<=992 大屏，字体红色，背景黑色*/
+// @media screen and (max-width: 992px) {
+//   .main {
+//     height: 750px;
+//   }
+// }
 /*768<=pad<992 中屏，字体黄色，背景红色*/
 @media screen and (min-width: 768px) and (max-width: 991px) {
   .main {
@@ -504,8 +555,9 @@ export default {
 }
 
 .main {
-  // min-height: 730px;
   height: 100%;
+
+  // height: calc(100vw);
 
   .main-container {
     // min-height: 730px;
@@ -513,7 +565,7 @@ export default {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    padding-top: 60px;
+    padding-top: 70px;
     margin: 0 auto;
 
     // 左侧帖子

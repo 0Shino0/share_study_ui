@@ -1,5 +1,6 @@
 <template>
-  <div class="header" v-show="showHeader">
+  <!-- v-show="showHeader" -->
+  <div class="header" :class="showHeader ? 'header-up' : 'header-down'" ref="headerRef" >
     <div class="header-content">
       <!-- logo -->
       <router-link class="logo" to="/">
@@ -157,6 +158,11 @@ export default {
   async mounted() {
     console.log("mounted");
     this.initScroll();
+    this.$bus.$on("changeShowHeaderEvent", (val) => {
+      console.log(val);
+      this.showHeader = val;
+    });
+
     // 获取我的评论
     // 获取数据
     // this.currentPath = this.$route.path;
@@ -429,10 +435,21 @@ export default {
     position: absolute;
     top: -10px !important;
     left: -5px;
+  }
+
 }
 
-
-}
+  .header-down {
+    height: 0;
+    overflow: hidden;
+    transition: all 400ms;
+  }
+  
+  .header-up {
+    transition: all 400ms;
+    // height: 5em;
+    height: 60px;
+  }
 
 
 .header {
