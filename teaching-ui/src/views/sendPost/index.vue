@@ -1,25 +1,25 @@
 <script lang="ts">
 // 这是一个基于 TypeScript 的 Vue 组件
-import { defineComponent, onMounted, ref, inject } from "vue";
-
-import { useRoute, useRouter } from "vue-router";
+import { defineComponent, onMounted, onBeforeUnmount, ref, inject } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import $bus from "@/libs/eventBus";
-
-import { delOssFile, ossFileUpload } from "@/api/oss";
-import { addPost, getPostInfo, updatePost as updatePostInfo } from "@/api/post";
+import { PostListMember } from "@/views/home/index.vue";
+import { UserInfoMember } from "@/store";
+import { getTokenData } from "@/utils/index";
 import { getToken } from "@/utils/auth";
-import Loading from "@/components/Loading/index.vue";
+import { WangEditorFormMember } from "@/components/WangEditor/index.vue";
 
+import { ElMessageBox } from "element-plus";
 import type {
   FormInstance,
   FormRules,
   UploadProps,
   UploadUserFile,
 } from "element-plus";
-import { ElMessageBox } from "element-plus";
-import { PostListMember } from "@/views/home/index.vue";
-import { UserInfoMember } from "@/store";
-import { getTokenData } from "@/utils/index";
+import { delOssFile, ossFileUpload } from "@/api/oss";
+import { addPost, getPostInfo, updatePost as updatePostInfo } from "@/api/post";
+import Loading from "@/components/Loading/index.vue";
+import WangEditor from "@/components/WangEditor/index.vue";
 
 export interface FormMember {
   name: string;
@@ -36,6 +36,10 @@ export interface UpdateFormMember {
 }
 
 export default defineComponent({
+  components: {
+    Loading,
+    WangEditor,
+  },
   setup(props, context) {
     // 在这里声明数据，或者编写函数并在这里执行它
     // 在使用 setup 的情况下，请牢记一点：不能再用 this 来获取 Vue 实例
@@ -44,6 +48,9 @@ export default defineComponent({
     const route = useRoute();
 
     const postId = ref<string>("");
+    const postUrl = ref<string>("");
+    const propTitle = ref<string>("");
+    const propInfo = ref<string>("");
     const postDetail = ref<PostListMember>({
       collectStatus: "",
       collegeName: "",
@@ -135,6 +142,30 @@ export default defineComponent({
       resetAddPost(formRef.value);
     };
 
+    const tranHtmlFromEditorEvent = (WangEditorForm) => {
+      console.log("info=>", WangEditorForm.html);
+      console.log("title=>", WangEditorForm.postTitle);
+
+      form.value.name = WangEditorForm.postTitle;
+      form.value.info = WangEditorForm.html;
+      // 发布接口
+      onSubmit(formRef.value);
+      // this.$refs.test.innerHTML += info;
+      // console.log(this.$refs.test);
+    };
+
+    const updateHtmlFromEditorEvent = (WangEditorForm) => {
+      console.log("info=>", WangEditorForm.html);
+      console.log("title=>", WangEditorForm.postTitle);
+
+      updateForm.value.name = WangEditorForm.postTitle;
+      updateForm.value.info = WangEditorForm.html;
+      // 发布接口
+      updateSubmit(formRef.value);
+      // this.$refs.test.innerHTML += info;
+      // console.log(this.$refs.test);
+    };
+
     // 生命周期钩子
     onMounted(() => {
       const token = getTokenData();
@@ -146,8 +177,21 @@ export default defineComponent({
       noToken(); // 未登录
 
       $bus.on("resetFormFromHeader", resetFormFromHeaderEvent);
+      // 提交 发布
+      $bus.on("tranHtmlFromEditor", tranHtmlFromEditorEvent);
+      // 修改
+      $bus.on("updateHtmlFromEditor", updateHtmlFromEditorEvent);
     });
 
+    onBeforeUnmount(() => {
+      $bus.off("resetFormFromHeader", resetFormFromHeaderEvent);
+      // 提交 发布
+      $bus.off("tranHtmlFromEditor", tranHtmlFromEditorEvent);
+      // 修改
+      $bus.off("updateHtmlFromEditor", updateHtmlFromEditorEvent);
+    });
+
+    // 方法 methods
     // 方法 methods
     const noToken = () => {
       // console.log("getTokenData=>", this.getTokenData());
@@ -177,6 +221,13 @@ export default defineComponent({
         form.value.info = data.info;
         form.value.belong = data.id;
         form.value.url = data.url;
+
+        postUrl.value = data.url;
+
+        propTitle.value = data.name;
+        propInfo.value = data.info;
+        // console.log("data=>", data);
+        // this.$bus.$emit("updateHtmlFromSendPost", data.name, data.info);
 
         // updateForm
         updateForm.value.id = data.id;
@@ -307,8 +358,8 @@ export default defineComponent({
                 submitLoading.value = false; //
 
                 updateForm.value.url = data; // updateForm的url
-                updateForm.value.name = form.value.name; // 标题
-                updateForm.value.info = form.value.info; // 描述
+                // updateForm.value.name = form.value.name; // 标题
+                // updateForm.value.info = form.value.info; // 描述
                 // 调用修改接口
                 updateForm.value.id = postId.value; // 配置id
 
@@ -342,10 +393,10 @@ export default defineComponent({
             // 如果不上传文件
             // 调用发布接口
             updateForm.value.id = postId.value; // 配置id
-            updateForm.value.name = form.value.name; // 标题
-            updateForm.value.info = form.value.info; // 描述
+            // updateForm.value.name = form.value.name; // 标题
+            // updateForm.value.info = form.value.info; // 描述
 
-            updatePostInfo(form.value)
+            updatePostInfo(updateForm.value)
               .then((res) => {
                 $message.success("修改成功,正在跳转");
                 submitLoading.value = false;
@@ -488,6 +539,8 @@ export default defineComponent({
       fileLimit,
       headers,
       fileUrl,
+      propTitle,
+      propInfo,
 
       // 方法
       onSubmit,
@@ -507,7 +560,24 @@ export default defineComponent({
 <template>
   <div class="add-post-container">
     <Loading v-show="submitLoading"></Loading>
-    <h2>发帖</h2>
+    <el-upload
+      class="upload-file"
+      :action="action"
+      :http-request="uploadFile"
+      :on-preview="handlePreview"
+      :on-remove="handleRemove"
+      :before-remove="beforeRemove"
+      :before-upload="beforeUpload"
+      multiple
+      :limit="fileLimit"
+      :on-exceed="handleExceed"
+      :file-list="fileList"
+    >
+      <el-button size="small" type="primary"
+        ><span class="iconfont icon-fujian"></span> 附件上传</el-button
+      >
+      <div slot="tip" class="el-upload__tip"></div>
+    </el-upload>
     <el-form
       class="form"
       ref="formRef"
@@ -515,17 +585,14 @@ export default defineComponent({
       :rules="formRules"
       label-width="40px"
     >
-      <el-form-item class="add-post-form-item" label="标题">
-        <el-input v-model="form.name"></el-input>
-      </el-form-item>
-      <el-form-item class="add-post-form-item" label="描述">
-        <el-input
-          type="textarea"
-          maxlength="2000"
-          show-word-limit
-          v-model="form.info"
-        ></el-input>
-      </el-form-item>
+      <!-- WangEditor -->
+      <wang-editor
+        v-if="propTitle !== '' || postId === '1'"
+        :postId="postId"
+        :title="propTitle"
+        :info="propInfo"
+        class="wang-editor"
+      ></wang-editor>
 
       <!--
         <el-upload
@@ -543,37 +610,7 @@ export default defineComponent({
           :headers="headers"//上传文件的请求头
           >
        -->
-      <el-upload
-        class="upload-file"
-        :action="action"
-        :http-request="uploadFile"
-        :on-preview="handlePreview"
-        :on-remove="handleRemove"
-        :before-remove="beforeRemove"
-        :before-upload="beforeUpload"
-        multiple
-        :limit="fileLimit"
-        :on-exceed="handleExceed"
-        :file-list="fileList"
-      >
-        <el-button size="default" type="primary"
-          ><span class="iconfont icon-fujian"></span> 附件上传</el-button
-        >
-        <div slot="tip" class="el-upload__tip"></div>
-      </el-upload>
-
-      <el-form-item class="add-post-form-item add-post-form-btn">
-        <el-button
-          type="primary"
-          @click="onSubmit(formRef)"
-          v-if="postId === '1'"
-          >发布</el-button
-        >
-        <el-button type="primary" @click="updateSubmit(formRef)" v-else
-          >修改</el-button
-        >
-        <el-button @click="handleCancel">取消</el-button>
-      </el-form-item>
+      <!-- <div class="test" ref="test">测试<br /></div> -->
     </el-form>
   </div>
 </template>
@@ -582,7 +619,6 @@ export default defineComponent({
 /*大型屏幕pc 超大屏*/
 @media screen and (min-width: 1200px) {
   .form {
-    .add-post-form-item,
     .upload-file {
       width: 600px;
     }
@@ -591,7 +627,6 @@ export default defineComponent({
 /*1200>=pc>=992 大屏，字体红色，背景黑色*/
 @media screen and (min-width: 992px) and (max-width: 1199px) {
   .form {
-    .add-post-form-item,
     .upload-file {
       width: 600px;
     }
@@ -600,7 +635,6 @@ export default defineComponent({
 /*768<=pad<992 中屏，字体黄色，背景红色*/
 @media screen and (min-width: 768px) and (max-width: 991px) {
   .form {
-    .add-post-form-item,
     .upload-file {
       width: 600px;
     }
@@ -609,7 +643,6 @@ export default defineComponent({
 /*phone<768  小屏，字体黑色，背景蓝色*/
 @media screen and (max-width: 767px) and (min-width: 480px) {
   .form {
-    .add-post-form-item,
     .upload-file {
       width: 480px;
     }
@@ -629,27 +662,34 @@ export default defineComponent({
   }
 
   .form {
-    .add-post-form-item,
     .upload-file {
       // width: 600px;
       margin: 0 auto;
       margin-bottom: 20px;
     }
+  }
 
-    .add-post-form-item {
-      .el-form-item__label,
-      .el-input {
-        height: 40px;
-      }
-      textarea {
-        height: 200px;
-      }
-    }
-    .add-post-form-btn {
-      .el-form-item__content {
-        justify-content: center;
+  .upload-file {
+    .el-upload {
+      width: 100%;
+      button {
+        height: 50px;
+        width: 100%;
+        padding: 8px 12px;
       }
     }
+
+    .el-upload-list {
+      margin-top: 0;
+    }
+
+    .el-upload__tip {
+      margin-top: 0;
+    }
+  }
+
+  .wang-editor {
+    text-align: start;
   }
 }
 </style>

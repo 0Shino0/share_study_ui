@@ -1,22 +1,21 @@
-<template>
-  <ul class="emoji-container">
-    <li
-      class="emojiList"
-      v-for="(item, index) in emojis"
-      :key="index"
-      @click="handleEmoji(item)"
-    >
-      {{ item.text }}
-    </li>
-  </ul>
-</template>
+<script lang="ts">
+// 这是一个基于 TypeScript 的 Vue 组件
+import { defineComponent, onMounted, ref, onBeforeUnmount } from "vue";
+import $bus from "@/libs/eventBus";
 
-<script>
-export default {
-  name: "VueEmojis",
-  data() {
-    return {
-      emojis: [
+export interface EmojisMember {
+  text: string;
+}
+
+export default defineComponent({
+  setup(props, context) {
+    // 在这里声明数据，或者编写函数并在这里执行它
+    // 在使用 setup 的情况下，请牢记一点：不能再用 this 来获取 Vue 实例
+    const emojis = ref<EmojisMember[]>([]);
+
+    // 生命周期钩子
+    onMounted(() => {
+      const emojiList: string[] = [
         "😀",
         "😄",
         "😅",
@@ -57,21 +56,44 @@ export default {
         "👏",
         "🙏",
         "💪",
-      ],
+      ];
+      emojis.value = emojiList.map((emoji: string) => {
+        return { text: emoji };
+      });
+      console.log(emojis.value);
+    });
+
+    // 方法 methods
+    const handleEmoji = (item: any) => {
+      // console.log(item);
+      $bus.emit("addEmoji", item);
+    };
+
+    // 计算方法 computed
+
+    // 监听 watch
+
+    return {
+      // 需要给 `<template, />` 用的数据或函数，在这里 `return` 出去
+      emojis,
+      handleEmoji,
     };
   },
-  mounted() {
-    this.emojis = this.emojis.map((emoji) => ({ text: emoji }));
-    console.log(this.emojis);
-  },
-  methods: {
-    handleEmoji(item) {
-      // console.log(item);
-      this.$bus.$emit("addEmoji", item);
-    },
-  },
-};
+});
 </script>
+
+<template>
+  <ul class="emoji-container">
+    <li
+      class="emojiList"
+      v-for="(item, index) in emojis"
+      :key="index"
+      @click="handleEmoji(item)"
+    >
+      {{ item.text }}
+    </li>
+  </ul>
+</template>
 
 <style lang="scss">
 .emoji-container {

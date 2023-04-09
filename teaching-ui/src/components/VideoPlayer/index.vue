@@ -1,6 +1,103 @@
+<script lang="ts">
+// 这是一个基于 TypeScript 的 Vue 组件
+import { defineComponent, onMounted, ref } from "vue";
+
+// vue中使用 video.js
+// video v8.2.1 中缺少VideoPlayer类型 降级为 7.21.4 解决 // 2023-3-26 10:25:37
+import videojs, {
+  type VideoJsPlayer,
+  type VideoJsPlayerOptions,
+} from "video.js";
+import "video.js/dist/video-js.css";
+
+export default defineComponent({
+  props: ["volume", "src"],
+  setup(props, context) {
+    // 在这里声明数据，或者编写函数并在这里执行它
+    // 在使用 setup 的情况下，请牢记一点：不能再用 this 来获取 Vue 实例
+    console.log(props);
+    // video标签
+    const videoRef = ref<HTMLElement | null>(null);
+    // video 对象
+    let videoPlayer: videojs.Player | null = null;
+
+    const volumeVideo = ref<number>(props.volume);
+    // 初始化videojs
+    const initVideo = () => {
+      // https://gitcode.gitcode.host/docs-cn/video.js-docs-cn/docs/guides/options.html
+      const options: VideoJsPlayerOptions = {
+        language: "zh-CN", // 设置语言
+        controls: true, // 是否显示控制条
+        preload: "auto", // 预加载
+        autoplay: true, // 是否自动播放
+        fluid: false, // 自适应宽高
+        src: props.src, // 要嵌入的视频源的源 URL
+      };
+      if (videoRef.value) {
+        // 创建 video 实例
+        videoPlayer = videojs(videoRef.value, options, onPlayerReady);
+      }
+    };
+    // video初始化完成的回调函数
+    const onPlayerReady = () => {};
+
+    // 生命周期钩子
+    onMounted(() => {
+      initVideo();
+    });
+
+    // 方法 methods
+    // 封装播放器方法
+    const play = () => {
+      if (videoPlayer === null) return;
+      videoPlayer.src({ src: props.src });
+      videoPlayer.load();
+      videoPlayer.play();
+    };
+    const stop = () => {
+      if (videoPlayer === null) return;
+      videoPlayer.pause();
+    };
+    const reload = () => {
+      if (videoPlayer === null) return;
+      stop();
+      videoPlayer.src("");
+      videoPlayer.load();
+      play();
+    };
+    const forward = () => {
+      if (videoPlayer === null) return;
+      const currentTime = videoPlayer.currentTime();
+      videoPlayer.currentTime(currentTime + 5);
+    };
+    const back = () => {
+      if (videoPlayer === null) return;
+      const currentTime = videoPlayer.currentTime();
+      videoPlayer.currentTime(currentTime - 5);
+    };
+    const volumeUp = () => {
+      if (videoPlayer === null) return;
+      videoPlayer.volume(volumeVideo.value + 0.1);
+    };
+    const volumeDown = () => {
+      if (videoPlayer === null) return;
+      videoPlayer.volume(volumeVideo.value - 0.1);
+    };
+
+    // 计算方法 computed
+
+    // 监听 watch
+
+    return {
+      // 需要给 `<template />` 用的数据或函数，在这里 `return` 出去
+    };
+  },
+});
+</script>
+
 <template>
   <video
-    ref="video"
+    ref="videoRef"
     controls
     class="video-js vjs-default-skin vjs-big-play-centered"
     width="600"
@@ -9,66 +106,6 @@
     <source :src="src" />
   </video>
 </template>
-
-<script>
-export default {
-  props: ["volume", "src"],
-  data() {
-    return {
-      player: null,
-      volumeVideo: this.volume,
-    };
-  },
-  methods: {
-    // 封装播放器方法
-    play() {
-      this.player.src({ src: this.src });
-      this.player.load(this.src);
-      this.player.play(this.volumeVideo);
-    },
-    stop() {
-      this.player.pause();
-    },
-    reload() {
-      this.stop();
-      this.player.load({});
-      this.play();
-    },
-    forward() {
-      const currentTime = this.player.currentTime();
-      this.player.currentTime(currentTime + 5);
-    },
-    back() {
-      const currentTime = this.player.currentTime();
-      this.player.currentTime(currentTime - 5);
-    },
-    volumeUp() {
-      this.player.volume(this.volumeVideo + 0.1);
-    },
-    volumeDown() {
-      this.player.volume(this.volumeVideo - 0.1);
-    },
-    toggleTv(obj) {
-      this.player.src(obj.src);
-      this.player.load(obj.load);
-      this.player.play(this.volumeVideo);
-    },
-  },
-  mounted() {
-    const _this = this;
-    this.player = this.$video(this.$refs.video, this.options, function () {
-      this.on("volumechange", () => {
-        // 存储音量
-        _this.volumeVideo = this.volume();
-        window.localStorage.volume = this.volume();
-      });
-      this.on("play", () => {
-        this.volume(this.volumeVideo);
-      });
-    });
-  },
-};
-</script>
 
 <style>
 .video-js .vjs-time-control {

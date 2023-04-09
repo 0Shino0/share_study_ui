@@ -1,32 +1,23 @@
-<template>
-  <div id="app" @focus="cancelFocus" tabindex="0" style="overflow: auto">
-    <keep-alive>
-      <Header></Header>
-    </keep-alive>
-    <transition name="app-transform">
-      <router-view />
-    </transition>
-    <!-- <Footer></Footer> -->
-  </div>
-</template>
+<script setup lang="ts">
+import Header from "@/layout/Header.vue";
 
-<script>
-import Footer from "@/components/layout/Footer.vue";
-import Header from "@/components/layout/Header.vue";
+import { useRoute } from "vue-router";
+import $bus from "@/libs/eventBus";
 
-export default {
-  name: "Home",
-  components: { Footer, Header },
-  data() {
-    return {};
-  },
-  methods: {
-    cancelFocus() {
-      this.$bus.$emit("cancelFocus", false);
-    },
-  },
+const cancelFocus = () => {
+  $bus.emit("cancelFocus", false);
 };
+
+const route = useRoute();
 </script>
+
+<template>
+  <!-- <KeepAlive> -->
+  <Header v-if="route.path != '/login' && route.path != '/register'"></Header>
+  <!-- </KeepAlive> -->
+
+  <router-view />
+</template>
 
 <style lang="scss">
 body,
@@ -34,14 +25,16 @@ html {
   font-size: 16px;
   // background-color: #E9ECEF;
   // background-color: #f9fbff;
+  // overflow: hidden;
   background-color: #e9ecef;
 }
 
 #app {
   outline: none;
+  // overflow-x: hidden;
   // 方案一
   height: 750px;
-  overflow: hidden;
+  // overflow: hidden;
   background-color: #e9ecef;
 
   // 方案二

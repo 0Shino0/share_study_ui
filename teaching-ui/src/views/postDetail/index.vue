@@ -1,3 +1,482 @@
+<script lang="ts">
+// 这是一个基于 TypeScript 的 Vue 组件
+import {
+  defineComponent,
+  onMounted,
+  ref,
+  computed,
+  inject,
+  onBeforeUnmount,
+} from "vue";
+
+import { useRouter, useRoute, LocationQueryValue } from "vue-router";
+import $bus from "@/libs/eventBus";
+import { ElMessage, ElMessageBox } from "element-plus";
+import type { FormInstance } from "element-plus";
+
+import {
+  getPostDetail,
+  addPostComment,
+  getPostCommentPage,
+  addCollect,
+  delPostComment,
+  // delCollect
+} from "@/api/post";
+import { ossFileUpload, delOssFile } from "@/api/oss";
+import DefaultAvatar from "@/components/DefaultAvatar/index.vue";
+import VideoPlayer from "@/components/VideoPlayer/index.vue";
+import VueEmojis from "@/components/VueEmojis/index.vue";
+
+import { UserInfoMember } from "@/store/user";
+import { PostListMember } from "@/views/home/index.vue";
+import { getTokenData } from "@/utils";
+
+// 规范评论表单
+export interface CommentFormMember {
+  send: string; // 接收评论的id
+  content: string; // 内容
+  url: string; // 附件url
+  resource: string; // 评论所属资料ID
+}
+// 规范评论列表
+export interface CommentListMember {
+  belongAvatarUrl: string;
+  belongName: string;
+  belongCollege: string;
+  commentId: "string";
+  commentContent: string;
+  commentOssUrl: string;
+  belong: string;
+  sendName: string;
+}
+// 规范收藏表单
+export interface CollectFormMember {
+  belong: string;
+  resource: string;
+}
+
+export default defineComponent({
+  components: {
+    DefaultAvatar,
+    VideoPlayer,
+    VueEmojis,
+  },
+  setup(props, context) {
+    // 在这里声明数据，或者编写函数并在这里执行它
+    // 在使用 setup 的情况下，请牢记一点：不能再用 this 来获取 Vue 实例
+    const router = useRouter();
+    const route = useRoute();
+
+    const $message: any = inject("$message");
+
+    const insertHtmlRef = ref();
+    // loading
+    const skeletonLoading = ref<boolean>(true);
+    // 帖子信息相关
+    const postDetail = ref<PostListMember>({
+      collectStatus: "",
+      collegeName: "",
+      commentCount: 0,
+      createTime: "",
+      resourceId: "",
+      resourceInfo: "",
+      resourceName: "",
+      resourceScore: 0,
+      resourceStatus: 0,
+      resourceUrl: "",
+      userAvatarUrl: "",
+      userId: "",
+      userName: "",
+    });
+    const postId = ref<string>("");
+    const collectStatus = ref<LocationQueryValue>("0"); // 默认收藏
+    // 帖子 显示图片/视频 文档
+    const fileSuffix = ref<string>("");
+    const imgType = ref<string>("png jpg jpeg");
+    const vidioType = ref<string>("mp4 mpeg");
+    const docType = ref<string>("pdf xlsx xls doc docx ppt pptx");
+    const volume = ref<number>(0.5);
+    const fileIsImg = ref<boolean>();
+    const fileIsVideo = ref<boolean>();
+    const fileIsDoc = ref<boolean>(false);
+    const docPreviewUrl = ref<string>("");
+    const isFocus = ref<boolean>(false);
+    // 评论
+    const commentsList = ref<CommentListMember[]>([]);
+    const currentPage = ref<number>(1);
+    const pageSize = ref<number>(100);
+    const sendId = ref<string>("");
+    const isEmojis = ref<boolean>(false);
+    const sendName = ref<string>("");
+    const formRef = ref<FormInstance>(); // 获取formRef dom节点
+    const form = ref<CommentFormMember>({
+      send: "", // 接收评论的id
+      content: "", // 内容
+      url: "", // 附件url
+      resource: "", // 评论所属资料ID
+    });
+
+    const fileList = ref<string[]>([]); // 评论附件列表
+    const fileUrl = ref<string>("");
+    const fileType = ref<string[]>([
+      "png",
+      "jpg",
+      "jpeg",
+      "gif",
+      "pdf",
+      "xlsx",
+      "xls",
+      "doc",
+      "docx",
+      "ppt",
+      "pptx",
+      "mp3",
+      "mp4",
+      "mpeg",
+      "zip",
+      "rar",
+      "7z",
+      "py",
+      "java",
+      "c",
+      "cpp",
+      "go",
+      "html",
+      "js",
+      "ts",
+      "sql",
+      "css",
+    ]);
+    const action = ref<string>("/api/file/oss_file_upload");
+    const limit = ref<number>(1);
+    const collectForm = ref<CollectFormMember>({
+      belong: "", // 当前用户id
+      resource: "", // 资料id
+    });
+    const collectId = ref<string>("");
+    const userInfo = ref<UserInfoMember>({
+      account: "",
+      avatar: "",
+      collegeName: "",
+      createTime: "",
+      email: "",
+      gender: 0,
+      id: "",
+      isLogin: false,
+      messageNumber: 0,
+      name: "",
+      role: 0,
+      score: 0,
+    });
+
+    // 方法 methods
+    // 获取帖子详细消息
+    const getPostDetailInfo = async () => {
+      const result = await getPostDetail(postId.value);
+      if (result === undefined) return;
+
+      const data = result.data;
+      postDetail.value = data;
+      console.log(postDetail.value);
+      // 获取 要回复的人
+      sendId.value = data.userId;
+      sendName.value = data.userName;
+
+      // 设置后缀信息
+      if (data.resourceUrl != "") {
+        // 没有上传资源
+        fileSuffix.value = data.resourceUrl
+          .split(".")
+          .reverse()[0]
+          .toLowerCase();
+        console.log(fileSuffix.value);
+        isFileType(fileSuffix.value);
+      }
+      // 渲染信息
+      console.log(insertHtmlRef.value);
+      insertHtmlRef.value.innerHTML += postDetail.value.resourceInfo;
+      skeletonLoading.value = false;
+    };
+
+    // 修改帖子信息
+    const toUpdatePost = (id: string) => {
+      // this.$router.push({ path: "/addPost/" + id });
+      router.push({ path: "/sendPost/" + id });
+    };
+
+    const isFileType = (suffix: string) => {
+      // 判断文件是什么类型
+      console.log("fileIsImg=>", imgType.value.includes(suffix));
+      fileIsImg.value = imgType.value.includes(suffix);
+      // return str.includes(suffix);
+      if (!fileIsImg.value) {
+        console.log("fileIsVideo=>", vidioType.value.includes(suffix));
+        fileIsVideo.value = vidioType.value.includes(suffix);
+        // return str.includes(suffix);
+      }
+      if (!fileIsVideo.value) {
+        console.log("fileIsDoc=>", docType.value.includes(suffix));
+        fileIsDoc.value = docType.value.includes(suffix);
+
+        if (fileIsDoc.value) {
+          docPreviewUrl.value = `https://view.officeapps.live.com/op/view.aspx?src=${postDetail.value.resourceUrl}`;
+        }
+      }
+    };
+
+    // 获取路由中的参数
+    const getParams = () => {
+      postId.value = route.params.id as string;
+      collectStatus.value = route.query.collectStatus as LocationQueryValue;
+      console.log(collectStatus.value);
+      // console.log(this.postId);
+    };
+    // 聚焦输入框
+    const inputFocus = () => {
+      isFocus.value = true;
+      isEmojis.value = false; //
+    };
+    // 点击收藏
+    const handleCollect = () => {
+      collectForm.value.resource = postId.value;
+      collectForm.value.belong = postDetail.value.userId;
+      addCollect(collectForm.value).then((res: any) => {
+        collectStatus.value = collectStatus.value === "1" ? "0" : "1";
+        $message.success(res.message);
+      });
+    };
+    /* 评论相关方法 */
+    // 获取评论分页
+    const getPostCommentPageInfo = async (
+      id: string,
+      current: number,
+      pageSize: number
+    ) => {
+      const { data } = await getPostCommentPage(id, current, pageSize);
+      commentsList.value = data.records;
+    };
+    const delComment = (id: string) => {
+      ElMessageBox.confirm("是否删除该评论?", "删除", {
+        confirmButtonText: "删除",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          delPostComment(id).then((res) => {
+            // 成功
+            ElMessage({
+              type: "success",
+              message: "删除成功",
+            });
+            // 更新评论
+            getPostCommentPageInfo(id, currentPage.value, pageSize.value);
+          });
+        })
+        .catch(() => {
+          ElMessage({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
+    };
+    // 回复 非 帖子作者
+    const commentOther = (id: string, name: string) => {
+      sendId.value = id;
+      sendName.value = name;
+      isFocus.value = true;
+    };
+    // 点击评论
+    const commentSubmit = (formEl: FormInstance | undefined) => {
+      if (!formEl) return;
+      formEl.validate(async (valid) => {
+        if (valid) {
+          // this.submitLoading = true;
+          // 上传接口
+          // 判断是否存在需要上传文件
+          if (fileList.value[0]) {
+            let FormDatas = new window.FormData();
+            FormDatas.append("file", fileList.value[0]);
+            console.log("FormDatas=>", FormDatas);
+            const { data } = await ossFileUpload(FormDatas);
+            fileUrl.value = data;
+            form.value.url = data; // form的url
+          }
+          // 调用发布接口
+          form.value.resource = postDetail.value.resourceId; // 接收评论的资料id
+          form.value.send = sendId.value; // 接收评论的用户id
+
+          addPostComment(form.value)
+            .then((res) => {
+              $message("评论成功");
+              // this.submitLoading = false;
+              // this.$router.push({ path: '/' });
+              resetComment(formEl); // 清除表单
+              fileList.value = [];
+              getPostCommentPageInfo(
+                postId.value,
+                currentPage.value,
+                pageSize.value
+              );
+            })
+            .catch((error) => {
+              console.log(error);
+              $message("你不能回复自己！！！");
+              // 上传成功，但发布失败情况
+              if (fileUrl.value) {
+                // 删除oss文件
+                delOssFile(fileUrl.value);
+              }
+              // this.submitLoading = false;
+            });
+        }
+      });
+    };
+    // 评论
+    // handleComment() {
+    //   console.log(this.commentsList);
+    // },
+    // 登录表单重置
+    const resetComment = (formEl: FormInstance | undefined) => {
+      if (!formEl) return;
+      form.value = {
+        send: "", // 接收评论的id
+        content: "", // 内容
+        url: "", // 附件url
+        resource: "", // 评论所属资料ID
+      };
+      formEl.resetFields();
+    };
+    /* 评论资料上传相关方法 */
+    const handleRemove = (file: any, fileList: any) => {
+      console.log(file, fileList);
+    };
+    const handlePreview = (file: any) => {
+      console.log(file);
+    };
+    const handleExceed = (files: any, fileList: any) => {
+      $message.warning(
+        `当前限制选择 ${limit.value} 个文件，本次选择了 ${
+          files.length
+        } 个文件，共选择了 ${files.length + fileList.length} 个文件`
+      );
+    };
+    const beforeRemove = (file: any, fileList: any) => {
+      return ElMessageBox.confirm(`确定移除 ${file.name}？`);
+    };
+    // 上传之前的回调
+    const beforeUpload = (file: any) => {
+      if (file.type != "" || file.type != null || file.type != undefined) {
+        //截取文件的后缀，判断文件类型
+        const FileExt = file.name.replace(/.+\./, "").toLowerCase();
+        //计算文件的大小
+        const isLt5M = file.size / 1024 / 1024 < 200; //这里做文件大小限制
+        //如果大于50M
+        if (!isLt5M) {
+          $message.error("上传文件大小不能超过 200MB!");
+          return false;
+        }
+        //如果文件类型不在允许上传的范围内
+        if (fileType.value.includes(FileExt)) {
+          return true;
+        } else {
+          $message.error("上传文件格式不正确!");
+          return false;
+        }
+      }
+    };
+    const uploadFile = (item: any) => {
+      // this.$message.info("文件已上传至浏览器，点击发布上传至服务器");
+      //上传文件的需要formdata类型;所以要转
+      // console.log(item.file);
+      fileList.value.push(item.file);
+    };
+
+    // 计算方法 computed
+
+    // 监听 watch
+
+    // 事件
+    const cancelFocusEvent = (val: any) => {
+      isFocus.value = false;
+    };
+
+    const addEmojiEvent = (item: any) => {
+      console.log(item.text);
+      form.value.content += item.text;
+    };
+
+    // 生命周期钩子
+    onMounted(() => {
+      $bus.on("cancelFocus", cancelFocusEvent);
+      getParams(); // 获取路由中的参数
+      getPostDetailInfo();
+      getPostCommentPageInfo(postId.value, 1, 100);
+      userInfo.value = getTokenData() as UserInfoMember;
+      // 点击 emoji 时添加到输入框
+      $bus.on("addEmoji", addEmojiEvent);
+    });
+
+    // 在组件卸载之前移除侦听
+    onBeforeUnmount(() => {
+      $bus.off("addEmoji", addEmojiEvent);
+      $bus.off("cancelFocus", cancelFocusEvent);
+    });
+
+    return {
+      // 需要给 `<template />` 用的数据或函数，在这里 `return` 出去
+      skeletonLoading,
+      postDetail,
+      postId,
+      collectStatus,
+      fileSuffix,
+      imgType,
+      vidioType,
+      docType,
+      volume,
+      fileIsImg,
+      fileIsVideo,
+      fileIsDoc,
+      docPreviewUrl,
+      isFocus,
+      commentsList,
+      sendId,
+      isEmojis,
+      sendName,
+      form,
+      fileList,
+      fileUrl,
+      fileType,
+      action,
+      limit,
+      collectForm,
+      collectId,
+      userInfo,
+      insertHtmlRef,
+      formRef,
+
+      // 计算属性
+
+      // 方法
+      getPostDetailInfo,
+      toUpdatePost,
+      isFileType,
+      getParams,
+      inputFocus,
+      handleCollect,
+      delComment,
+      commentOther,
+      commentSubmit,
+      handleRemove,
+      handlePreview,
+      handleExceed,
+      beforeRemove,
+      beforeUpload,
+      uploadFile,
+    };
+  },
+});
+</script>
+
 <template>
   <!-- 帖子+评论 -->
   <div class="post-detail-container">
@@ -6,7 +485,7 @@
       <template #template>
         <el-row>
           <!-- 帖子详细 -->
-          <div class="post-detail">
+          <div class="post-detail" style="width: 100%">
             <el-row>
               <el-col :span="8">
                 <el-skeleton-item></el-skeleton-item>
@@ -16,7 +495,7 @@
             <el-row>
               <div class="post-title">
                 <el-col :span="24">
-                  <!-- <el-skeleton-item></el-skeleton-item> -->
+                  <el-skeleton-item></el-skeleton-item>
                 </el-col>
               </div>
             </el-row>
@@ -53,7 +532,7 @@
             </div>
             <!-- 帖子信息 -->
             <el-row>
-              <div class="post-info">
+              <div class="post-info" style="width: 100%">
                 <el-col :span="15">
                   <el-skeleton-item></el-skeleton-item>
                 </el-col>
@@ -72,14 +551,12 @@
             <!-- 收藏按钮 -->
             <div class="button-container">
               <el-row :gutter="10">
-                <div class="post-info">
-                  <el-col :span="2">
-                    <el-skeleton-item></el-skeleton-item>
-                  </el-col>
-                  <el-col :span="2">
-                    <el-skeleton-item></el-skeleton-item>
-                  </el-col>
-                </div>
+                <el-col :span="2">
+                  <el-skeleton-item></el-skeleton-item>
+                </el-col>
+                <el-col :span="2">
+                  <el-skeleton-item></el-skeleton-item>
+                </el-col>
               </el-row>
             </div>
           </div>
@@ -112,10 +589,9 @@
           </div>
 
           <!-- 评论分页 -->
-          <div class="comment-container">
+          <div class="comment-container" style="width: 100%">
             <h3 class="comment-title">
               <el-row>
-                <!-- 姓名 -->
                 <el-col :span="6">
                   <el-skeleton-item></el-skeleton-item>
                 </el-col>
@@ -213,12 +689,12 @@
       <div class="post-author">
         <!-- 头像 -->
         <div class="post-avater">
-          <default-avater
+          <default-avatar
             v-if="postDetail.userAvatarUrl === ''"
             width="40px"
             height="40px"
             :avatarName="postDetail.userName.split('')[0]"
-          ></default-avater>
+          ></default-avatar>
           <img
             class="avater"
             :src="postDetail.userAvatarUrl"
@@ -239,17 +715,24 @@
       </div>
       <!-- 帖子信息 -->
       <div class="post-info">
-        <span>{{ postDetail.resourceInfo }}</span>
+        <div class="insert-html" ref="insertHtmlRef">
+          <!-- {{ postDetail.resourceInfo }} -->
+        </div>
 
         <!-- 如果附件是以 图片 / 视频的形式 则显示在帖子中 -->
         <div class="img-container" v-if="fileIsImg">
           <img :src="postDetail.resourceUrl" alt="图片" style="width: 600px" />
         </div>
 
-        <div class="movies-container" v-else-if="fileIsVideo">
+        <div
+          class="movies-container"
+          v-else-if="fileIsVideo"
+          style="height: 400px"
+        >
           <video-player
             :src="postDetail.resourceUrl"
             :volume="volume"
+            style="width: 100%; height: 100%"
           ></video-player>
           <!-- <audio :src="" alt="视频"></audio> -->
         </div>
@@ -257,7 +740,7 @@
         <div
           class="doc-container"
           style="width: 100%; margin-top: 30px"
-          v-else-if="docPreviewUrl"
+          v-else-if="fileIsDoc"
         >
           <iframe
             :src="docPreviewUrl"
@@ -272,38 +755,39 @@
       <div class="post-download">
         <a
           class="download"
-          target="blank"
           :href="postDetail.resourceUrl"
+          target="blank"
           download="下载"
-          ><span class="iconfont icon-fujian"></span>附件查看</a
+          v-if="postDetail.resourceUrl != ''"
+          ><span class="iconfont icon-fujian"></span>附件查看/下载</a
         >
       </div>
-
       <!-- 收藏按钮 -->
       <div class="button-container">
         <el-button
           class="btn-collect"
           type="primary"
-          size="mini"
+          size="default"
           @click="handleCollect"
           ><span
             class="iconfont icon-star"
             :class="collectStatus === '1' ? 'icon-star-fill' : 'icon-star'"
           ></span
-          >{{ collectStatus === 1 ? "已收藏" : "收藏" }}</el-button
+          >{{ collectStatus === "1" ? "已收藏" : "收藏" }}</el-button
         >
         <el-button
           class="btn-collect"
           type="primary"
-          size="mini"
+          size="default"
           @click="commentOther(postDetail.userId, postDetail.userName)"
           ><span class="iconfont icon-message"></span>回复</el-button
         >
         <el-button
           class="btn-collect"
           type="primary"
-          size="mini"
+          size="default"
           @click="toUpdatePost(postId)"
+          v-if="postDetail.userId === userInfo.id"
           ><span class="iconfont icon-message"></span>修改</el-button
         >
       </div>
@@ -313,16 +797,16 @@
     <div class="add-comment" @focus="isFocus = true" tabindex="0">
       <div class="add-comment-header">
         <div class="current-avater">
-          <default-avater
+          <default-avatar
             v-if="userInfo.avatar === ''"
             width="40px"
             height="40px"
             :avatarName="userInfo.name.split('')[0]"
-          ></default-avater>
+          ></default-avatar>
           <img :src="userInfo.avatar" alt="当前用户" v-else />
         </div>
-        <el-form class="form" ref="form" :model="form" label-width="0">
-          <el-form-item label="">
+        <el-form class="form" ref="formRef" :model="form" label-width="0">
+          <el-form-item class="add-comment-form-item" label="">
             <el-input
               type="textarea"
               v-model="form.content"
@@ -361,8 +845,8 @@
         <el-button
           class="btn-comment"
           type="primary"
-          size="mini"
-          @click="commentSubmit"
+          size="default"
+          @click="commentSubmit(formRef)"
           ><span class="iconfont icon-message"></span>回复{{
             sendName
           }}</el-button
@@ -371,7 +855,10 @@
     </div>
 
     <!-- 评论分页 -->
-    <div class="comment-container" v-if="isCommentsList">
+    <div
+      class="comment-container"
+      v-if="commentsList.length === 0 ? false : true"
+    >
       <div class="comment-container-title">
         <h3 class="comment-title">全部评论</h3>
         <!-- <div class="btn-group">
@@ -388,12 +875,12 @@
         <div class="comment-author">
           <!-- 头像 -->
           <div class="comment-avater">
-            <default-avater
+            <default-avatar
               v-if="commentItem.belongAvatarUrl === ''"
               width="40px"
               height="40px"
               :avatarName="commentItem.belongName.split('')[0]"
-            ></default-avater>
+            ></default-avatar>
             <img
               class="avater"
               :src="commentItem.belongAvatarUrl"
@@ -439,6 +926,14 @@
               <span class="iconfont icon-message"></span>
               <span class="add-action">回复</span>
             </div>
+            <div
+              class="add-comment-item"
+              v-if="commentItem.belong === userInfo.id"
+              @click="delComment(commentItem.commentId)"
+            >
+              <span class="iconfont icon-message"></span>
+              <span class="add-action">删除</span>
+            </div>
           </div>
 
           <!-- 回复 -->
@@ -448,290 +943,13 @@
         </div>
       </div>
     </div>
+
+    <div class="nocomment-container" v-else style="height: 300px">
+      <el-empty class="default" description="暂时还没有评论~" />
+      <!-- <h3 class="default">暂时还没有评论~</h3> -->
+    </div>
   </div>
 </template>
-
-<script>
-import {
-  getPostDetail,
-  addPostComment,
-  getPostCommentPage,
-  addCollect,
-  // delCollect
-} from "@/api/post";
-import { ossFileUpload, delOssFile } from "@/api/oss";
-import DefaultAvater from "@/components/DefaultAvater";
-import VideoPlayer from "@/components/VideoPlayer";
-import VueEmojis from "@/components/VueEmojis";
-
-export default {
-  name: "postDetail",
-  components: {
-    DefaultAvater,
-    VideoPlayer,
-    VueEmojis,
-  },
-  data() {
-    return {
-      // loading
-      skeletonLoading: true,
-      // 帖子信息相关
-      postDetail: {}, // 帖子详细消息
-      postId: undefined, // 帖子ID
-      collectStatus: undefined, // 收藏状态
-      // 帖子 显示图片/视频 文档
-      fileSuffix: undefined,
-      imgType: "png jpg jpeg", // 图片类型
-      vidioType: "mp4 mpeg", // 视频类型
-      docType: "pdf xlsx xls doc docx ppt pptx", // 视频类型
-      volume: 0.5, // 视频声音
-      fileIsImg: undefined, // 是否 图片
-      fileIsVideo: undefined, // 是否是视频
-      fileIsDoc: undefined, // 是否是视频
-      docPreviewUrl: undefined, // doc预览地址
-      isFocus: false, // 是否聚集
-      // 评论
-      commentsList: [], // 帖子评论
-      sendId: undefined, // 默认 帖子作者
-      isEmojis: false, // emoji-container 是否打开
-      sendName: undefined, // 要回复给谁 的姓名 | 默认 帖子作者
-      form: {
-        send: undefined, // 接收评论的id
-        content: "", // 内容
-        url: "", // 附件url
-        resource: undefined, // 评论所属资料ID
-      },
-      fileList: [], // 评论附件列表
-      fileUrl: undefined,
-      fileType: [
-        "png",
-        "jpg",
-        "jpeg",
-        "pdf",
-        "xlsx",
-        "xls",
-        "doc",
-        "docx",
-        "ppt",
-        "pptx",
-        "mp3",
-        "mp4",
-        "mpeg",
-        "zip",
-        "rar",
-        "7z",
-        "gif",
-        "py",
-      ], // 允许的文件类型
-      action: "/api/file/oss_file_upload", // 上传的地址
-      limit: 1,
-      // 收藏
-      collectForm: {
-        belong: undefined, // 当前用户id
-        resource: undefined, // 资料id
-      },
-      collectId: undefined, // 收藏id
-      // 用户信息
-      userInfo: {},
-    };
-  },
-
-  mounted() {
-    this.$bus.$on("cancelFocus", (val) => {
-      this.isFocus = false;
-    });
-    this.getParams(); // 获取路由中的参数
-    this.getPostDetailInfo();
-    this.getPostCommentPageInfo(this.postId, 1, 100);
-    this.userInfo = this.getTokenData();
-    // 点击 emoji 时添加到输入框
-    this.$bus.$on("addEmoji", (item) => {
-      console.log(item.text);
-      this.form.content += item.text;
-    });
-  },
-  methods: {
-    // 获取帖子详细消息
-    async getPostDetailInfo() {
-      const { data } = await getPostDetail(this.postId);
-      this.postDetail = data;
-      console.log(this.postDetail);
-      // 获取 要回复的人
-      this.sendId = data.userId;
-      this.sendName = data.userName;
-
-      // 设置后缀信息
-      if (data.resourceUrl != "") {
-        // 没有上传资源
-        this.fileSuffix = data.resourceUrl
-          .split(".")
-          .reverse()[0]
-          .toLowerCase();
-        console.log(this.fileSuffix);
-        this.isFileType(this.fileSuffix);
-      }
-      this.skeletonLoading = false;
-    },
-    // 修改帖子信息
-    toUpdatePost(id) {
-      this.$router.push({ path: "/addPost/" + id });
-    },
-    isFileType(suffix) {
-      // 判断文件是什么类型
-      console.log("fileIsImg=>", this.imgType.includes(suffix));
-      this.fileIsImg = this.imgType.includes(suffix);
-      // return str.includes(suffix);
-      if (!this.fileIsImg) {
-        console.log("fileIsVideo=>", this.vidioType.includes(suffix));
-        this.fileIsVideo = this.vidioType.includes(suffix);
-        // return str.includes(suffix);
-      }
-      if (!this.fileIsVideo) {
-        console.log("fileIsDoc=>", this.docType.includes(suffix));
-        this.fileIsDoc = this.vidioType.includes(suffix);
-        this.docPreviewUrl = `https://view.officeapps.live.com/op/view.aspx?src=${this.postDetail.resourceUrl}`;
-      }
-    },
-    // 获取路由中的参数
-    getParams() {
-      this.postId = this.$route.params.id;
-      this.collectStatus = this.$route.query.collectStatus;
-      console.log(this.collectStatus);
-      // console.log(this.postId);
-    },
-    // 聚焦输入框
-    inputFocus() {
-      this.isFocus = true;
-      this.isEmojis = false; //
-    },
-    // 点击收藏
-    handleCollect() {
-      this.collectForm.resource = this.postId;
-      this.collectForm.belong = this.postDetail.userId;
-      addCollect(this.collectForm).then((res) => {
-        this.collectStatus = this.collectStatus === "1" ? "0" : "1";
-        this.$message.success(res.message);
-      });
-    },
-    /* 评论相关方法 */
-    // 获取评论分页
-    async getPostCommentPageInfo(id, current, pageSize) {
-      const { data } = await getPostCommentPage(id, current, pageSize);
-      this.commentsList = data.records;
-    },
-    // 回复 非 帖子作者
-    commentOther(id, name) {
-      this.sendId = id;
-      this.sendName = name;
-      this.isFocus = true;
-    },
-    // 点击评论
-    commentSubmit() {
-      this.$refs["form"].validate(async (valid) => {
-        if (valid) {
-          // this.submitLoading = true;
-          // 上传接口
-          // 判断是否存在需要上传文件
-          if (this.fileList[0]) {
-            let FormDatas = new window.FormData();
-            FormDatas.append("file", this.fileList[0]);
-            console.log("FormDatas=>", FormDatas);
-            const { data } = await ossFileUpload(FormDatas);
-            this.fileUrl = data;
-            this.form.url = data; // form的url
-          }
-          // 调用发布接口
-          this.form.resource = this.postDetail.resourceId; // 接收评论的资料id
-          this.form.send = this.sendId; // 接收评论的用户id
-
-          addPostComment(this.form)
-            .then((res) => {
-              this.$message.info("评论成功");
-              // this.submitLoading = false;
-              // this.$router.push({ path: '/' });
-              this.resetComment(); // 清除表单
-              this.fileList = [];
-              this.getPostCommentPageInfo(this.postId, 1, 100);
-            })
-            .catch((error) => {
-              console.log(error);
-              this.$message.info("你不能回复自己！！！");
-              // 上传成功，但发布失败情况
-              if (this.fileUrl) {
-                // 删除oss文件
-                delOssFile(this.fileUrl);
-              }
-              // this.submitLoading = false;
-            });
-        }
-      });
-    },
-    // 评论
-    // handleComment() {
-    //   console.log(this.commentsList);
-    // },
-    // 登录表单重置
-    resetComment() {
-      (this.form = {
-        send: undefined, // 接收评论的id
-        content: "", // 内容
-        url: "", // 附件url
-        resource: undefined, // 评论所属资料ID
-      }),
-        this.resetForm("form");
-    },
-    /* 评论资料上传相关方法 */
-    handleRemove(file, fileList) {
-      console.log(file, fileList);
-    },
-    handlePreview(file) {
-      console.log(file);
-    },
-    handleExceed(files, fileList) {
-      this.$message.warning(
-        `当前限制选择 ${this.limit} 个文件，本次选择了 ${
-          files.length
-        } 个文件，共选择了 ${files.length + fileList.length} 个文件`
-      );
-    },
-    beforeRemove(file, fileList) {
-      return this.$confirm(`确定移除 ${file.name}？`);
-    },
-    // 上传之前的回调
-    beforeUpload(file) {
-      if (file.type != "" || file.type != null || file.type != undefined) {
-        //截取文件的后缀，判断文件类型
-        const FileExt = file.name.replace(/.+\./, "").toLowerCase();
-        //计算文件的大小
-        const isLt5M = file.size / 1024 / 1024 < 200; //这里做文件大小限制
-        //如果大于50M
-        if (!isLt5M) {
-          this.$message.error("上传文件大小不能超过 200MB!");
-          return false;
-        }
-        //如果文件类型不在允许上传的范围内
-        if (this.fileType.includes(FileExt)) {
-          return true;
-        } else {
-          this.$message.error("上传文件格式不正确!");
-          return false;
-        }
-      }
-    },
-    uploadFile(item) {
-      // this.$message.info("文件已上传至浏览器，点击发布上传至服务器");
-      //上传文件的需要formdata类型;所以要转
-      // console.log(item.file);
-      this.fileList.push(item.file);
-    },
-  },
-  computed: {
-    isCommentsList: function () {
-      return this.commentsList === [] ? false : true;
-    },
-  },
-};
-</script>
 
 <style lang="scss">
 /*大型屏幕pc 超大屏*/
@@ -816,8 +1034,26 @@ export default {
     .post-info {
       margin-top: 30px;
 
-      span {
+      // 富文本样式
+      .insert-html {
         margin-bottom: 30px;
+
+        pre {
+          background: #2d2d2d;
+          color: rgb(201, 209, 217);
+          font-family: Consolas;
+          text-align: left;
+          padding: 1em;
+          padding-left: 0.8em;
+          margin: 1em;
+          border-radius: 5px;
+          counter-reset: line;
+          white-space: pre;
+          word-spacing: normal;
+          word-break: normal;
+          word-wrap: normal;
+          line-height: 1.5;
+        }
       }
 
       // 图片附件
@@ -890,7 +1126,7 @@ export default {
       .el-form {
         width: calc(100% - 60px);
 
-        .el-form-item {
+        .add-comment-form-item {
           margin-bottom: 0px;
           // width: 838px;
 
@@ -913,7 +1149,7 @@ export default {
 
     .add-comment-footer {
       margin-top: 10px;
-      padding-left: 62px;
+      // padding-left: 62px;
       display: none;
       justify-content: space-between;
       position: relative;
@@ -944,17 +1180,17 @@ export default {
             position: absolute;
           }
 
-          .el-link {
-            .span {
-              // margin-right: 7px;
-            }
-          }
+          // .el-link {
+          //   .span {
+          //     // margin-right: 7px;
+          //   }
+          // }
         }
       }
 
       //
-      .btn-comment {
-      }
+      // .btn-comment {
+      // }
     }
 
     .comment-footer-flex {
@@ -1149,6 +1385,22 @@ export default {
 
     .comment-item:nth-child(odd) {
       background-color: #fafafa;
+    }
+  }
+
+  // 无评论时
+
+  .nocomment-container {
+    height: 200px;
+    margin-top: 20px;
+    border-radius: 10px;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .nocomment-title {
+      color: #aaaaaa;
     }
   }
 }

@@ -1,7 +1,288 @@
+<script lang="ts">
+// 这是一个基于 TypeScript 的 Vue 组件
+import {
+  defineComponent,
+  onMounted,
+  onBeforeUnmount,
+  ref,
+  computed,
+  nextTick,
+} from "vue";
+import { useRoute } from "vue-router";
+// import { Emitter } from "mitt";
+import $bus from "@libs/eventBus";
+
+import DefaultAvatar from "@/components/DefaultAvatar/index.vue";
+import { getPostPage } from "@/api/post";
+import { UserInfoMember } from "@/store/user";
+import { getTokenData } from "@/utils/index";
+
+export interface PostListMember {
+  collectStatus: string;
+  collegeName: string;
+  commentCount: number;
+  createTime: string;
+  resourceId: string;
+  resourceInfo: string;
+  resourceName: string;
+  resourceScore: number;
+  resourceStatus: number;
+  resourceUrl: string;
+  userAvatarUrl: string;
+  userId: string;
+  userName: string;
+}
+
+export default defineComponent({
+  components: {
+    DefaultAvatar,
+  },
+  setup(props, context) {
+    // 在这里声明数据，或者编写函数并在这里执行它
+    // 在使用 setup 的情况下，请牢记一点：不能再用 this 来获取 Vue 实例
+    // 全局属性
+    const route = useRoute();
+
+    // console.log("$bus=>", $bus);
+    // dom
+    const mainRef = ref<HTMLElement>();
+
+    // 标识
+    const loading = ref<boolean>(false);
+    const skeletonLoading = ref<boolean>(true);
+    const skeletonCount = ref<number>(6); // 初始骨架屏数量
+
+    // 帖子card
+    const count = ref<number>(1); // 默认第一页
+    const pageSize = ref<number>(8); //初始加载帖子数量
+    const postLength = ref<number>(8); // 总帖子数量
+    const postAveList = ref<Array<PostListMember[]>>([]); // 均分数组 方便无限滚动加载
+    const postList = ref<PostListMember[]>([]); // 当前展示数组 下滑push
+    const filterPostList = ref<PostListMember[]>([]); // 过滤数组 用于搜索
+
+    // 用户信息
+    const searchInfo = ref<string>("");
+    const userInfo = ref<UserInfoMember>({
+      account: "",
+      avatar: "",
+      collegeName: "",
+      createTime: "",
+      email: "",
+      gender: 0,
+      id: "",
+      isLogin: false,
+      messageNumber: 0,
+      name: "",
+      role: 0,
+      score: 0,
+    });
+    const tokenData = ref<UserInfoMember | null>(null);
+
+    // 更新信息
+    const activeName = ref<string>("4"); // 当前选中
+    const upgrateInfo = ref<object[]>([]);
+
+    // 事件
+
+    function resetUserInfoEvent(): void {
+      // this.userInfo = this.getTokenData();
+      userInfo.value = {
+        account: "",
+        avatar: "",
+        collegeName: "",
+        createTime: "",
+        email: "",
+        gender: 0,
+        id: "",
+        isLogin: false,
+        messageNumber: 0,
+        name: "",
+        role: 0,
+        score: 0,
+      };
+      postLength.value = 0;
+      postAveList.value = [];
+      postList.value = [];
+    }
+    // 退出登录时重置信息
+    $bus.on("resetUserInfo", resetUserInfoEvent);
+    // console.log(this.isLogin);
+
+    // 传递
+    function tranSearchInfoEvent(val: any) {
+      searchInfo.value = val;
+      // var reg = new RegExp("^[0-9]+"+param+"[a-z]+$","g");
+
+      let reg = new RegExp(val);
+      // console.log(reg);
+      filterPostList.value = postList.value.filter((c) =>
+        reg.test(c.resourceInfo)
+      );
+    }
+    // 传递searchInfo
+    $bus.on("tranSearchInfo", tranSearchInfoEvent);
+
+    // 生命周期钩子
+    onMounted(() => {
+      // console.log(route.path);
+      getPostPageInfo(1, 100);
+      tokenData.value = getTokenData();
+
+      if (tokenData.value != null) {
+        userInfo.value = tokenData.value;
+      }
+
+      // nextTick(() => {
+      //   initScroll();
+      // });
+    });
+
+    // 在组件卸载之前移除侦听
+    onBeforeUnmount(() => {
+      $bus.off("tranSearchInfo", tranSearchInfoEvent);
+      $bus.off("resetUserInfo", resetUserInfoEvent);
+    });
+
+    // 方法 methods
+    // 获取帖子数
+    const getPostPageInfo = async (current: number, postPageSize: number) => {
+      const { data } = await getPostPage(current, postPageSize);
+      // 原数组
+      postLength.value = data.total;
+      // this.postAveList = this.aveArr(data.records.reverse(), this.pageSize);
+      postAveList.value = aveArr(data.records, pageSize.value);
+      postList.value = postAveList.value[0];
+
+      if (tokenData.value != null) {
+        userInfo.value = tokenData.value;
+      }
+      console.log(postAveList.value[count.value]);
+
+      skeletonLoading.value = false;
+    };
+
+    // 均分数组
+    const aveArr = (
+      data: PostListMember[],
+      num: number
+    ): Array<PostListMember[]> => {
+      let result: Array<PostListMember[]> = [];
+      for (let i = 0, len = data.length; i < len; i += num) {
+        result.push(data.slice(i, i + num));
+      }
+      console.log("result=>", result);
+      return result;
+    };
+
+    // 无限滚动加载方法
+    const load = async () => {
+      loading.value = true;
+      setTimeout(() => {
+        // this.count += 4;
+        try {
+          let length = 0;
+          length = postAveList.value[count.value].length;
+          for (let i = 0; i < length; i++) {
+            postList.value.push(postAveList.value[count.value][i]);
+          }
+          count.value++;
+          loading.value = false;
+        } catch (error) {
+          console.log(error);
+        }
+      }, 300);
+    };
+    // 滚动事件
+    // 滚动事件相关
+    // const initScroll = (): void => {
+    //   let initScrollTop: number = getScorllTop();
+    //   let scrollType: number = 0;
+    //   console.log(mainRef.value);
+    //   mainRef.value!.addEventListener("scroll", () => {
+    //     // console.log("initScroll");
+    //     let currentScrollTop = getScorllTop();
+    //     if (currentScrollTop > initScrollTop) {
+    //       // 往下滚动
+    //       scrollType = 1;
+    //     } else {
+    //       // 往上滚动
+    //       scrollType = 0;
+    //     }
+    //     console.log(currentScrollTop);
+    //     initScrollTop = currentScrollTop;
+    //     if (scrollType == 1 && currentScrollTop > 100) {
+    //       // showHeader.value = false;
+    //       $bus.emit("changeShowHeaderEvent", false);
+    //     } else {
+    //       // showHeader.value = true;
+    //       $bus.emit("changeShowHeaderEvent", true);
+    //     }
+    //   });
+    // };
+    // const getScorllTop = (): number => {
+    //   // 获取滚动条滚动的高度
+    //   // console.log(mainRef.value);
+
+    //   // let scrollTop =
+    //   //   document.documentElement.scrollTop ||
+    //   //   window.pageYOffset ||
+    //   //   document.body.scrollTop;
+    //   let scrollTop =
+    //     mainRef.value!.scrollTop ||
+    //     window.pageYOffset ||
+    //     document.body.scrollTop;
+
+    //   return scrollTop;
+    // };
+
+    // 计算方法 computed
+    const noMore = computed(() => {
+      // console.log(this.postLength);
+      // console.log(this.postList.length);
+      return postList.value.length >= postLength.value;
+    });
+
+    const disabled = computed(() => {
+      return loading.value || noMore.value;
+    });
+
+    // 监听 watch
+
+    return {
+      // 需要给 `<template />` 用的数据或函数，在这里 `return` 出去
+      // 变量
+      mainRef,
+      loading,
+      skeletonLoading,
+      skeletonCount,
+      count,
+      pageSize,
+      postLength,
+      postAveList,
+      postList,
+      filterPostList,
+      searchInfo,
+      userInfo,
+      activeName,
+
+      // 方法
+      getPostPageInfo,
+      aveArr,
+      load,
+
+      // 计算属性
+      noMore,
+      disabled,
+    };
+  },
+});
+</script>
+
 <template>
+  <!-- style="overflow: auto" -->
   <div
     class="main"
-    style="overflow: auto; height: 600px; margin-top: 10px"
+    ref="mainRef"
     v-infinite-scroll="load"
     infinite-scroll-disabled="disabled"
     infinite-scroll-immediate="false"
@@ -100,7 +381,7 @@
                 el-icon-star-off
                 -->
                   <li class="icon-item">
-                    <i class="el-icon-star-off"> </i>
+                    <el-icon><Star /></el-icon>
                     <span>{{ item.resourceScore }}</span>
                   </li>
                   <!-- <li class="icon-item">
@@ -108,7 +389,7 @@
                       <span>666</span>
                     </li> -->
                   <li class="icon-item">
-                    <i class="el-icon-s-comment"> </i>
+                    <el-icon><Comment /> </el-icon>
                     <span>{{ item.commentCount }}</span>
                   </li>
                 </ul>
@@ -121,6 +402,16 @@
       </div>
 
       <div class="main-right">
+        <!-- welcome-svg -->
+        <!-- logo -->
+        <div class="main-right-wecome">
+          <img
+            src="@/assets/img/support-team.png"
+            alt="Welcome"
+            style="width: 237px"
+          />
+        </div>
+
         <!-- 头部卡片 展示个人信息 -->
         <div class="card">
           <div class="card-info">
@@ -148,16 +439,77 @@
               >
             </li>
             <li class="card-social__item">
-              <i class="el-icon-s-comment">
-                <br /><span>{{ userInfo.messageNumber }}</span></i
-              >
+              <el-icon
+                ><Comment /> <br /><span>{{ userInfo.messageNumber }}</span>
+              </el-icon>
             </li>
             <li class="card-social__item">
-              <i class="el-icon-s-data">
-                <br /><span>{{ postLength }}</span></i
-              >
+              <el-icon
+                ><Histogram /> <br /><span>{{ postLength }}</span>
+              </el-icon>
             </li>
           </ul>
+        </div>
+
+        <!-- 更新消息 -->
+        <div class="upgrate-card">
+          <div class="cart-container">
+            <div class="upgrate-card-title">更新公告</div>
+            <el-collapse v-model="activeName" accordion>
+              <el-collapse-item title="2023年4月2日" name="4">
+                <div>- 界面美化：在登录注册以及首页加入一些插图，美化界面</div>
+                <div>
+                  - 项目重构：Vue3 + Element Plus + TypeScript + Pinia +
+                  Vite对本项目进行重构重构基本完成，进入测试阶段，测试地址<a
+                    href="http://43.142.74.200:82/"
+                    >http://43.142.74.200:82/</a
+                  >
+                  。
+                </div>
+              </el-collapse-item>
+              <el-collapse-item title="2023年3月24日" name="3">
+                <div>
+                  -
+                  帖子修改：修改帖子经过测试已经相对完善，但是还有一些小Bug，比如发帖时没有添加附件那么修改时添加附件就会报错。
+                </div>
+                <div>
+                  - 目前目标：利用Vue3 + Element Plus + TypeScript + Pinia +
+                  Vite对本项目进行重构。
+                </div>
+              </el-collapse-item>
+              <el-collapse-item title="2023年3月23日" name="2">
+                <div>
+                  -
+                  富文本支持：更新了发帖页面，短篇为原来的发帖页，长篇为更新后的富文本编辑。支持
+                  大部分word操作。
+                </div>
+                <div>- 移动端适配：目前已经初步适配移动端，后续还会优化。</div>
+              </el-collapse-item>
+              <el-collapse-item title="2023年3月22日" name="1">
+                <div>
+                  - docker时区问题：修复了实际发帖时间与北京时间的偏差。
+                </div>
+              </el-collapse-item>
+              <el-collapse-item title="之前的更新" name="0">
+                <div>
+                  - 骨架屏支持：支持首页以及帖子详情页面的骨架屏，优化首屏加载。
+                </div>
+                <div>
+                  - 文件上传优化：开放了大部分编程源文件格式的文件上传。
+                </div>
+                <div>- 文件的预览：支持图片、视频、文档的预览。</div>
+              </el-collapse-item>
+            </el-collapse>
+          </div>
+        </div>
+
+        <!-- logo  -->
+        <div class="main-right-wecome">
+          <img
+            src="@/assets/img/forpeople.png"
+            alt="forpeople"
+            style="width: 237px"
+          />
         </div>
       </div>
     </div>
@@ -217,136 +569,6 @@
   </div>
 </template>
 
-<script>
-import Loading from "@/components/Loading/index.vue";
-import DefaultAvatar from "@/components/DefaultAvater";
-// import { mapState } from "vuex";
-import { getPostPage } from "@/api/post";
-
-export default {
-  name: "home",
-  components: {
-    Loading,
-    DefaultAvatar,
-  },
-  data() {
-    return {
-      loading: false, // 无限滚动 触底 loading
-      skeletonLoading: true, // 骨架屏loading
-      skeletonCount: 6,
-      pageFinish: false,
-      count: 1, // 标记 默认第二页
-      // 帖子相关
-      pageSize: 8,
-      postLength: undefined, // 总帖子数
-      postAveList: [], //
-      postList: [],
-      filterPostList: [],
-      componentKey: undefined,
-      userInfo: {},
-      searchInfo: null, // 搜索信息
-    };
-  },
-  created() {
-    this.userInfo = this.getTokenData();
-  },
-  mounted() {
-    this.getPostPageInfo(1, 100);
-
-    // 登录时获取信息
-    this.$bus.$on("getPostPageInfoFromHeader", (val) => {
-      this.userInfo = this.getTokenData();
-      this.getPostPageInfo(1, 100);
-      // this.load()
-
-      // this.$forceUpdate()
-      // this.$forceUpdate(); // 组件重新渲染
-
-      // key
-      // this.componentKey += 1;
-      // console.log(this.componentKey);
-
-      // v-if
-    });
-    // 退出登录时重置信息
-    this.$bus.$on("resetUserInfo", (val) => {
-      // this.userInfo = this.getTokenData();
-      this.userInfo = {};
-      this.postLength = undefined;
-      this.postAveList = [];
-      this.postList = [];
-    });
-    // console.log(this.isLogin);
-    // 传递searchInfo
-    this.$bus.$on("tranSearchInfo", (val) => {
-      this.searchInfo = val;
-      // var reg = new RegExp("^[0-9]+"+param+"[a-z]+$","g");
-
-      let reg = new RegExp(val);
-      // console.log(reg);
-      this.filterPostList = this.postList.filter((c) =>
-        reg.test(c.resourceInfo)
-      );
-    });
-  },
-  methods: {
-    // 获取帖子数
-    async getPostPageInfo(current, pageSize) {
-      const { data } = await getPostPage(current, pageSize);
-      // 原数组
-      this.postLength = data.total;
-      // this.postAveList = this.aveArr(data.records.reverse(), this.pageSize);
-      this.postAveList = this.aveArr(data.records, this.pageSize);
-      this.postList = this.postAveList[0];
-      this.userInfo = this.getTokenData();
-      console.log(this.postAveList[this.count]);
-
-      this.skeletonLoading = false;
-    },
-    // 均分数组
-    aveArr(data, num) {
-      let result = [];
-      for (let i = 0, len = data.length; i < len; i += num) {
-        result.push(data.slice(i, i + num));
-      }
-      console.log("result=>", result);
-      return result;
-    },
-    // 无限滚动加载方法
-    async load() {
-      this.loading = true;
-      setTimeout(() => {
-        // this.count += 4;
-        try {
-          let length = 0;
-          length = this.postAveList[this.count].length;
-          for (let i = 0; i < length; i++) {
-            this.postList.push(this.postAveList[this.count][i]);
-          }
-          this.count++;
-          this.loading = false;
-        } catch (error) {
-          console.log(error);
-        }
-      }, 300);
-    },
-  },
-  computed: {
-    // ...mapState({
-    //   isLogin: state => state.user.isLogin
-    // }),
-    noMore() {
-      // console.log(this.postLength);
-      // console.log(this.postList.length);
-      return this.postList.length >= this.postLength;
-    },
-    disabled() {
-      return this.loading || this.noMore;
-    },
-  },
-};
-</script>
-
 <style lang="scss">
 /*大型屏幕pc 超大屏*/
 @media screen and (min-width: 1200px) {
@@ -357,12 +579,12 @@ export default {
 /*768<=pad<992 中屏，字体黄色，背景红色*/
 @media screen and (min-width: 768px) and (max-width: 991px) {
   .main {
-    max-height: 730px;
+    // max-height: 730px;
     .main-container {
-      max-height: 730px;
+      // max-height: 730px;
 
-      .main-left {
-      }
+      // .main-left {
+      // }
 
       .main-right {
         display: none;
@@ -430,15 +652,16 @@ export default {
 }
 
 .main {
-  min-height: 730px;
+  // min-height: 730px;
+  height: 100%;
 
   .main-container {
-    min-height: 730px;
+    // min-height: 730px;
     position: relative;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    padding-top: 60px;
+    padding-top: 70px;
     margin: 0 auto;
 
     // 左侧帖子
@@ -603,6 +826,25 @@ export default {
     // 右侧信息
     .main-right {
       // position: fixed;
+      .upgrate-card {
+        width: 190px;
+        // height: 254px;
+        margin-top: 10px;
+        background: #f9fbff;
+        // background: #f5f5f5;
+        padding: 1rem 1.5rem;
+        transition: box-shadow 0.3s ease, transform 0.2s ease;
+
+        .upgrate-card-title {
+          margin-bottom: 5px;
+          font-weight: bold;
+        }
+      }
+
+      .upgrate-card:hover {
+        box-shadow: 0 8px 50px #23232333;
+      }
+
       // 头部展示个人信息
       .card {
         width: 190px;
