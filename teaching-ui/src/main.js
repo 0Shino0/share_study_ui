@@ -12,6 +12,8 @@ import 'element-ui/lib/theme-chalk/index.css';
 import '@/assets/icon/iconfont.css' // 图标字体相关
 import { Message } from 'element-ui'
 
+import LottieVuePlayer from "@lottiefiles/vue-lottie-player";
+
 import Loading from '@/components/Loading';
 
 import { resetForm, getTokenData } from "@/utils/index"
@@ -46,6 +48,7 @@ Vue.component('Loading', Loading)
 //   size: Cookies.get('size') || 'small' // set element-ui default size
 // });
 Vue.use(Element);
+Vue.use(LottieVuePlayer); // 将播放器作为插件添加到 Vue
 
 Vue.config.productionTip = false;
 

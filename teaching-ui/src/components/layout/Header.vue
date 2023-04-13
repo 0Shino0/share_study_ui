@@ -1,6 +1,6 @@
 <template>
   <!-- v-show="showHeader" -->
-  <div class="header" :class="showHeader ? 'header-up' : 'header-down'" ref="headerRef" >
+  <div class="header" :class="showHeader ? 'header-up' : 'header-down'" ref="headerRef" v-if="userInfo && Object.keys(userInfo).length != 0">
     <div class="header-content">
       <!-- logo -->
       <router-link class="logo" to="/">
@@ -15,6 +15,7 @@
       <div class="menu-panel">
         <router-link class="nav-item" to="/">首页</router-link>
         <router-link class="nav-item" :to="aboutPath">关于</router-link>
+        <router-link class="nav-item" to="/intro">项目介绍</router-link>
         <!-- <router-link class="nav-item" to="/">相关高校</router-link>
         <router-link class="nav-item" to="/">教学资料</router-link> -->
       </div>
@@ -22,7 +23,7 @@
       <!-- 登录注册 用户信息 -->
       <div class="user-info-panel">
         <div class="input-search">
-          <input class="input-text" placeholder="搜索" v-model="searchInfo"></input>
+          <input class="input-text" placeholder="请输入资料名进行搜索" v-model="searchInfo"></input>
           <span class="iconfont icon-fenxiang search-icon"></span>
         </div>
         <div class="op-btn">
@@ -159,7 +160,7 @@ export default {
     console.log("mounted");
     this.initScroll();
     this.$bus.$on("changeShowHeaderEvent", (val) => {
-      console.log(val);
+      // console.log(val);
       this.showHeader = val;
     });
 
@@ -181,6 +182,7 @@ export default {
         this.getUserCommentPageInfo(this.currentPage, this.pageSize)
       }
     });
+    console.log(JSON.stringify(this.userInfo) != '{}');
 
   },
   computed: {
@@ -227,7 +229,8 @@ export default {
     getTokenData() {
       let token = getToken();
       let data = JSON.parse(token);
-      return data;
+      // console.log(!data ? {} : data);
+      return !data ? {} : data;
     },
     // 登录
     login() {
@@ -257,7 +260,7 @@ export default {
         type: "info",
         message: "退出成功",
       });
-      this.$bus.$emit("resetUserInfo", undefined);
+      this.$bus.$emit("resetUserInfo", {});
     },
     // 未登录情况
     noLogin() {
@@ -323,6 +326,7 @@ export default {
     toPostDetail(id) {
       // console.log(window.location.href.split('/').reverse()[0] === id)
 
+      console.log(window.location.href.split('/').reverse()[0]);
       if (window.location.href.split('/').reverse()[0] != id) {
         this.$router.push({ path: '/postDetail/'+id }).catch((error) => {
           console.log(error);
@@ -455,6 +459,7 @@ export default {
 .header {
   width: 100%;
   position: fixed;
+  top: 0;
   box-shadow: 0 2px 6px 0 #ddd;
   // background-color: #fff;
   background-color: #F9FBFF;
@@ -552,7 +557,7 @@ export default {
           padding: 0 40px 0 20px;
           width: 140px;
           height: 38px;
-          font-size: 14px;
+          font-size: 12px;
           border: 1px solid #eee;
           border-radius: 40px;
           background: #eee;

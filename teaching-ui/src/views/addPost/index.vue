@@ -156,7 +156,11 @@ export default {
       const token = this.getTokenData();
 
       if (token === null || token === undefined) {
-        this.$router.push(`/login`);
+        // 跳转至登录页
+        // this.$router.push(`/login`);
+
+        // 跳转至intro页
+        this.$router.push(`/intro`);
       }
     },
     // 获取路由中的参数
@@ -229,7 +233,9 @@ export default {
 
                 addPost(this.form)
                   .then((res) => {
-                    this.$message.success("发布成功,正在跳转首页");
+                    this.$message.success(
+                      "发表成功，审核后正式发布，正在跳转首页"
+                    );
                     this.submitLoading = false;
                     this.resetAddPost();
                     this.$router.push({ path: "/" });
@@ -260,7 +266,7 @@ export default {
 
             addPost(this.form)
               .then((res) => {
-                this.$message.success("发布成功,正在跳转首页");
+                this.$message.success("发表成功，审核后正式发布，正在跳转首页");
                 this.submitLoading = false;
                 this.resetAddPost();
                 this.$router.push({ path: "/" });

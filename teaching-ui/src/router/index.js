@@ -19,15 +19,6 @@ const routes = [
     meta: { title: '注册'},
     hidden: true
   },
-
-  { // 404
-    path: '/404',
-    component: () => import('@/views/404'),
-    meta: { title: '404 Not Found' },
-    hidden: true,
-  },
-
-
   {
     path: "/",
     name: "Home",
@@ -58,6 +49,12 @@ const routes = [
     component: () => import('@/views/about'),
     meta: { title: '关于自己'},
   },
+  {
+    path: "/intro",
+    name: "intro",
+    component: () => import('@/views/intro'),
+    meta: { title: '关于自己'},
+  },
   // 测试
   {
     path: "/test",
@@ -66,8 +63,16 @@ const routes = [
     meta: { title: '测试'},
   },
 
+  { // 404
+    path: '/404',
+    component: () => import('@/views/404'),
+    meta: { title: '404 Not Found' },
+    hidden: true,
+  },
     // 404 page must be placed at the end !!!
-    { path: '*', redirect: '/404', hidden: true }
+  { path: '*', redirect: '/404', hidden: true }
+    
+
 ];
 
 const router = new VueRouter({

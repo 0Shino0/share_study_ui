@@ -130,8 +130,13 @@ const actions = {
       logout().then(() => {
         removeToken() // 清除token
         // 跳转路由
-        if (window.location.href.split('#')[1] !== '/login') {
-          router.push(`/login`);
+        if (window.location.href.split('#')[1] !== '/intro') {
+          // 跳转至登录页
+          // router.push(`/login`);
+          
+          // 跳转至介绍页面
+          router.push(`/intro`);
+
         }
         // resetRouter()
         commit('RESET_STATE')

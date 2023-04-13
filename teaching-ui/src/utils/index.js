@@ -7,7 +7,9 @@ import { getToken } from "@/utils/auth";
 export function getTokenData() {
   let token = getToken();
   let data = JSON.parse(token);
-  return data;
+
+  // 如果是空值 undefined or null 返回空对象，适应Object.keys()
+  return !data ? {} : data;
 }
 
 /**

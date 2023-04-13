@@ -33,7 +33,7 @@ module.exports = defineConfig({
         target: `http://120.46.214.246:8080`,
         // target: `http://localhost:8080`, // 本地测试
         // target: `http://116.63.165.100:8080`,
-        // target: `http://localhost:10011`, // 本地测试
+        // target: `http://localhost:8080`, // 本地测试
         changeOrigin: true,
         pathRewrite: {
           ['^' + 'api']: ''

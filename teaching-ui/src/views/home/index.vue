@@ -73,7 +73,7 @@
         >
           <router-link
             class="infinite-list-item"
-            v-for="item in postList"
+            v-for="item in showTotalPost"
             :key="item.resourceId"
             :to="
               '/postDetail/' +
@@ -309,12 +309,13 @@ export default {
       count: 1, // 标记 默认第二页
       // 帖子相关
       pageSize: 8,
+      totalPostList: [],
       postLength: undefined, // 总帖子数
       postAveList: [], //
       postList: [],
       filterPostList: [],
       userInfo: {},
-      searchInfo: null, // 搜索信息
+      searchInfo: "", // 搜索信息
       // 更新信息
       activeName: "4",
       upgrateInfo: [{}],
@@ -324,7 +325,7 @@ export default {
     this.userInfo = this.getTokenData();
   },
   mounted() {
-    this.getPostPageInfo(1, 100);
+    this.getPostPageInfo(1, 1000);
     // 监听滚动事件
     this.initScroll();
 
@@ -358,11 +359,17 @@ export default {
     this.$bus.$on("tranSearchInfo", (val) => {
       this.searchInfo = val;
       // var reg = new RegExp("^[0-9]+"+param+"[a-z]+$","g");
-
-      let reg = new RegExp(val);
+      // let reg = new RegExp(val);
       // console.log(reg);
-      this.filterPostList = this.postList.filter((c) =>
-        reg.test(c.resourceInfo)
+      this.filterPostList = this.totalPostList.filter(
+        (data) => {
+          return data.resourceName
+            .toLowerCase()
+            .includes(this.searchInfo.toLowerCase());
+        }
+        // data.resourceName
+        //   .toLowerCase()
+        //   .includes(this.resourceName.toLowerCase())
       );
     });
   },
@@ -373,8 +380,16 @@ export default {
       // 原数组
       this.postLength = data.total;
       // this.postAveList = this.aveArr(data.records.reverse(), this.pageSize);
+      // 获取所有数据
+      this.totalPostList = data.records;
+      // 均分数组
       this.postAveList = this.aveArr(data.records, this.pageSize);
+      // 默认展示8条数据
       this.postList = this.postAveList[0];
+
+      // 过滤数据
+      this.filterPostList = this.totalPostList;
+
       this.userInfo = this.getTokenData();
       // console.log(this.postAveList[this.count]);
 
@@ -400,6 +415,18 @@ export default {
           length = this.postAveList[this.count].length;
           for (let i = 0; i < length; i++) {
             this.postList.push(this.postAveList[this.count][i]);
+
+            // 过滤数据
+            this.filterPostList = this.totalPostList.filter(
+              (data) => {
+                return data.resourceName
+                  .toLowerCase()
+                  .includes(this.searchInfo.toLowerCase());
+              }
+              // data.resourceName
+              //   .toLowerCase()
+              //   .includes(this.resourceName.toLowerCase())
+            );
           }
           this.count++;
           this.loading = false;
@@ -462,11 +489,14 @@ export default {
       console.log("disabled");
       return this.loading || this.noMore;
     },
+    showTotalPost() {
+      return this.searchInfo === "" ? this.postList : this.filterPostList;
+    },
   },
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 /*大型屏幕pc 超大屏*/
 @media screen and (min-width: 1200px) {
 }
