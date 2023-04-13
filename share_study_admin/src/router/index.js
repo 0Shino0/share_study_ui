@@ -123,7 +123,7 @@ export const constantRoutes = [
         path: 'audit',
         name: 'Audit',
         component: () => import('@/views/audit/index'),
-        meta: { title: '帖子审核', icon: 'skill' }
+        meta: { title: '发帖审核', icon: 'skill' }
       }
     ]
   },

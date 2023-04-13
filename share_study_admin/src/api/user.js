@@ -5,10 +5,10 @@ import request from '@/utils/request'
 /* 登录相关接口 */
 
 /**
- * 登录 
+ * 登录
  * data
  * post
- * 
+ *
 */
 export function login(data) {
   return request({
@@ -32,7 +32,7 @@ export function logout() {
 /* 管理员相关接口 */
 
 /** 根据id获取管理员自己信息
- * 
+ *
  * id
  * get
 */
@@ -45,7 +45,7 @@ export function getInfoAdminSelf(id) {
 }
 
 /** 普通管理员修改自己信息
- * 
+ *
   * data = {
       "avatar": "http://dummyimage.com/100x100",
       "account": "ut esse",
@@ -78,7 +78,7 @@ export function getInfoAdminId(id) {
 }
 
 /** 超级管理员修改管理员信息
- * 
+ *
   * data = {
       "avatar": "http://dummyimage.com/100x100",
       "account": "ut esse",
@@ -106,7 +106,9 @@ export function updateInfoAdmin(data) {
 export function getAdminPageInfo(current, pageSize) {
   return request({
     url: `/admin/page/${current}/${pageSize}`,
-    method: 'post',
+    // method: 'post',
+    method: 'get',
+
     // params: {
     //   current,
     //   pageSize
@@ -192,7 +194,8 @@ export function updateTeacherInfo(data) {
 export function getTeacherPageInfo(current, pageSize) {
   return request({
     url: `/teacher/page/${current}/${pageSize}`,
-    method: 'post',
+    method: 'get',
+    // method: 'post',
   })
 }
 
@@ -204,7 +207,7 @@ export function getTeacherPageInfo(current, pageSize) {
     method: 'post',
     data
   })
-} 
+}
 
 export function getInfo(token) {
   return request({

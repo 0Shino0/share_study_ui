@@ -43,7 +43,7 @@
             <el-input
               v-model="search"
               size="mini"
-              placeholder="输入资料名搜索"
+              placeholder="输入教师名搜索"
             />
           </template>
           <template slot-scope="scope">

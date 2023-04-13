@@ -2,7 +2,7 @@
 import request from "@/utils/request"
 
 /** 获取教学资料Excel
- * @param {null} 
+ * @param {null}
  * @method get
   */
 export function getMaterialExcel() {
@@ -67,6 +67,7 @@ export function updateMaterial(data) {
 export function getMaterialPageInfo(current, pageSize) {
   return request({
     url: `/resource/page/${current}/${pageSize}`,
-    method: "post",
+    // method: "post",
+    method: "get",
   })
 }

@@ -110,10 +110,10 @@ export default {
     return {
       // 后台数据
       tableMaterialCol: [
-        {
-          prop: "id",
-          label: "资料ID",
-        },
+        // {
+        //   prop: "id",
+        //   label: "资料ID",
+        // },
         {
           prop: "name",
           label: "资料名",

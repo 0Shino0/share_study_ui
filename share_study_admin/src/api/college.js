@@ -22,12 +22,13 @@ export function getCollegeName(id) {
 export function getCollegePageInfo(current, page) {
   return request({
     url: `/college/page/${current}/${page}`,
-    method: "post",
+    // method: "post",
+    method: "get",
   })
 }
 
 /** 高校ID和对应名称的List
- * @param {null} 
+ * @param {null}
  * @method get
  * @returns []
   */

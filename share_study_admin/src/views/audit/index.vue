@@ -1,14 +1,561 @@
 <template>
-  <div></div>
+  <div class="audit-container">
+    <!-- <div class="audit-text">资料管理</div> -->
+    <div class="op-btn">
+      <el-button
+        v-if="0"
+        class="add-btn"
+        type="success"
+        size="mini"
+        @click="handleAdd()"
+        >新增</el-button
+      >
+      <el-button
+        v-if="0"
+        class="export-btn"
+        type="success"
+        size="mini"
+        @click="handleExportExcel()"
+        >导出Excel</el-button
+      >
+    </div>
+    <div class="table-container">
+      <el-table
+        :data="
+          tableAuditData.filter(
+            (data) =>
+              !search || data.name.toLowerCase().includes(search.toLowerCase())
+          )
+        "
+        stripe
+        style="width: 100%"
+        v-loading="loading"
+      >
+        <!-- <el-table-column
+          v-for="item in tableAuditCol"
+          :key="item.prop"
+          :prop="item.prop"
+          :label="item.label"
+          :width="tableColumnWidth"
+        >
+        </el-table-column> -->
+        <!-- <el-table-column prop="id" label="资料ID" :width="tableColumnWidth">
+        </el-table-column> -->
+        <el-table-column prop="name" label="资料名" :width="tableColumnWidth">
+        </el-table-column>
+        <el-table-column prop="url" label="文件预览" :width="tableColumnWidth">
+          <template slot-scope="scope">
+            <span v-if="scope.row.url === ''">无</span>
+            <!-- 图片预览 -->
+            <img v-else-if="imgType.includes(getFileSuffix(scope.row.url))""
+            :src="scope.row.url" alt="" style="width: 150px" />
+            <!-- 其他文件下载 -->
+            <el-link v-else :href="scope.row.url" target="blank"
+              >下载查看<i class="el-icon-view el-icon--right"></i>
+            </el-link>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="censorAdmin1Result"
+          label="第一次审核"
+          :width="tableColumnWidth"
+        >
+          <template slot-scope="scope">
+            <div class="name-wrapper">
+              <span v-if="scope.row.censorAdmin1Result === 0">
+                <el-tag size="medium" type="info">未审核</el-tag>
+              </span>
+              <el-popover trigger="hover" placement="top" v-else>
+                <el-tag>审核人：{{ scope.row.censorAdmin1Name }}</el-tag>
+                <span slot="reference">
+                  <el-tag
+                    size="medium"
+                    :type="
+                      scope.row.censorAdmin1Result === 1 ? 'success' : 'danger'
+                    "
+                    >{{
+                      scope.row.censorAdmin1Result === 1 ? "通过" : "不通过"
+                    }}</el-tag
+                  >
+                </span>
+              </el-popover>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="censorAdmin2Result"
+          label="第二次审核"
+          :width="tableColumnWidth"
+        >
+          <template slot-scope="scope">
+            <div class="name-wrapper">
+              <span v-if="scope.row.censorAdmin2Result === 0">
+                <el-tag size="medium" type="info">未审核</el-tag>
+              </span>
+              <el-popover trigger="hover" placement="top" v-else>
+                <el-tag>审核人：{{ scope.row.censorAdmin2Name }}</el-tag>
+                <span slot="reference">
+                  <el-tag
+                    size="medium"
+                    :type="
+                      scope.row.censorAdmin2Result === 1 ? 'success' : 'danger'
+                    "
+                    >{{
+                      scope.row.censorAdmin2Result === 1 ? "通过" : "不通过"
+                    }}</el-tag
+                  >
+                </span>
+              </el-popover>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="censorAdmin3Result"
+          label="第三次审核"
+          :width="tableColumnWidth"
+        >
+          <template slot-scope="scope">
+            <div class="name-wrapper">
+              <span v-if="scope.row.censorAdmin3Result === 0">
+                <el-tag size="medium" type="info">未审核</el-tag>
+              </span>
+              <el-popover trigger="hover" placement="top" v-else>
+                <el-tag>审核人：{{ scope.row.censorAdmin3Name }}</el-tag>
+                <span slot="reference">
+                  <el-tag
+                    size="medium"
+                    :type="
+                      scope.row.censorAdmin3Result === 1 ? 'success' : 'danger'
+                    "
+                    >{{
+                      scope.row.censorAdmin3Result === 1 ? "通过" : "不通过"
+                    }}</el-tag
+                  >
+                </span>
+              </el-popover>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="status"
+          label="审核状态"
+          :width="tableColumnWidth"
+        >
+          <template slot-scope="scope">
+            <div class="name-wrapper">
+              <span slot="reference">
+                <!-- 审查状态（0是未审查，1是正在审查，2是审查通过，3是审查未通过） -->
+                <el-tag size="medium" type="info" v-if="scope.row.status === 0"
+                  >未审查</el-tag
+                >
+                <el-tag
+                  size="medium"
+                  type="success"
+                  v-else-if="scope.row.status === 1"
+                  >正在审查</el-tag
+                >
+                <el-tag
+                  size="medium"
+                  type="success"
+                  v-else-if="scope.row.status === 2"
+                  >通过</el-tag
+                >
+                <el-tag
+                  size="medium"
+                  type="danger"
+                  v-else-if="scope.row.status === 3"
+                  >不通过</el-tag
+                >
+                <el-tag size="medium" type="success" v-else>已发布</el-tag>
+              </span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="belongName"
+          label="所属老师"
+          :width="tableColumnWidth"
+        >
+        </el-table-column>
+
+        <el-table-column
+          prop="createTime"
+          label="录入时间"
+          :width="tableColumnWidth"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="updateTime"
+          label="更新时间"
+          :width="tableColumnWidth"
+        >
+        </el-table-column>
+        <!-- 操作 -->
+        <el-table-column fixed="right" align="right" width="180px">
+          <template slot="header" slot-scope="scope">
+            <el-input
+              v-model="search"
+              size="mini"
+              placeholder="输入资料名搜索"
+            />
+          </template>
+          <!-- 200 020 002 111 -->
+          <template slot-scope="scope">
+            <!-- !(
+                  scope.row.censorAdmin1Result === 2 ||
+                  scope.row.censorAdmin2Result === 2 ||
+                  scope.row.censorAdmin3Result === 2
+                ) &&
+                !(
+                  scope.row.censorAdmin1Result === 1 &&
+                  scope.row.censorAdmin2Result === 1 &&
+                  scope.row.censorAdmin3Result === 1
+                ) -->
+            <span v-if="scope.row.status === 0 || scope.row.status === 1">
+              <el-button
+                size="mini"
+                @click="handleAuditPass(scope.$index, scope.row)"
+                >通过</el-button
+              >
+              <el-button
+                size="mini"
+                type="danger"
+                @click="handleAuditNoPass(scope.$index, scope.row)"
+                >不通过</el-button
+              >
+            </span>
+
+            <!--
+                scope.row.censorAdmin1Result === 1 &&
+                scope.row.censorAdmin2Result === 1 &&
+                scope.row.censorAdmin3Result === 1 -->
+            <span v-else-if="scope.row.status === 2">
+              <el-button
+                size="mini"
+                @click="publishAudit(scope.$index, scope.row)"
+                :disabled="!(userInfo.role === 2)"
+                >发布</el-button
+              >
+            </span>
+            <span v-else-if="scope.row.status === 3">
+              <el-tag type="danger">审核不通过</el-tag>
+            </span>
+            <span v-else-if="scope.row.status === 4">
+              <el-tag type="success">已发布</el-tag>
+            </span>
+            <el-button
+              size="mini"
+              type="danger"
+              v-if="
+                scope.row.status === 3 ||
+                scope.row.status === 2 ||
+                scope.row.status === 4
+              "
+              @click="handleDelete(scope.$index, scope.row)"
+              :disabled="!(userInfo.role === 2)"
+              style="margin-left: 5px"
+              >删除</el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
+      <!-- 分页 -->
+      <Pagination :total="total" :emitName="$options.name"></Pagination>
+
+      <el-dialog
+        title="请输入理由"
+        :visible.sync="dialogShow"
+        :width="dialogWidth"
+        :top="dialogTop"
+        :before-close="dialogCancel"
+      >
+        <el-form :model="dialogForm" ref="queryForm" :rules="dialogFormRules">
+          <el-form-item label="原因" :label-width="formLabelWidth">
+            <el-input v-model="dialogForm.reason" autocomplete="off"></el-input>
+          </el-form-item>
+          <!-- <el-form-item label="资料状态" :label-width="formLabelWidth">
+            <el-select v-model="dialogForm.status" placeholder="请选择">
+              <el-option label="正常" value="正常"></el-option>
+              <el-option label="禁用" value="禁用"></el-option>
+            </el-select>
+          </el-form-item> -->
+          <!-- <el-form-item label="所属老师id" :label-width="formLabelWidth">
+            <el-input
+              v-model="dialogForm.belong_id"
+              autocomplete="off"
+            ></el-input>
+          </el-form-item> -->
+        </el-form>
+        <div slot="footer">
+          <el-button @click="dialogCancel()">取 消</el-button>
+          <el-button type="primary" @click="dialogSubmit()">确 定</el-button>
+        </div>
+      </el-dialog>
+    </div>
+  </div>
 </template>
 
 <script>
+import {
+  getAuditPageInfo,
+  getAudit,
+  updateAudit,
+  updateAuditResource,
+  publishAuditResource,
+  delAudit,
+  getAuditExcel,
+} from "@/api/audit";
+import { getToken } from "@/utils/auth";
+
 export default {
-  name: "",
+  name: "Audit",
   data() {
-    return {};
+    return {
+      // 后台数据
+      tableAuditData: [],
+      // 表格相关
+      search: "",
+      dialogShow: false,
+      // 表单相关
+      dialogForm: {
+        id: "",
+        reason: "",
+        result: "",
+      },
+      dialogFormRules: {
+        id: [{ required: true, trigger: "blur" }],
+        reason: [{ required: true, trigger: "blur" }],
+        result: [{ required: true, trigger: "blur" }],
+      },
+      formLabelWidth: "120px",
+      // 对话框dialog相关
+      dialogWidth: "600px",
+      dialogTop: "30px",
+      isAdd: true, // 标识新增操作 | true表示新增 - false表示审批
+      loading: true,
+      // 分页相关
+      currentPage: 1,
+      pageSize: 10,
+      total: 10,
+      // 文件预览
+      imgType: "png jpg jpeg", // 图片类型
+    };
+  },
+  mounted() {
+    // if (this.tableAuditData) {
+    this.getAuditPage(1, 10);
+    // }
+    this.$bus.$on(`pagination${this.$options.name}`, ({ page, limit }) => {
+      // console.log(page, limit);
+      this.currentPage = page;
+      this.pageSize = limit;
+      this.getAuditPage(page, limit);
+    });
+  },
+  methods: {
+    /* 请求数据 */
+    // 管理员分页查询
+    async getAuditPage(current, pageSize) {
+      this.loading = true;
+      try {
+        const { data } = await getAuditPageInfo(current, pageSize);
+        // console.log(data.records);
+        // data.records.forEach((current) => {
+        //   // 资料状态
+        //   current.status = current.status === 0 ? "正常" : "禁用";
+        //   //
+        // });
+        this.total = data.total;
+        this.tableAuditData = data.records;
+        this.resetLoading(300);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    /* 表格相关 */
+    // 审批通过操作
+    handleAuditPass(index, row) {
+      let passObj = {
+        reason: "",
+        id: "",
+        result: 1,
+      };
+      // 标识审批操作
+      this.isAdd = false;
+      // 展示信息
+      // console.log(index, row);
+      passObj.id = row.id;
+
+      updateAuditResource(passObj)
+        .then((res) => {
+          this.$message.success(res.message);
+          this.getAuditPage(this.currentPage, this.pageSize);
+        })
+        .catch((err) => {
+          console.log(err);
+          // this.$message.error('审核失败')
+        });
+      // console.log(result.data);
+      // result.data.status = result.data.status === 0 ? "正常" : "禁用";
+      // this.dialogForm = result.data;
+      // this.dialogShow = true;
+    },
+    // 审批不通过操作
+    handleAuditNoPass(index, row) {
+      // let passObj = {
+      //   reason: "",
+      //   id: "",
+      //   result: 2,
+      // };
+      // 展示信息
+      // console.log(index, row);
+      // passObj.id = row.id;
+
+      this.dialogForm.id = row.id;
+      this.dialogForm.result = 2;
+
+      this.dialogShow = true;
+      // console.log(result.data);
+      // result.data.status = result.data.status === 0 ? "正常" : "禁用";
+      // this.dialogForm = result.data;
+      // this.dialogShow = true;
+    },
+    publishAudit(index, row) {
+      const id = row.id;
+      publishAuditResource(id)
+        .then((res) => {
+          this.$message.success(res.message);
+          this.getAuditPage(this.currentPage, this.pageSize);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    // 删除
+    handleDelete(index, row) {
+      // 获取id
+      console.log(index, row);
+      const id = row.id;
+      this.$confirm("此操作将删除该审核资料, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          // 调用删除接口
+          delAudit(id)
+            .then((response) => {
+              this.$message({
+                type: "success",
+                message: "删除成功!",
+              });
+              this.getAuditPage(this.currentPage, this.pageSize);
+            })
+            .catch((error) => {
+              this.$message({
+                type: "success",
+                message: "删除失败!" + error.message,
+              });
+            });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
+    },
+    // dialog对话框相关
+    // 提交按钮
+    dialogSubmit() {
+      this.$refs["queryForm"].validate((valid) => {
+        if (valid) {
+          // 编辑操作
+          updateAuditResource(this.dialogForm)
+            .then((res) => {
+              this.$message.success(res.message);
+              this.getAuditPage(this.currentPage, this.pageSize);
+              this.dialogCancel();
+            })
+            .catch((err) => {
+              console.log(err);
+              this.dialogCancel();
+              // this.$message.error('审核失败')
+            });
+        }
+      });
+    },
+
+    // 取消按钮
+    dialogCancel() {
+      this.dialogShow = false;
+      this.reset();
+    },
+    // 表单重置
+    reset() {
+      this.dialogForm = {
+        id: "",
+        reason: "",
+        result: "",
+      };
+      this.resetForm("queryForm");
+    },
+    // 导出excel
+    handleExportExcel() {
+      // 调用接口
+
+      this.$axios({
+        url: "/api/resource/download",
+        method: "get",
+        responseType: "blob",
+      }).then(
+        (response) => {
+          const blob = new Blob([response.data], {
+            type: "application/vnd.ms-excel",
+          });
+          const link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          // 这里也可以自己从headers中获取文件名.
+          link.download = "教学资料.xlsx";
+          link.click();
+          // document.body.removeChild(link);
+          this.$message.success("导出成功");
+        },
+        (error) => {
+          this.$message.error("导出excel出错!");
+          console.log("导出excel出错" + error);
+        }
+      );
+    },
+    // 文件预览相关
+    // 获取文件后缀
+    getFileSuffix(fileUrl) {
+      return fileUrl.split(".").reverse()[0].toLowerCase();
+    },
+  },
+  computed: {
+    userInfo: () => {
+      let token = getToken();
+      let data = JSON.parse(token);
+      return data;
+    },
   },
 };
 </script>
 
-<style lang="scss"></style>
+<style lang="scss" scoped>
+.audit {
+  &-container {
+    margin: 30px;
+
+    .op-btn {
+      margin: 10px 0 30px 5px;
+    }
+  }
+
+  &-text {
+    font-size: 30px;
+    line-height: 46px;
+  }
+}
+</style>
