@@ -23,6 +23,7 @@
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
     "path-to-regexp": "2.4.0",
+    "video.js": "^8.0.4",
     "vue": "2.6.10",
     "vue-echarts": "^6.5.4",
     "vue-router": "3.0.6",

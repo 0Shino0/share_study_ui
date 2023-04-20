@@ -41,112 +41,32 @@
         </el-table-column> -->
         <!-- <el-table-column prop="id" label="资料ID" :width="tableColumnWidth">
         </el-table-column> -->
-        <el-table-column prop="name" label="资料名" :width="tableColumnWidth">
+        <el-table-column prop="name" label="注册名" :width="tableColumnWidth">
         </el-table-column>
-        <el-table-column prop="info" label="整体预览" :width="tableColumnWidth">
-          <template slot-scope="scope">
-            <!-- 其他文件下载 -->
-            <el-link @click="handlePreview(scope.$index, scope.row)"
-              >预览<i class="el-icon-view el-icon--right"></i>
-            </el-link>
-          </template>
-        </el-table-column>
-        <el-table-column prop="url" label="文件预览" :width="tableColumnWidth">
-          <template slot-scope="scope">
-            <span v-if="scope.row.url === ''">无</span>
-            <!-- 图片预览 -->
-            <img
-              v-else-if="imgType.includes(getFileSuffix(scope.row.url))"
-              :src="scope.row.url"
-              alt=""
-              style="width: 150px"
-            />
-            <!-- 其他文件下载 -->
-            <el-link v-else :href="scope.row.url" target="blank"
-              >下载查看<i class="el-icon-view el-icon--right"></i>
-            </el-link>
-          </template>
+        <el-table-column prop="email" label="邮箱" width="180px">
         </el-table-column>
         <el-table-column
-          prop="censorAdmin1Result"
-          label="第一次审核"
+          prop="account"
+          label="注册账号"
           :width="tableColumnWidth"
         >
+        </el-table-column>
+        <el-table-column prop="gender" label="性别" :width="tableColumnWidth">
           <template slot-scope="scope">
             <div class="name-wrapper">
-              <span v-if="scope.row.censorAdmin1Result === 0">
-                <el-tag size="medium" type="info">未审核</el-tag>
+              <span slot="reference">
+                <!-- 审查状态（0是男，1是女） -->
+                <span v-if="scope.row.gender === 0">男</span>
+                <span v-if="scope.row.gender === 1">女</span>
               </span>
-              <el-popover trigger="hover" placement="top" v-else>
-                <el-tag>审核人：{{ scope.row.censorAdmin1Name }}</el-tag>
-                <span slot="reference">
-                  <el-tag
-                    size="medium"
-                    :type="
-                      scope.row.censorAdmin1Result === 1 ? 'success' : 'danger'
-                    "
-                    >{{
-                      scope.row.censorAdmin1Result === 1 ? "通过" : "不通过"
-                    }}</el-tag
-                  >
-                </span>
-              </el-popover>
             </div>
           </template>
         </el-table-column>
         <el-table-column
-          prop="censorAdmin2Result"
-          label="第二次审核"
+          prop="belongName"
+          label="所属高校"
           :width="tableColumnWidth"
         >
-          <template slot-scope="scope">
-            <div class="name-wrapper">
-              <span v-if="scope.row.censorAdmin2Result === 0">
-                <el-tag size="medium" type="info">未审核</el-tag>
-              </span>
-              <el-popover trigger="hover" placement="top" v-else>
-                <el-tag>审核人：{{ scope.row.censorAdmin2Name }}</el-tag>
-                <span slot="reference">
-                  <el-tag
-                    size="medium"
-                    :type="
-                      scope.row.censorAdmin2Result === 1 ? 'success' : 'danger'
-                    "
-                    >{{
-                      scope.row.censorAdmin2Result === 1 ? "通过" : "不通过"
-                    }}</el-tag
-                  >
-                </span>
-              </el-popover>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="censorAdmin3Result"
-          label="第三次审核"
-          :width="tableColumnWidth"
-        >
-          <template slot-scope="scope">
-            <div class="name-wrapper">
-              <span v-if="scope.row.censorAdmin3Result === 0">
-                <el-tag size="medium" type="info">未审核</el-tag>
-              </span>
-              <el-popover trigger="hover" placement="top" v-else>
-                <el-tag>审核人：{{ scope.row.censorAdmin3Name }}</el-tag>
-                <span slot="reference">
-                  <el-tag
-                    size="medium"
-                    :type="
-                      scope.row.censorAdmin3Result === 1 ? 'success' : 'danger'
-                    "
-                    >{{
-                      scope.row.censorAdmin3Result === 1 ? "通过" : "不通过"
-                    }}</el-tag
-                  >
-                </span>
-              </el-popover>
-            </div>
-          </template>
         </el-table-column>
         <el-table-column
           prop="status"
@@ -156,7 +76,7 @@
           <template slot-scope="scope">
             <div class="name-wrapper">
               <span slot="reference">
-                <!-- 审查状态（0是未审查，1是正在审查，2是审查通过，3是审查未通过） -->
+                <!-- 审查状态（0是未审查，1是通过，2是不通过，3是已发布） -->
                 <el-tag size="medium" type="info" v-if="scope.row.status === 0"
                   >未审查</el-tag
                 >
@@ -164,30 +84,38 @@
                   size="medium"
                   type="success"
                   v-else-if="scope.row.status === 1"
-                  >正在审查</el-tag
-                >
-                <el-tag
-                  size="medium"
-                  type="success"
-                  v-else-if="scope.row.status === 2"
-                  >通过</el-tag
+                  >已通过</el-tag
                 >
                 <el-tag
                   size="medium"
                   type="danger"
-                  v-else-if="scope.row.status === 3"
+                  v-else-if="scope.row.status === 2"
                   >不通过</el-tag
                 >
-                <el-tag size="medium" type="success" v-else>已发布</el-tag>
+                <el-tag
+                  size="medium"
+                  type="success"
+                  v-else-if="scope.row.status === 3"
+                  >已发布</el-tag
+                >
+                <!-- <el-tag size="medium" type="success" v-else>已发布</el-tag> -->
               </span>
             </div>
           </template>
         </el-table-column>
         <el-table-column
-          prop="belongName"
-          label="所属老师"
+          prop="censorAdminName"
+          label="审核人"
           :width="tableColumnWidth"
         >
+          <template slot-scope="scope">
+            <div class="name-wrapper">
+              <span v-if="scope.row.status === 0">
+                <el-tag size="medium" type="info">无</el-tag>
+              </span>
+              <el-tag v-else>审核人：{{ scope.row.censorAdminName }}</el-tag>
+            </div>
+          </template>
         </el-table-column>
 
         <el-table-column
@@ -208,7 +136,7 @@
             <el-input
               v-model="search"
               size="mini"
-              placeholder="输入资料名搜索"
+              placeholder="输入注册名搜索"
             />
           </template>
           <!-- 200 020 002 111 -->
@@ -223,7 +151,7 @@
                   scope.row.censorAdmin2Result === 1 &&
                   scope.row.censorAdmin3Result === 1
                 ) -->
-            <span v-if="scope.row.status === 0 || scope.row.status === 1">
+            <span v-if="scope.row.status === 0">
               <el-button
                 size="mini"
                 @click="handleAuditPass(scope.$index, scope.row)"
@@ -241,7 +169,7 @@
                 scope.row.censorAdmin1Result === 1 &&
                 scope.row.censorAdmin2Result === 1 &&
                 scope.row.censorAdmin3Result === 1 -->
-            <span v-else-if="scope.row.status === 2">
+            <span v-else-if="scope.row.status === 1">
               <el-button
                 size="mini"
                 @click="publishAudit(scope.$index, scope.row)"
@@ -249,19 +177,19 @@
                 >发布</el-button
               >
             </span>
-            <span v-else-if="scope.row.status === 3">
+            <span v-else-if="scope.row.status === 2">
               <el-tag type="danger">审核不通过</el-tag>
             </span>
-            <span v-else-if="scope.row.status === 4">
+            <span v-else-if="scope.row.status === 3">
               <el-tag type="success">已发布</el-tag>
             </span>
             <el-button
               size="mini"
               type="danger"
               v-if="
+                scope.row.status === 1 ||
                 scope.row.status === 3 ||
-                scope.row.status === 2 ||
-                scope.row.status === 4
+                scope.row.status === 2
               "
               @click="handleDelete(scope.$index, scope.row)"
               :disabled="!(userInfo.role === 2)"
@@ -274,7 +202,6 @@
       <!-- 分页 -->
       <Pagination :total="total" :emitName="$options.name"></Pagination>
 
-      <!-- 不同意理由 -->
       <el-dialog
         title="请输入理由"
         :visible.sync="dialogShow"
@@ -284,7 +211,10 @@
       >
         <el-form :model="dialogForm" ref="queryForm" :rules="dialogFormRules">
           <el-form-item label="原因" :label-width="formLabelWidth">
-            <el-input v-model="dialogForm.reason" autocomplete="off"></el-input>
+            <el-input
+              v-model="dialogForm.content"
+              autocomplete="off"
+            ></el-input>
           </el-form-item>
           <!-- <el-form-item label="资料状态" :label-width="formLabelWidth">
             <el-select v-model="dialogForm.status" placeholder="请选择">
@@ -304,106 +234,41 @@
           <el-button type="primary" @click="dialogSubmit()">确 定</el-button>
         </div>
       </el-dialog>
-
-      <!-- 整体预览 -->
-      <el-dialog
-        class="preview-dialog-container"
-        title="预览"
-        :visible.sync="previewDialogShow"
-        :top="dialogTop"
-        :before-close="previewDialogCancel"
-      >
-        <!-- 帖子标题 -->
-        <div class="preview-dialog-title">
-          <h2>{{ previewDialogObj.title }}</h2>
-        </div>
-        <!-- 帖子信息 -->
-        <div class="preview-dialog-info">
-          <div class="insert-html" ref="inserthtml">
-            <!-- {{ previewDialogObj.resourceInfo }} -->
-          </div>
-
-          <!-- 如果附件是以 图片 / 视频的形式 则显示在帖子中 -->
-          <div class="img-container" v-if="fileIsImg">
-            <img :src="previewDialogObj.url" alt="图片" style="width: 600px" />
-          </div>
-
-          <div class="movies-container" v-else-if="fileIsVideo">
-            <video-player
-              :src="previewDialogObj.url"
-              :volume="volume"
-            ></video-player>
-            <!-- <audio :src="" alt="视频"></audio> -->
-          </div>
-
-          <div
-            class="doc-container"
-            style="width: 100%; margin-top: 30px"
-            v-else-if="docPreviewUrl"
-          >
-            <iframe
-              :src="docPreviewUrl"
-              frameborder="0"
-              width="100%"
-              height="600"
-            ></iframe>
-          </div>
-        </div>
-      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
 import {
-  getAuditPageInfo,
-  updateAuditResource,
-  publishAuditResource,
-  delAudit,
+  // getAuditPageInfo,
+  // updateAuditResource,
+  // publishAuditResource,
+  // delAudit,
+  getRegisterAuditPageInfo,
+  updateRegisterAudit,
+  publishRegisterAudit,
+  delRegisterAudit,
 } from "@/api/audit";
 import { getToken } from "@/utils/auth";
 
-import VideoPlayer from "@/components/VideoPlayer";
-import { nextTick } from "process";
-
 export default {
-  name: "Audit",
-  components: {
-    VideoPlayer,
-  },
+  name: "RegisterAudit",
   data() {
     return {
       // 后台数据
       tableAuditData: [],
       // 表格相关
       search: "",
-      // 预览表单
-      previewDialogObj: {
-        title: "",
-        info: "",
-        url: "",
-      },
-      previewDialogShow: false,
-      // 帖子 显示图片/视频 文档
-      fileSuffix: undefined,
-      imgType: "png jpg jpeg", // 图片类型
-      vidioType: "mp4 mpeg", // 视频类型
-      docType: "pdf xlsx xls doc docx ppt pptx", // 文档类型
-      volume: 0.5, // 视频声音
-      fileIsImg: undefined, // 是否 图片
-      fileIsVideo: undefined, // 是否是视频
-      fileIsDoc: undefined, // 是否是文档
-      docPreviewUrl: undefined, // doc预览地址
-      // 表单相关
       dialogShow: false,
+      // 表单相关
       dialogForm: {
         id: "",
-        reason: "",
+        content: "",
         result: "",
       },
       dialogFormRules: {
         id: [{ required: true, trigger: "blur" }],
-        reason: [{ required: true, trigger: "blur" }],
+        content: [{ required: true, trigger: "blur" }],
         result: [{ required: true, trigger: "blur" }],
       },
       formLabelWidth: "120px",
@@ -437,7 +302,7 @@ export default {
     async getAuditPage(current, pageSize) {
       this.loading = true;
       try {
-        const { data } = await getAuditPageInfo(current, pageSize);
+        const { data } = await getRegisterAuditPageInfo(current, pageSize);
         // console.log(data.records);
         // data.records.forEach((current) => {
         //   // 资料状态
@@ -455,7 +320,7 @@ export default {
     // 审批通过操作
     handleAuditPass(index, row) {
       let passObj = {
-        reason: "",
+        content: "",
         id: "",
         result: 1,
       };
@@ -465,7 +330,7 @@ export default {
       // console.log(index, row);
       passObj.id = row.id;
 
-      updateAuditResource(passObj)
+      updateRegisterAudit(passObj)
         .then((res) => {
           this.$message.success(res.message);
           this.getAuditPage(this.currentPage, this.pageSize);
@@ -482,7 +347,7 @@ export default {
     // 审批不通过操作
     handleAuditNoPass(index, row) {
       // let passObj = {
-      //   reason: "",
+      //   content: "",
       //   id: "",
       //   result: 2,
       // };
@@ -501,7 +366,7 @@ export default {
     },
     publishAudit(index, row) {
       const id = row.id;
-      publishAuditResource(id)
+      publishRegisterAudit(id)
         .then((res) => {
           this.$message.success(res.message);
           this.getAuditPage(this.currentPage, this.pageSize);
@@ -522,7 +387,7 @@ export default {
       })
         .then(() => {
           // 调用删除接口
-          delAudit(id)
+          delRegisterAudit(id)
             .then((response) => {
               this.$message({
                 type: "success",
@@ -550,7 +415,7 @@ export default {
       this.$refs["queryForm"].validate((valid) => {
         if (valid) {
           // 编辑操作
-          updateAuditResource(this.dialogForm)
+          updateRegisterAudit(this.dialogForm)
             .then((res) => {
               this.$message.success(res.message);
               this.getAuditPage(this.currentPage, this.pageSize);
@@ -564,6 +429,7 @@ export default {
         }
       });
     },
+
     // 取消按钮
     dialogCancel() {
       this.dialogShow = false;
@@ -573,12 +439,11 @@ export default {
     reset() {
       this.dialogForm = {
         id: "",
-        reason: "",
+        content: "",
         result: "",
       };
       this.resetForm("queryForm");
     },
-
     // 导出excel
     handleExportExcel() {
       // 调用接口
@@ -610,54 +475,6 @@ export default {
     // 获取文件后缀
     getFileSuffix(fileUrl) {
       return fileUrl.split(".").reverse()[0].toLowerCase();
-    },
-    handlePreview(index, row) {
-      console.log(index);
-      console.log(row);
-
-      // 赋予初值
-      this.previewDialogObj.title = row.name;
-      this.previewDialogObj.info = row.info;
-      this.previewDialogObj.url = row.url;
-
-      // 渲染信息
-      // console.log(this.$refs.inserthtml.innerHTML);
-      nextTick(() => {
-        console.log(this.$refs);
-
-        this.$refs.inserthtml.innerHTML += this.previewDialogObj.info;
-      }, 1000);
-
-      this.fileSuffix = this.previewDialogObj.url
-        .split(".")
-        .reverse()[0]
-        .toLowerCase();
-
-      this.isFileType(this.fileSuffix);
-
-      // 展示
-      this.previewDialogShow = true;
-    },
-    previewDialogCancel() {
-      this.previewDialogShow = false;
-    },
-    isFileType(suffix) {
-      // 判断文件是什么类型
-      // console.log("fileIsImg=>", this.imgType.includes(suffix));
-      this.fileIsImg = this.imgType.includes(suffix);
-      // return str.includes(suffix);
-      if (!this.fileIsImg) {
-        // console.log("fileIsVideo=>", this.vidioType.includes(suffix));
-        this.fileIsVideo = this.vidioType.includes(suffix);
-        // return str.includes(suffix);
-      }
-      if (!this.fileIsVideo) {
-        // console.log("fileIsDoc=>", this.docType.includes(suffix));
-        this.fileIsDoc = this.docType.includes(suffix);
-        if (this.fileIsDoc) {
-          this.docPreviewUrl = `https://view.officeapps.live.com/op/view.aspx?src=${this.previewDialogObj.url}`;
-        }
-      }
     },
   },
   computed: {

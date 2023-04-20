@@ -127,6 +127,18 @@ export const constantRoutes = [
       }
     ]
   },
+  { // 注册审核
+    path: '/',
+    component: Layout,
+    children: [
+      {
+        path: 'registeraudit',
+        name: 'registerAudit',
+        component: () => import('@/views/registerAudit/index'),
+        meta: { title: '注册审核', icon: 'skill' }
+      }
+    ]
+  },
 
   {
     path: '/example',

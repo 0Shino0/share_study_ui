@@ -123,6 +123,10 @@ export default {
           label: "收藏数",
         },
         {
+          prop: "commentNumber",
+          label: "评论数",
+        },
+        {
           prop: "belongName",
           label: "所属老师",
         },
