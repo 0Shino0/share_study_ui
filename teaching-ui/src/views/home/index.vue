@@ -175,6 +175,9 @@
           <div class="cart-container">
             <div class="upgrate-card-title">更新公告</div>
             <el-collapse v-model="activeName" accordion>
+              <el-collapse-item title="2023年4月13日" name="4">
+                <div>- 添加了发帖审核功能，三审三校</div>
+              </el-collapse-item>
               <el-collapse-item title="2023年4月2日" name="4">
                 <div>- 界面美化：在登录注册以及首页加入一些插图，美化界面</div>
                 <div>
