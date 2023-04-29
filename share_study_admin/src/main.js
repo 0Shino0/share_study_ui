@@ -40,10 +40,10 @@ import { resetForm, resetLoading } from "@/utils/index"
  * Currently MockJs will be used in the production environment,
  * please remove it before going online ! ! !
  */
-if (process.env.NODE_ENV === 'production') {
-  const { mockXHR } = require('../mock')
-  mockXHR()
-}
+// if (process.env.NODE_ENV === 'production') {
+//   const { mockXHR } = require('../mock')
+//   mockXHR()
+// }
 
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })
@@ -51,12 +51,11 @@ if (process.env.NODE_ENV === 'production') {
 Vue.use(ElementUI)
 
 /* 全局变量 */
-Vue.prototype.tableColumnWidth = "150px"
+Vue.prototype.tableColumnWidth = "150px";
 Vue.prototype.$message = Message; // 全局element
-Vue.prototype.$echarts = echarts; //
+Vue.prototype.$echarts = echarts;
 Vue.prototype.$axios = axios; // 请求
-Vue.prototype.$http = 'http://120.46.214.246:8080/api'; //
-// map数据相关
+Vue.prototype.$http = 'http://120.46.214.246:8080/api'; // map数据相关
 
 /* 全局方法 */
 Vue.prototype.resetForm = resetForm

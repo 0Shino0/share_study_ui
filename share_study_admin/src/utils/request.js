@@ -92,7 +92,7 @@ service.interceptors.response.use(
       }
 
     } else {
-      return res
+      return res;
     }
   },
   error => {
