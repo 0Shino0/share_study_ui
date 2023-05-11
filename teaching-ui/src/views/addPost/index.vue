@@ -154,7 +154,8 @@ export default defineComponent({
       const token = getTokenData();
 
       if (token === null || token === undefined) {
-        router.push(`/login`);
+        // router.push(`/login`);
+        router.push({ path: "/intro" });
       }
     };
     // 获取路由中的参数

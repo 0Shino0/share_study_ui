@@ -5,6 +5,7 @@ import {
   onMounted,
   onBeforeUnmount,
   computed,
+  watch,
   ref,
   inject,
   nextTick,
@@ -258,7 +259,7 @@ export default defineComponent({
           // 往上滚动
           scrollType = 0;
         }
-        console.log(currentScrollTop);
+        // console.log(currentScrollTop);
         initScrollTop = currentScrollTop;
         if (scrollType == 1 && currentScrollTop > 100) {
           showHeader.value = false;
@@ -312,6 +313,13 @@ export default defineComponent({
       }
     }
 
+    // watch
+    watch(searchInfo, (newVal) => {
+      // console.log(2);
+      // console.log(newVal);
+      $bus.emit("tranSearchInfo", newVal);
+    });
+
     return {
       // 需要给 `<template />` 用的数据或函数，在这里 `return` 出去
       // 变量
@@ -343,7 +351,11 @@ export default defineComponent({
 
 <template>
   <!-- v-show="showHeader" -->
-  <div class="header" :class="showHeader ? 'header-up' : 'header-down'">
+  <div
+    class="header"
+    :class="showHeader ? 'header-up' : 'header-down'"
+    v-if="userInfo && Object.keys(userInfo).length != 0"
+  >
     <div class="header-content">
       <!-- logo -->
       <router-link class="logo" to="/">
@@ -352,12 +364,14 @@ export default defineComponent({
         <span>s</span>
         <span>t</span> -->
         <img src="../assets/logo.svg" alt="logo" />
+        <span class="logo-title">基于联盟链的资源共享平台</span>
       </router-link>
 
       <!-- 导航 -->
       <div class="menu-panel">
         <router-link class="nav-item" to="/">首页</router-link>
         <router-link class="nav-item" :to="aboutPath">关于</router-link>
+        <router-link class="nav-item" to="/intro">项目介绍</router-link>
         <!-- <router-link class="nav-item" to="/">相关高校</router-link>
         <router-link class="nav-item" to="/">教学资料</router-link> -->
       </div>
@@ -635,7 +649,8 @@ export default defineComponent({
       // padding-right: 20px;
       // logo
       overflow: hidden;
-      width: 150px;
+      // width: 150px;
+      width: 200px;
       height: 64px;
       position: relative;
 
@@ -644,7 +659,16 @@ export default defineComponent({
         position: absolute;
         top: -28px;
         // right: ;
-        left: -5px;
+        // left: -5px;
+        left: 18px;
+      }
+
+      .logo-title {
+        // width: 150px;
+        height: 64px;
+        line-height: 64px;
+        font-weight: bold;
+        color: #000;
       }
 
       // span {

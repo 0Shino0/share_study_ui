@@ -49,10 +49,12 @@ axiosInstance.interceptors.response.use(
           removeToken()
         }
 
-        if (window.location.href.split('#')[1] !== '/login') {
-          console.log(1);
+        // if (window.location.href.split('#')[1] !== '/login') {
+        if (window.location.href.split('#')[1] !== '/intro') {
+          // console.log(1);
           console.log(router);
-          router.push({ path: '/login' });
+          // router.push({ path: '/login' });
+          router.push({ path: "/intro" })
           // window.location.href = `/login`
         }
       } else if (res.code === 'A0410') {

@@ -60,6 +60,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { title: '关于自己' },
   },
   {
+    path: "/intro",
+    name: "intro",
+    component: () => import('@/views/intro/index.vue'),
+    meta: { title: '项目介绍' },
+  },
+  {
     path: '/test',
     name: 'test',
     component: () => import('@/views/test/index.vue'),

@@ -12,11 +12,13 @@ const route = useRoute();
 </script>
 
 <template>
-  <!-- <KeepAlive> -->
-  <Header v-if="route.path != '/login' && route.path != '/register'"></Header>
-  <!-- </KeepAlive> -->
+  <div @focus="cancelFocus" tabindex="0">
+    <!-- <KeepAlive> -->
+    <Header v-if="route.path != '/login' && route.path != '/register'"></Header>
+    <!-- </KeepAlive> -->
 
-  <router-view />
+    <router-view />
+  </div>
 </template>
 
 <style lang="scss">

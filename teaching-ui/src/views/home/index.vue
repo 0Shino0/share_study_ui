@@ -59,6 +59,7 @@ export default defineComponent({
     const postAveList = ref<Array<PostListMember[]>>([]); // 均分数组 方便无限滚动加载
     const postList = ref<PostListMember[]>([]); // 当前展示数组 下滑push
     const filterPostList = ref<PostListMember[]>([]); // 过滤数组 用于搜索
+    const totalPostList = ref<PostListMember[]>([]); // 存储所有数据
 
     // 用户信息
     const searchInfo = ref<string>("");
@@ -110,13 +111,19 @@ export default defineComponent({
 
     // 传递
     function tranSearchInfoEvent(val: any) {
+      console.log(val);
       searchInfo.value = val;
       // var reg = new RegExp("^[0-9]+"+param+"[a-z]+$","g");
 
-      let reg = new RegExp(val);
-      // console.log(reg);
-      filterPostList.value = postList.value.filter((c) =>
-        reg.test(c.resourceInfo)
+      filterPostList.value = totalPostList.value.filter(
+        (data) => {
+          return data.resourceName
+            .toLowerCase()
+            .includes(searchInfo.value.toLowerCase());
+        }
+        // data.resourceName
+        //   .toLowerCase()
+        //   .includes(this.resourceName.toLowerCase())
       );
     }
     // 传递searchInfo
@@ -146,17 +153,24 @@ export default defineComponent({
     // 方法 methods
     // 获取帖子数
     const getPostPageInfo = async (current: number, postPageSize: number) => {
-      const { data } = await getPostPage(current, postPageSize);
+      const result = await getPostPage(current, postPageSize);
+      if (!result) return;
+      const data = result.data;
+      // 获取所有数据
+      totalPostList.value = data.records;
       // 原数组
       postLength.value = data.total;
       // this.postAveList = this.aveArr(data.records.reverse(), this.pageSize);
       postAveList.value = aveArr(data.records, pageSize.value);
       postList.value = postAveList.value[0];
 
+      // 过滤数据
+      filterPostList.value = totalPostList.value;
+
       if (tokenData.value != null) {
         userInfo.value = tokenData.value;
       }
-      console.log(postAveList.value[count.value]);
+      // console.log(postAveList.value[count.value]);
 
       skeletonLoading.value = false;
     };
@@ -184,6 +198,18 @@ export default defineComponent({
           length = postAveList.value[count.value].length;
           for (let i = 0; i < length; i++) {
             postList.value.push(postAveList.value[count.value][i]);
+
+            // 过滤数据
+            filterPostList.value = totalPostList.value.filter(
+              (data) => {
+                return data.resourceName
+                  .toLowerCase()
+                  .includes(searchInfo.value.toLowerCase());
+              }
+              // data.resourceName
+              //   .toLowerCase()
+              //   .includes(this.resourceName.toLowerCase())
+            );
           }
           count.value++;
           loading.value = false;
@@ -246,6 +272,10 @@ export default defineComponent({
       return loading.value || noMore.value;
     });
 
+    const showTotalPost = computed(() => {
+      return searchInfo.value === "" ? postList.value : filterPostList.value;
+    });
+
     // 监听 watch
 
     return {
@@ -273,6 +303,7 @@ export default defineComponent({
       // 计算属性
       noMore,
       disabled,
+      showTotalPost,
     };
   },
 });
@@ -351,9 +382,10 @@ export default defineComponent({
           v-if="userInfo && userInfo.isLogin && postLength != 0"
           class="post-container infinite-list"
         >
+          <!-- v-for="item in postList" -->
           <router-link
             class="infinite-list-item"
-            v-for="item in postList"
+            v-for="item in showTotalPost"
             :key="item.resourceId"
             :to="
               '/postDetail/' +
