@@ -53,7 +53,7 @@ const routes = [
     path: "/intro",
     name: "intro",
     component: () => import('@/views/intro'),
-    meta: { title: '关于自己'},
+    meta: { title: '项目介绍'},
   },
   // 测试
   {

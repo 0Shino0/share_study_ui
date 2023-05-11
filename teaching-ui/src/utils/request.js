@@ -85,11 +85,11 @@ service.interceptors.response.use(
           Vue.prototype.$bus.$emit('noLogin', 'noLogin')
           removeToken('adminLoginstate')
         }else if (window.location.href.split('#')[1] !== '/intro') {
-                      // 跳转至登录页
-          // router.push(`/login`);
-          
-          // 跳转至介绍页面
-          router.push(`/intro`);
+            // 跳转至登录页
+            // router.push(`/login`);
+            
+            // 跳转至介绍页面
+            router.push(`/intro`);
           }
       }else if (res.code === 'A0410') {
         // console.error('请求必填参数为空!!!');

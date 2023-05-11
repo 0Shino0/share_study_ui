@@ -5,6 +5,9 @@
 yarn install
 ```
 
+## Wraing
+建议node版本 14.20.1
+
 ### Compiles and hot-reloads for development
 ```
 yarn serve
@@ -15,6 +18,7 @@ yarn serve
 yarn build
 ```
 
+
 ### Lints and fixes files
 ```
 yarn lint
@@ -22,3 +26,6 @@ yarn lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+

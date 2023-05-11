@@ -136,7 +136,6 @@ const actions = {
           
           // 跳转至介绍页面
           router.push(`/intro`);
-
         }
         // resetRouter()
         commit('RESET_STATE')

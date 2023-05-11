@@ -428,7 +428,7 @@ export default {
             .then((response) => {
               this.$message({
                 type: "info",
-                message: "注册成功",
+                message: "注册成功，后台正在审核，通过后即可登录也加上",
               });
 
               this.resetRegister();

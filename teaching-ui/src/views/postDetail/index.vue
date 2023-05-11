@@ -603,6 +603,7 @@ export default {
         this.fileIsVideo = this.vidioType.includes(suffix);
         // return str.includes(suffix);
       }
+
       if (!this.fileIsVideo) {
         // console.log("fileIsDoc=>", this.docType.includes(suffix));
         this.fileIsDoc = this.docType.includes(suffix);

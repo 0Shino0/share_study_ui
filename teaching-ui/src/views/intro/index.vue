@@ -1,7 +1,8 @@
 <template>
   <div class="introduce-container">
     <div class="introduce-text-container">
-      <div class="title">基于区块链的教学资源共享平台</div>
+      <!-- <div class="title">基于区块链的教学资源共享平台</div> -->
+      <div class="title">基于联盟链的高校课程资源共享平台</div>
       <div class="intro">
         利用区块链技术搭建课程资源共享平台，通过“共享账本”可以实现方便、快捷、灵活、低成本的共享多种数据格式的课程资源，打造“轻共享”、多边交流的新模式，以利于个性化的课程资源建设
       </div>
@@ -519,8 +520,10 @@ export default {
   .intro-tologin {
     cursor: pointer;
     margin: 0 auto;
+    margin-top: 136px;
     margin-bottom: 68px;
-    font-size: 16px;
+    // font-size: 16px;
+    font-size: 24px;
   }
   button {
     --primary-color: #645bff;

@@ -8,7 +8,9 @@
         <span>e</span>
         <span>s</span>
         <span>t</span> -->
-        <img src="../../assets/logo.svg" alt="logo">
+        <!-- <img src="../../assets/logo.svg" alt="logo"> -->
+        <img src="../../assets/svg/logo.svg" alt="logo">
+        <span class="logo-title">基于联盟链的资源共享平台</span>
       </router-link>
 
       <!-- 导航 -->
@@ -484,16 +486,25 @@ export default {
       // padding-right: 20px;
       // logo
       overflow: hidden;
-      width: 150px;
+      width: 200px;
       height: 64px;
       position: relative;
 
       img {
-        width: 160px;
+        width: 165px;
+        // width: 200px;
         position: absolute;
         top: -28px;
         // right: ;
-        left: -5px;
+        left: 18px;
+      }
+
+      .logo-title{
+        // width: 150px;
+        height: 64px;
+        line-height: 64px;
+        font-weight: bold;
+        color: #000;
       }
 
       // span {
