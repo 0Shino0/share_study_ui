@@ -74,21 +74,11 @@ export default {
   data() {
     return {
       collegeMapList: [],
-      
-      
     };
   },
-  created() {
-    
-  },
-  mounted() {
-  },
-  methods: {
-
-
-
-
-  },
+  created() {},
+  mounted() {},
+  methods: {},
 };
 </script>
 
