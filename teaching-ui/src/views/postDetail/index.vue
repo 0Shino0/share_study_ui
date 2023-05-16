@@ -269,7 +269,11 @@ export default defineComponent({
               message: "删除成功",
             });
             // 更新评论
-            getPostCommentPageInfo(id, currentPage.value, pageSize.value);
+            getPostCommentPageInfo(
+              postId.value,
+              currentPage.value,
+              pageSize.value
+            );
           });
         })
         .catch(() => {
@@ -715,7 +719,11 @@ export default defineComponent({
       </div>
       <!-- 帖子信息 -->
       <div class="post-info">
-        <div class="insert-html" ref="insertHtmlRef">
+        <div
+          class="insert-html"
+          style="white-space: pre-line"
+          ref="insertHtmlRef"
+        >
           <!-- {{ postDetail.resourceInfo }} -->
         </div>
 
@@ -1329,6 +1337,7 @@ export default defineComponent({
         .comment-info {
           margin-top: 20px;
           margin-left: 20px;
+          white-space: pre-line; // 遇到/n 或者 <br/>自动换行
 
           span {
             font-size: 12px;
