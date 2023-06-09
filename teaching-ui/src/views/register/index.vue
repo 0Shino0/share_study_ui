@@ -10,6 +10,7 @@ import { register, getCollegeList } from "@/api/login";
 export interface CollegeMember {
   id: string;
   name: string;
+  code: string;
 }
 
 export default defineComponent({
@@ -67,7 +68,8 @@ export default defineComponent({
       belong: [{ required: true, trigger: "blur" }],
     });
     // 高校名 + 高校代码
-    const collegeList = ref<object[]>([]);
+    // const collegeList = ref<object[]>([]);
+    const collegeList = ref<CollegeMember[]>([]);
 
     // 生命周期钩子
     onMounted(() => {
@@ -89,7 +91,7 @@ export default defineComponent({
             .then((response) => {
               $message({
                 type: "info",
-                message: "注册成功",
+                message: "注册成功，后台正在审核，通过后即可登录也加上",
               });
               resetRegister(formEl);
               toLogin();

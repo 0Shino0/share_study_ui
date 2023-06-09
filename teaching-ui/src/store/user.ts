@@ -110,8 +110,9 @@ export const useUserStore = defineStore('user', {
         logout().then(() => {
           removeToken() // 清除token
           // 跳转路由
-          if (window.location.href.split('#')[1] !== '/login') {
-            router.push(`/login`);
+          if (window.location.href.split('#')[1] !== '/intro') {
+            // router.push(`/login`);
+            router.push({ path: "/intro" })
           }
           // resetRouter()
           // commit('RESET_STATE') // 重置state

@@ -5,6 +5,7 @@ import {
   onMounted,
   onBeforeUnmount,
   computed,
+  watch,
   ref,
   inject,
   nextTick,
@@ -13,6 +14,7 @@ import { useRouter, useRoute } from "vue-router";
 
 import $bus from "@libs/eventBus";
 import { removeToken } from "@/utils/auth";
+import { debounce, throttle } from "@/utils"; // 防抖节流
 
 import DefaultAvatar from "@/components/DefaultAvatar/index.vue";
 import { getUserCommentPage, readCommentAll } from "@/api/post";
@@ -42,7 +44,7 @@ export default defineComponent({
     const $message: any = inject("$message");
 
     // 用户信息
-    const userInfo = ref<UserInfoMember>();
+    const userInfo = ref<UserInfoMember | {}>({});
     //   {
     //   account: "",
     //   avatar: "",
@@ -78,20 +80,21 @@ export default defineComponent({
     };
 
     const noLoginEvent = (val: any) => {
-      userInfo.value = {
-        account: "",
-        avatar: "",
-        collegeName: "",
-        createTime: "",
-        email: "",
-        gender: 0,
-        id: "",
-        isLogin: false,
-        messageNumber: 0,
-        name: "",
-        role: 0,
-        score: 0,
-      };
+      // userInfo.value = {
+      //   account: "",
+      //   avatar: "",
+      //   collegeName: "",
+      //   createTime: "",
+      //   email: "",
+      //   gender: 0,
+      //   id: "",
+      //   isLogin: false,
+      //   messageNumber: 0,
+      //   name: "",
+      //   role: 0,
+      //   score: 0,
+      // };
+      userInfo.value = {};
       // console.log(val);
       noLogin();
     };
@@ -111,6 +114,11 @@ export default defineComponent({
     onMounted(() => {
       console.log("mounted");
       initScroll();
+      // debounce(1000, initScroll);
+      // throttle(1000, initScroll, 1);
+      // console.log(window);
+      // window.onscroll = debounce(200, (a: any) => console.log(a), 1);
+      // window.onscroll = throttle(1000, (a: any) => console.log(a), 1);
 
       // 未登录
       $bus.on("noLogin", noLoginEvent);
@@ -194,26 +202,30 @@ export default defineComponent({
 
     // 退出
     function logout() {
-      if (route.path != "/login") {
-        router.push({ path: "/login" });
+      // if (route.path != "/login") {
+      //   router.push({ path: "/login" });
+      // }
+      if (route.path != "/intro") {
+        router.push({ path: "/intro" });
       }
       removeToken(); // 清除token
       // 重置store
       userStore.$reset();
-      userInfo.value = {
-        account: "",
-        avatar: "",
-        collegeName: "",
-        createTime: "",
-        email: "",
-        gender: 0,
-        id: "",
-        isLogin: false,
-        messageNumber: 0,
-        name: "",
-        role: 0,
-        score: 0,
-      };
+      // userInfo.value = {
+      //   account: "",
+      //   avatar: "",
+      //   collegeName: "",
+      //   createTime: "",
+      //   email: "",
+      //   gender: 0,
+      //   id: "",
+      //   isLogin: false,
+      //   messageNumber: 0,
+      //   name: "",
+      //   role: 0,
+      //   score: 0,
+      // };
+      userInfo.value = {};
       // 修改登录状态
       // this.$store.dispatch("user/logout"); // 清除user相关token
       $message({
@@ -225,48 +237,28 @@ export default defineComponent({
     }
     // 未登录情况
     function noLogin() {
-      userInfo.value = {
-        account: "",
-        avatar: "",
-        collegeName: "",
-        createTime: "",
-        email: "",
-        gender: 0,
-        id: "",
-        isLogin: false,
-        messageNumber: 0,
-        name: "",
-        role: 0,
-        score: 0,
-      }; // 修改登录状态
+      // userInfo.value = {
+      //   account: "",
+      //   avatar: "",
+      //   collegeName: "",
+      //   createTime: "",
+      //   email: "",
+      //   gender: 0,
+      //   id: "",
+      //   isLogin: false,
+      //   messageNumber: 0,
+      //   name: "",
+      //   role: 0,
+      //   score: 0,
+      // }; // 修改登录状态
+
+      userInfo.value = {};
+
       // console.log('userInfo=>', userInfo);
       // this.$store.dispatch("user/logout"); // 清除user相关token
       $bus.emit("resetUserInfo", {});
     }
 
-    // 滚动事件相关
-    function initScroll(): void {
-      let initScrollTop: number = getScorllTop();
-      let scrollType: number = 0;
-      window.addEventListener("scroll", () => {
-        // console.log("initScroll");
-        let currentScrollTop = getScorllTop();
-        if (currentScrollTop > initScrollTop) {
-          // 往下滚动
-          scrollType = 1;
-        } else {
-          // 往上滚动
-          scrollType = 0;
-        }
-        console.log(currentScrollTop);
-        initScrollTop = currentScrollTop;
-        if (scrollType == 1 && currentScrollTop > 100) {
-          showHeader.value = false;
-        } else {
-          showHeader.value = true;
-        }
-      });
-    }
     function getScorllTop(): number {
       // 获取滚动条滚动的高度
       let scrollTop =
@@ -275,6 +267,39 @@ export default defineComponent({
         document.body.scrollTop;
 
       return scrollTop;
+    }
+
+    // 滚动事件相关
+    function initScroll(): void {
+      console.log("initScroll");
+      let initScrollTop: number = getScorllTop();
+      let scrollType: number = 0;
+
+      // const scrollMain = debounce((initScrollTop: number, scrollType: number) => {
+      // 节流 闭包
+      const scrollMain = throttle(() => {
+        // console.log("scrollMain");
+        let currentScrollTop = getScorllTop();
+        if (currentScrollTop > initScrollTop) {
+          // 往下滚动
+          scrollType = 1;
+        } else {
+          // 往上滚动
+          scrollType = 0;
+        }
+        // console.log(initScrollTop);
+        // console.log(currentScrollTop);
+        // console.log(scrollType);
+        initScrollTop = currentScrollTop;
+        if (scrollType == 1 && currentScrollTop > 100) {
+          showHeader.value = false;
+        } else {
+          showHeader.value = true;
+        }
+      }, 300);
+
+      // console.log(scrollMain);
+      window.addEventListener("scroll", () => scrollMain());
     }
 
     // 跳转 addPost页面
@@ -312,6 +337,20 @@ export default defineComponent({
       }
     }
 
+    // 防抖
+    const searchInfoDebounce = debounce(
+      (that: any, newVal: string) => $bus.emit("tranSearchInfo", newVal),
+      // () => console.log(1),
+      300
+    );
+
+    // watch
+    watch(searchInfo, (newVal) => {
+      // console.log(2);
+      // console.log(newVal);
+      searchInfoDebounce(this, newVal);
+    });
+
     return {
       // 需要给 `<template />` 用的数据或函数，在这里 `return` 出去
       // 变量
@@ -343,7 +382,11 @@ export default defineComponent({
 
 <template>
   <!-- v-show="showHeader" -->
-  <div class="header" :class="showHeader ? 'header-up' : 'header-down'">
+  <div
+    class="header"
+    :class="showHeader ? 'header-up' : 'header-down'"
+    v-if="userInfo && Object.keys(userInfo).length != 0"
+  >
     <div class="header-content">
       <!-- logo -->
       <router-link class="logo" to="/">
@@ -352,12 +395,14 @@ export default defineComponent({
         <span>s</span>
         <span>t</span> -->
         <img src="../assets/logo.svg" alt="logo" />
+        <span class="logo-title">基于联盟链的资源共享平台</span>
       </router-link>
 
       <!-- 导航 -->
       <div class="menu-panel">
         <router-link class="nav-item" to="/">首页</router-link>
         <router-link class="nav-item" :to="aboutPath">关于</router-link>
+        <router-link class="nav-item" to="/intro">项目介绍</router-link>
         <!-- <router-link class="nav-item" to="/">相关高校</router-link>
         <router-link class="nav-item" to="/">教学资料</router-link> -->
       </div>
@@ -635,7 +680,8 @@ export default defineComponent({
       // padding-right: 20px;
       // logo
       overflow: hidden;
-      width: 150px;
+      // width: 150px;
+      width: 200px;
       height: 64px;
       position: relative;
 
@@ -644,7 +690,16 @@ export default defineComponent({
         position: absolute;
         top: -28px;
         // right: ;
-        left: -5px;
+        // left: -5px;
+        left: 18px;
+      }
+
+      .logo-title {
+        // width: 150px;
+        height: 64px;
+        line-height: 64px;
+        font-weight: bold;
+        color: #000;
       }
 
       // span {

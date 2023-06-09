@@ -9,7 +9,7 @@ import { getToken, removeToken } from "@/utils/auth";
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API, // Vite环境变量
-  timeout: 5000
+  timeout: 30 * 1000 // 通用设置 30 秒
 });
 
 // console.log(import.meta.env)
@@ -17,6 +17,8 @@ const axiosInstance: AxiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // 在发送请求之前做些什么
+    console.log(1);
+
     return config;
   }, (error: any) => {
     // 处理请求错误
@@ -27,6 +29,8 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data;
+    console.log(res);
+
     // useUserStore
     // const userStore = useUserStore(); // store
     // const router = useRouter(); // router
@@ -49,10 +53,12 @@ axiosInstance.interceptors.response.use(
           removeToken()
         }
 
-        if (window.location.href.split('#')[1] !== '/login') {
-          console.log(1);
+        // if (window.location.href.split('#')[1] !== '/login') {
+        if (window.location.href.split('#')[1] !== '/intro') {
+          // console.log(1);
           console.log(router);
-          router.push({ path: '/login' });
+          // router.push({ path: '/login' });
+          router.push({ path: "/intro" })
           // window.location.href = `/login`
         }
       } else if (res.code === 'A0410') {

@@ -32,10 +32,11 @@ export function ossFileUpload(data: object) {
     url: `/file/oss_file_upload`,
     method: 'post',
     data,
+    timeout: 3 * 60 * 1000, // 上传设置180秒
     headers: {
       'Conten-Type': "multipart/form-data"
       // 'Content-Type': 'application/x-www-form-urlencoded'
-    }
+    },
   })
 }
 

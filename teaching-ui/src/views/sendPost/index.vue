@@ -198,7 +198,8 @@ export default defineComponent({
       const token = getTokenData();
 
       if (token === null || token === undefined) {
-        router.push(`/login`);
+        // router.push(`/login`);
+        router.push(`/intro`);
       }
     };
     // 获取路由中的参数
@@ -272,7 +273,7 @@ export default defineComponent({
 
                 addPost(form.value)
                   .then((res) => {
-                    $message.success("发布成功,正在跳转首页");
+                    $message.success("发表成功，审核后正式发布，正在跳转首页");
                     submitLoading.value = false;
                     resetAddPost(formRef.value);
                     router.push({ path: "/" });

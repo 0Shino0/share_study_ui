@@ -1,6 +1,6 @@
 <script lang="ts">
 // 这是一个基于 TypeScript 的 Vue 组件
-import { defineComponent, onMounted, ref, computed, inject } from "vue";
+import { defineComponent, onMounted, ref, watch, computed, inject } from "vue";
 import DefaultAvatar from "@/components/DefaultAvatar/index.vue";
 
 import $bus from "@/libs/eventBus";
@@ -368,6 +368,17 @@ export default defineComponent({
     });
 
     // 监听 watch
+    // watch(question, async (newQuestion, oldQuestion) => {
+    //   if (newQuestion.indexOf("?") > -1) {
+    //     answer.value = "Thinking...";
+    //     try {
+    //       const res = await fetch("https://yesno.wtf/api");
+    //       answer.value = (await res.json()).answer;
+    //     } catch (error) {
+    //       answer.value = "Error! Could not reach the API. " + error;
+    //     }
+    //   }
+    // });
 
     return {
       // 需要给 `<template />` 用的数据或函数，在这里 `return` 出去
@@ -484,7 +495,7 @@ export default defineComponent({
         <el-tabs v-model="activeName" @tab-click="handleClick">
           <el-tab-pane label="我的帖子" name="mypost">
             <!-- 我的帖子 -->
-            <div class="post-container">
+            <div class="post-container" v-if="postList.length != 0">
               <div
                 class="post-item"
                 v-for="(postItem, index) in postList"
@@ -550,8 +561,13 @@ export default defineComponent({
                 <h2>无</h2>
               </div> -->
             </div>
+            <div class="nocomment-container" v-else style="height: 300px">
+              <el-empty class="default" description="暂时还没有帖子哦~" />
+              <!-- <h3 class="default">暂时还没有评论~</h3> -->
+            </div>
           </el-tab-pane>
-          <el-tab-pane label="收到评论" name="comment">
+          <!-- <el-tab-pane label="收到评论" name="comment"> -->
+          <el-tab-pane label="收到消息" name="comment">
             <!-- 我的评论 -->
             <!-- 评论分页 -->
             <div class="comment-container">

@@ -15,7 +15,7 @@ export default defineComponent({
   setup(props, context) {
     // 在这里声明数据，或者编写函数并在这里执行它
     // 在使用 setup 的情况下，请牢记一点：不能再用 this 来获取 Vue 实例
-    console.log(props);
+    // console.log(props);
     // video标签
     const videoRef = ref<HTMLElement | null>(null);
     // video 对象

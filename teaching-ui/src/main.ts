@@ -13,6 +13,10 @@ import 'element-plus/es/components/message/style/css'
 // 单独引入ElMessageBox
 import 'element-plus/es/components/message-box/style/css'
 
+// lottiefiles
+import Vue3Lottie from 'vue3-lottie'
+import 'vue3-lottie/dist/style.css'
+
 
 import '@/assets/icon/iconfont.css' // 图标字体相关
 import * as ElementPlusIconsVue from '@element-plus/icons-vue' // 图标
@@ -41,6 +45,7 @@ app.provide('$message', ElMessage) // element-plus消息组件
 app.use(router)
 app.use(createPinia()) // 启用 Pinia
 app.use(ElementPlus)
+app.use(Vue3Lottie, { name: "Vue3Lottie" })
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) { // 注册所有图标
   app.component(key, component)
 }
