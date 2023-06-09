@@ -60,7 +60,7 @@ export default defineComponent({
       emojis.value = emojiList.map((emoji: string) => {
         return { text: emoji };
       });
-      console.log(emojis.value);
+      // console.log(emojis.value);
     });
 
     // 方法 methods

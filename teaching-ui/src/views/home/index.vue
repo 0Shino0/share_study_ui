@@ -6,13 +6,14 @@ import {
   onBeforeUnmount,
   ref,
   computed,
-  nextTick,
+  watch,
 } from "vue";
-import { useRoute } from "vue-router";
+// import { useRoute } from "vue-router";
 // import { Emitter } from "mitt";
 import $bus from "@libs/eventBus";
 
 import DefaultAvatar from "@/components/DefaultAvatar/index.vue";
+import Tags from "./components/Tags.vue";
 import { getPostPage } from "@/api/post";
 import { UserInfoMember } from "@/store/user";
 import { getTokenData } from "@/utils/index";
@@ -36,12 +37,13 @@ export interface PostListMember {
 export default defineComponent({
   components: {
     DefaultAvatar,
+    Tags,
   },
   setup(props, context) {
     // 在这里声明数据，或者编写函数并在这里执行它
     // 在使用 setup 的情况下，请牢记一点：不能再用 this 来获取 Vue 实例
     // 全局属性
-    const route = useRoute();
+    // const route = useRoute();
 
     // console.log("$bus=>", $bus);
     // dom
@@ -60,9 +62,8 @@ export default defineComponent({
     const postList = ref<PostListMember[]>([]); // 当前展示数组 下滑push
     const filterPostList = ref<PostListMember[]>([]); // 过滤数组 用于搜索
     const totalPostList = ref<PostListMember[]>([]); // 存储所有数据
-
+    const searchInfo = ref<string>(""); // 搜索信息
     // 用户信息
-    const searchInfo = ref<string>("");
     const userInfo = ref<UserInfoMember>({
       account: "",
       avatar: "",
@@ -77,14 +78,14 @@ export default defineComponent({
       role: 0,
       score: 0,
     });
-    const tokenData = ref<UserInfoMember | null>(null);
-
+    const tokenData = ref<UserInfoMember | null>(null); // token数据
     // 更新信息
-    const activeName = ref<string>("4"); // 当前选中
+    const activeName = ref<string>("6"); // 当前选中
     const upgrateInfo = ref<object[]>([]);
+    // 子组件传递数据
+    const tagNameChild = ref<string>("");
 
     // 事件
-
     function resetUserInfoEvent(): void {
       // this.userInfo = this.getTokenData();
       userInfo.value = {
@@ -151,18 +152,40 @@ export default defineComponent({
     });
 
     // 方法 methods
+    // 获取子组件传递信息
+    const getTagNameChild = (collegeName: string) => {
+      tagNameChild.value = collegeName;
+      // console.log(tagNameChild.value);
+    };
     // 获取帖子数
-    const getPostPageInfo = async (current: number, postPageSize: number) => {
+    const getPostPageInfo = async (
+      current: number,
+      postPageSize: number,
+      collegeName: string = "哈尔滨商业大学"
+    ) => {
+      // console.log(1);
+
+      skeletonLoading.value = true;
       const result = await getPostPage(current, postPageSize);
       if (!result) return;
       const data = result.data;
       // 获取所有数据
-      totalPostList.value = data.records;
+      // totalPostList.value = data.records;
+      if (collegeName === "综合") {
+        totalPostList.value = data.records;
+      } else {
+        // console.log(collegeName);
+        totalPostList.value = data.records.filter((data: any) => {
+          // console.log(data);
+          return data.collegeName.toLowerCase().includes(collegeName);
+        });
+      }
       // 原数组
       postLength.value = data.total;
       // this.postAveList = this.aveArr(data.records.reverse(), this.pageSize);
-      postAveList.value = aveArr(data.records, pageSize.value);
-      postList.value = postAveList.value[0];
+      postAveList.value = aveArr(totalPostList.value, pageSize.value);
+      postList.value =
+        postAveList.value[0] === undefined ? [] : postAveList.value[0];
 
       // 过滤数据
       filterPostList.value = totalPostList.value;
@@ -180,21 +203,32 @@ export default defineComponent({
       data: PostListMember[],
       num: number
     ): Array<PostListMember[]> => {
+      // console.log(Object.keys(data).length);
+      if (Object.keys(data).length === 0) return [];
+      // console.log(Object.keys(data).length);
+
       let result: Array<PostListMember[]> = [];
       for (let i = 0, len = data.length; i < len; i += num) {
         result.push(data.slice(i, i + num));
+        // console.log(data.slice(i, i + num));
       }
-      console.log("result=>", result);
+      // console.log("result=>", result);
       return result;
     };
 
     // 无限滚动加载方法
-    const load = async () => {
+    const load = () => {
+      if (postList.value.length < pageSize.value) {
+        // console.log(1);
+        loading.value = false;
+        return false;
+      }
       loading.value = true;
       setTimeout(() => {
         // this.count += 4;
         try {
           let length = 0;
+          // console.log(postAveList.value[count.value]);
           length = postAveList.value[count.value].length;
           for (let i = 0; i < length; i++) {
             postList.value.push(postAveList.value[count.value][i]);
@@ -263,9 +297,11 @@ export default defineComponent({
 
     // 计算方法 computed
     const noMore = computed(() => {
-      // console.log(this.postLength);
-      // console.log(this.postList.length);
-      return postList.value.length >= postLength.value;
+      // console.log(postList.value);
+      if (postList.value === undefined) return true;
+
+      // return postList.value.length >= postLength.value;
+      return postList.value.length >= totalPostList.value.length;
     });
 
     const disabled = computed(() => {
@@ -277,6 +313,11 @@ export default defineComponent({
     });
 
     // 监听 watch
+    watch(tagNameChild, (newVal) => {
+      // console.log(newVal);
+      getPostPageInfo(1, 100, newVal);
+      count.value = 1; // 置一
+    });
 
     return {
       // 需要给 `<template />` 用的数据或函数，在这里 `return` 出去
@@ -294,11 +335,14 @@ export default defineComponent({
       searchInfo,
       userInfo,
       activeName,
+      tagNameChild, // 传递高校名
+      totalPostList,
 
       // 方法
       getPostPageInfo,
       aveArr,
       load,
+      getTagNameChild,
 
       // 计算属性
       noMore,
@@ -319,11 +363,16 @@ export default defineComponent({
     infinite-scroll-immediate="false"
     infinite-scroll-distance="1"
   >
-    <!-- 骨架屏 -->
-    <el-skeleton animated :loading="skeletonLoading">
-      <template #template>
-        <div class="main-container">
-          <div class="main-left">
+    <div class="main-container">
+      <Tags class="main-tags" @getTagNameChild="getTagNameChild"></Tags>
+      <!-- 骨架屏 -->
+      <el-skeleton
+        animated
+        :loading="skeletonLoading"
+        style="max-width: 700px; display: flex"
+      >
+        <template #template>
+          <div class="main-left" style="width: 700px">
             <el-row class="post-container">
               <el-card
                 class="post-card"
@@ -366,20 +415,18 @@ export default defineComponent({
               </el-card>
             </el-row>
           </div>
-          <div class="main-right">
-            <el-row>
-              <el-col> </el-col>
+          <!-- <div class="main-right" style="width: 237px; height: 237px">
+            <el-row :gutter="20">
+              <el-col :span="2"></el-col>
             </el-row>
-          </div>
-        </div>
-      </template>
-    </el-skeleton>
-
-    <div class="main-container">
-      <div class="main-left">
+          </div> -->
+        </template>
+      </el-skeleton>
+      <!-- 帖子相关 -->
+      <div class="main-left" v-show="!skeletonLoading">
         <!-- 无限滚动数据 -->
         <div
-          v-if="userInfo && userInfo.isLogin && postLength != 0"
+          v-if="userInfo && userInfo.isLogin && postList.length != 0"
           class="post-container infinite-list"
         >
           <!-- v-for="item in postList" -->
@@ -431,8 +478,9 @@ export default defineComponent({
           <p class="post-card-loading" v-if="loading">加载中...</p>
           <!-- <p class="post-card-loading" v-if="noMore">没有更多了</p> -->
         </div>
+        <el-empty description="暂时还没有相关帖子哦~" v-else />
       </div>
-
+      <!-- 用户信息相关 -->
       <div class="main-right">
         <!-- welcome-svg -->
         <!-- logo -->
@@ -488,6 +536,13 @@ export default defineComponent({
           <div class="cart-container">
             <div class="upgrate-card-title">更新公告</div>
             <el-collapse v-model="activeName" accordion>
+              <el-collapse-item title="2023年5月17日" name="6">
+                <div>- 添加高校分类管理模块</div>
+              </el-collapse-item>
+              <el-collapse-item title="2023年4月13日" name="5">
+                <div>- 添加了发帖审核功能，三审三校</div>
+                <div>- 添加空处理模块，优化骨架屏</div>
+              </el-collapse-item>
               <el-collapse-item title="2023年4月2日" name="4">
                 <div>- 界面美化：在登录注册以及首页加入一些插图，美化界面</div>
                 <div>
@@ -695,6 +750,12 @@ export default defineComponent({
     justify-content: center;
     padding-top: 70px;
     margin: 0 auto;
+
+    .main-tags {
+      margin: 0 0;
+      // width: 120px;
+      height: 500px;
+    }
 
     // 左侧帖子
     .main-left {

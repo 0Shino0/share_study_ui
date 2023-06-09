@@ -177,7 +177,7 @@ export default defineComponent({
 
       const data = result.data;
       postDetail.value = data;
-      console.log(postDetail.value);
+      // console.log(postDetail.value);
       // 获取 要回复的人
       sendId.value = data.userId;
       sendName.value = data.userName;
@@ -189,11 +189,11 @@ export default defineComponent({
           .split(".")
           .reverse()[0]
           .toLowerCase();
-        console.log(fileSuffix.value);
+        // console.log(fileSuffix.value);
         isFileType(fileSuffix.value);
       }
       // 渲染信息
-      console.log(insertHtmlRef.value);
+      // console.log(insertHtmlRef.value);
       insertHtmlRef.value.innerHTML += postDetail.value.resourceInfo;
       skeletonLoading.value = false;
     };
@@ -228,8 +228,8 @@ export default defineComponent({
     const getParams = () => {
       postId.value = route.params.id as string;
       collectStatus.value = route.query.collectStatus as LocationQueryValue;
-      console.log(collectStatus.value);
-      // console.log(this.postId);
+      // console.log(collectStatus.value);
+      // // console.log(this.postId);
     };
     // 聚焦输入框
     const inputFocus = () => {
@@ -300,7 +300,7 @@ export default defineComponent({
           if (fileList.value[0]) {
             let FormDatas = new window.FormData();
             FormDatas.append("file", fileList.value[0]);
-            console.log("FormDatas=>", FormDatas);
+            // console.log("FormDatas=>", FormDatas);
             const { data } = await ossFileUpload(FormDatas);
             fileUrl.value = data;
             form.value.url = data; // form的url
@@ -323,7 +323,7 @@ export default defineComponent({
               );
             })
             .catch((error) => {
-              console.log(error);
+              // console.log(error);
               $message("你不能回复自己！！！");
               // 上传成功，但发布失败情况
               if (fileUrl.value) {
@@ -352,10 +352,10 @@ export default defineComponent({
     };
     /* 评论资料上传相关方法 */
     const handleRemove = (file: any, fileList: any) => {
-      console.log(file, fileList);
+      // console.log(file, fileList);
     };
     const handlePreview = (file: any) => {
-      console.log(file);
+      // console.log(file);
     };
     const handleExceed = (files: any, fileList: any) => {
       $message.warning(
@@ -405,7 +405,7 @@ export default defineComponent({
     };
 
     const addEmojiEvent = (item: any) => {
-      console.log(item.text);
+      // console.log(item.text);
       form.value.content += item.text;
     };
 

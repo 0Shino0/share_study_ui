@@ -288,7 +288,7 @@ export default defineComponent({
           scrollType = 0;
         }
         // console.log(initScrollTop);
-        console.log(currentScrollTop);
+        // console.log(currentScrollTop);
         // console.log(scrollType);
         initScrollTop = currentScrollTop;
         if (scrollType == 1 && currentScrollTop > 100) {

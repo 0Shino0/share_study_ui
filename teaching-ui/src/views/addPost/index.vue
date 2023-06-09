@@ -242,7 +242,7 @@ export default defineComponent({
                   });
               })
               .catch((error) => {
-                // console.log(error);
+                console.log(error);
                 $message.info("附件上传失败");
                 submitLoading.value = false; //
               });
@@ -253,7 +253,8 @@ export default defineComponent({
 
             addPost(form.value)
               .then((res) => {
-                $message.success("发布成功,正在跳转首页");
+                // $message.success("发布成功,正在跳转首页");
+                $message.success("发表成功，审核后正式发布，正在跳转首页");
                 submitLoading.value = false;
                 resetAddPost(formRef.value);
                 router.push({ path: "/" });
@@ -515,6 +516,7 @@ export default defineComponent({
       :model="form"
       :rules="formRules"
       label-width="40px"
+      onsubmit="return false;"
     >
       <el-form-item class="add-post-form-item" label="标题">
         <el-input v-model="form.name"></el-input>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Header from "@/layout/Header.vue";
-
 import { useRoute } from "vue-router";
 import $bus from "@/libs/eventBus";
 
@@ -15,6 +14,7 @@ const route = useRoute();
   <div @focus="cancelFocus" tabindex="0">
     <!-- <KeepAlive> -->
     <Header v-if="route.path != '/login' && route.path != '/register'"></Header>
+
     <!-- </KeepAlive> -->
 
     <router-view />
