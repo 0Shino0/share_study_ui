@@ -13,7 +13,8 @@ import {
 import $bus from "@libs/eventBus";
 
 import DefaultAvatar from "@/components/DefaultAvatar/index.vue";
-import Tags from "./components/Tags.vue";
+import CollegeTags from "./components/CollegeTags.vue";
+import PostTag from "./components/PostTag.vue";
 import { getPostPage } from "@/api/post";
 import { UserInfoMember } from "@/store/user";
 import { getTokenData } from "@/utils/index";
@@ -37,7 +38,8 @@ export interface PostListMember {
 export default defineComponent({
   components: {
     DefaultAvatar,
-    Tags,
+    CollegeTags,
+    PostTag,
   },
   setup(props, context) {
     // 在这里声明数据，或者编写函数并在这里执行它
@@ -355,6 +357,8 @@ export default defineComponent({
 
 <template>
   <!-- style="overflow: auto" -->
+  <!-- 顶部标签 -->
+  <PostTag class="top-tag-container"></PostTag>
   <div
     class="main"
     ref="mainRef"
@@ -364,7 +368,11 @@ export default defineComponent({
     infinite-scroll-distance="1"
   >
     <div class="main-container">
-      <Tags class="main-tags" @getTagNameChild="getTagNameChild"></Tags>
+      <!-- 左侧标签 -->
+      <CollegeTags
+        class="main-tags"
+        @getTagNameChild="getTagNameChild"
+      ></CollegeTags>
       <!-- 骨架屏 -->
       <el-skeleton
         animated
@@ -738,6 +746,10 @@ export default defineComponent({
   }
 }
 
+.top-tag-container {
+  margin-top: 60px;
+}
+
 .main {
   // min-height: 730px;
   height: 100%;
@@ -748,7 +760,7 @@ export default defineComponent({
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    padding-top: 70px;
+    // padding-top: 70px;
     margin: 0 auto;
 
     .main-tags {
@@ -760,6 +772,7 @@ export default defineComponent({
     // 左侧帖子
     .main-left {
       width: 700px;
+      overflow-x: hidden;
 
       .post-container {
         max-width: 680px;

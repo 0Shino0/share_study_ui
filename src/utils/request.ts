@@ -17,7 +17,7 @@ const axiosInstance: AxiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // 在发送请求之前做些什么
-    console.log(1);
+    // console.log(1);
 
     return config;
   }, (error: any) => {
@@ -29,7 +29,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data;
-    console.log(res);
+    // console.log(res);
 
     // useUserStore
     // const userStore = useUserStore(); // store

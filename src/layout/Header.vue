@@ -80,20 +80,6 @@ export default defineComponent({
     };
 
     const noLoginEvent = (val: any) => {
-      // userInfo.value = {
-      //   account: "",
-      //   avatar: "",
-      //   collegeName: "",
-      //   createTime: "",
-      //   email: "",
-      //   gender: 0,
-      //   id: "",
-      //   isLogin: false,
-      //   messageNumber: 0,
-      //   name: "",
-      //   role: 0,
-      //   score: 0,
-      // };
       userInfo.value = {};
       // console.log(val);
       noLogin();
@@ -272,14 +258,25 @@ export default defineComponent({
     // 滚动事件相关
     function initScroll(): void {
       console.log("initScroll");
-      let initScrollTop: number = getScorllTop();
+      // 深拷贝
+      // let initScrollTop: number = getScorllTop();
+      let initScrollTop: number = JSON.parse(
+        JSON.stringify(
+          document.documentElement.scrollTop ||
+            window.pageYOffset ||
+            document.body.scrollTop
+        )
+      );
+
       let scrollType: number = 0;
 
       // const scrollMain = debounce((initScrollTop: number, scrollType: number) => {
       // 节流 闭包
       const scrollMain = throttle(() => {
-        // console.log("scrollMain");
         let currentScrollTop = getScorllTop();
+        // console.log("currentScrollTop=>", currentScrollTop);
+        // console.log("initScrollTop=>", initScrollTop);
+
         if (currentScrollTop > initScrollTop) {
           // 往下滚动
           scrollType = 1;
@@ -291,12 +288,19 @@ export default defineComponent({
         // console.log(currentScrollTop);
         // console.log(scrollType);
         initScrollTop = currentScrollTop;
-        if (scrollType == 1 && currentScrollTop > 100) {
-          showHeader.value = false;
-        } else {
+
+        if (scrollType === 0 || currentScrollTop <= 300) {
           showHeader.value = true;
+        } else if (scrollType === 1 && currentScrollTop > 300) {
+          showHeader.value = false;
         }
-      }, 300);
+
+        // if (scrollType === 1 && currentScrollTop > 300) {
+        //   showHeader.value = false;
+        // } else {
+        //   showHeader.value = true;
+        // }
+      }, 50);
 
       // console.log(scrollMain);
       window.addEventListener("scroll", () => scrollMain());
@@ -657,6 +661,8 @@ export default defineComponent({
   width: 100%;
   position: fixed;
   box-shadow: 0 2px 6px 0 #ddd;
+  top: 0;
+  left: 0;
   // background-color: #fff;
   background-color: #f9fbff;
   z-index: 1;
