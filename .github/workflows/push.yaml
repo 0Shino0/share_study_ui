@@ -3,7 +3,7 @@ name: 打包应用并上传腾讯云
 on:
   push:
     branches:
-      - master
+      - v3.0
 
 jobs:
   build:
