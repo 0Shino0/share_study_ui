@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "author": "yyshino <1471386835@qq.com>",
   "scripts": {
     "dev": "vite",
     "build-ts": "vue-tsc && vite build",

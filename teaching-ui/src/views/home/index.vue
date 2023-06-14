@@ -364,7 +364,11 @@ export default defineComponent({
     infinite-scroll-distance="1"
   >
     <div class="main-container">
-      <Tags class="main-tags" @getTagNameChild="getTagNameChild"></Tags>
+      <Tags
+        class="main-tags"
+        @getTagNameChild="getTagNameChild"
+        style="display: none"
+      ></Tags>
       <!-- 骨架屏 -->
       <el-skeleton
         animated

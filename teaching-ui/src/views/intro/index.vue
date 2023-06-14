@@ -45,7 +45,6 @@ export default defineComponent({
       observer: true, //修改swiper自己或子元素时，自动初始化swiper
       observeParents: true, //修改swiper的父元素时，自动初始化swiper
       observeSlideChildren: true,
-
       // effect: "fade",
       // 其他配置...
     });
@@ -207,9 +206,15 @@ export default defineComponent({
 <template>
   <div class="introduce-container">
     <div class="introduce-text-container">
-      <div class="title">基于联盟链的高校课程资源共享平台</div>
+      <!-- <div class="title">基于联盟链的高校课程资源共享平台</div>
       <div class="intro">
         利用区块链技术搭建课程资源共享平台，通过“共享账本”可以实现方便、快捷、灵活、低成本的共享多种数据格式的课程资源，打造“轻共享”、多边交流的新模式，以利于个性化的课程资源建设
+      </div> -->
+      <div class="title">
+        烛光之窗——乡村地区中小学“点对点”式资源共享共建平台
+      </div>
+      <div class="intro">
+        以网站为主要载体，引入区块链的技术确保平台用户各方“点对点”式的安全可靠的交流，致力于提高乡村教育软实力，使得科技反哺教育，推动乡村振兴。
       </div>
       <button
         class="intro-tologin"

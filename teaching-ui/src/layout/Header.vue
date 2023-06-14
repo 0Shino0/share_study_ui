@@ -394,15 +394,19 @@ export default defineComponent({
         <span>e</span>
         <span>s</span>
         <span>t</span> -->
-        <img src="../assets/logo.svg" alt="logo" />
-        <span class="logo-title">基于联盟链的资源共享平台</span>
+        <img src="../assets/logo.png" alt="logo" />
+        <span class="logo-title">烛光之窗</span>
       </router-link>
 
       <!-- 导航 -->
       <div class="menu-panel">
         <router-link class="nav-item" to="/">首页</router-link>
         <router-link class="nav-item" :to="aboutPath">关于</router-link>
-        <router-link class="nav-item" to="/intro">项目介绍</router-link>
+        <router-link class="nav-item" :to="aboutPath">资源共享</router-link>
+        <router-link class="nav-item" :to="aboutPath">科研成功</router-link>
+        <router-link class="nav-item" :to="aboutPath">项目落地</router-link>
+        <router-link class="nav-item" :to="aboutPath">共商共建</router-link>
+        <!-- <router-link class="nav-item" to="/intro">项目介绍</router-link> -->
         <!-- <router-link class="nav-item" to="/">相关高校</router-link>
         <router-link class="nav-item" to="/">教学资料</router-link> -->
       </div>
@@ -633,12 +637,17 @@ export default defineComponent({
     width: 120px !important;
   }
 
-  .header .header-content .logo img {
-    width: 120px !important;
-    position: absolute;
-    top: -10px !important;
-    left: -5px;
-  }
+  // .header .header-content .logo img {
+  //   // width: 120px !important;
+  //   // height: 64px;
+  //   // position: absolute;
+  //   // top: -10px !important;
+  //   // left: -5px;
+  // }
+}
+
+.header .header-content .logo img {
+  height: 64px;
 }
 
 .header-down {
@@ -681,17 +690,18 @@ export default defineComponent({
       // logo
       overflow: hidden;
       // width: 150px;
-      width: 200px;
+      // width: 200px;
       height: 64px;
       position: relative;
 
       img {
-        width: 160px;
+        // width: 160px;
         position: absolute;
-        top: -28px;
-        // right: ;
-        // left: -5px;
-        left: 18px;
+        z-index: -1;
+        // top: -28px;
+        // // right: ;
+        // // left: -5px;
+        // left: 18px;
       }
 
       .logo-title {
@@ -699,7 +709,10 @@ export default defineComponent({
         height: 64px;
         line-height: 64px;
         font-weight: bold;
-        color: #000;
+        color: #007fff;
+        text-shadow: #007fff 1px 0 10px;
+        // color: rgb(255, 0, 0);
+        // color: #000;
       }
 
       // span {
