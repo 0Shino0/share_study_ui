@@ -31,7 +31,7 @@ jobs:
       - name: 打包
         run: npm run build
 
-      # 上传阿里云
+      # 上传腾讯云
       - name: 发布到腾讯云
         uses: easingthemes/ssh-deploy@v2.1.1
         env:
@@ -46,4 +46,5 @@ jobs:
           # 用户
           REMOTE_USER: "root"
           # 目标地址
-          TARGET: "/www/wwwroot"
+          # TARGET: "/www/wwwroot"
+          TARGET: "/www/wwwroot/share-study/font"
