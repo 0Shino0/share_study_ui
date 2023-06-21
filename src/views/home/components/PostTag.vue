@@ -18,12 +18,17 @@ export default defineComponent({
     const collegeList = ref<object[]>([]);
     const testCollegeList = ref<CollegeMember[]>([
       {
-        id: "1",
-        name: "大学计算机程序设计(Python)",
-        code: "11111",
+        id: "1427935141213123341",
+        name: "大学计算机基础",
+        code: "22222",
       },
       {
-        id: "1627965942293053441",
+        id: "1527935942213023441",
+        name: "大学计算机程序设计(Python)",
+        code: "11011",
+      },
+      {
+        id: "162796594229305344133",
         name: "操作系统",
         code: "10240",
       },

@@ -1,7 +1,7 @@
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { chunkSplitPlugin } from 'vite-plugin-chunk-split';
+import { chunkSplitPlugin } from 'vite-plugin-chunk-split'
 
 import path from 'path' // 用于路径
 
