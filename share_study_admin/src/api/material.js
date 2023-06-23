@@ -1,5 +1,5 @@
 /* 教学资料接口 */
-import request from "@/utils/request"
+import request from '@/utils/request'
 
 /** 获取教学资料Excel
  * @param {null}
@@ -8,7 +8,7 @@ import request from "@/utils/request"
 export function getMaterialExcel() {
   return request({
     url: `/resource/download`,
-    method: "get",
+    method: 'get',
     responseType: 'blob'
   })
 }
@@ -20,7 +20,7 @@ export function getMaterialExcel() {
 export function delMaterial(id) {
   return request({
     url: `/resource/delete/${id}`,
-    method: "delete",
+    method: 'delete'
   })
 }
 
@@ -31,7 +31,7 @@ export function delMaterial(id) {
 export function delMaterialBatch(data) {
   return request({
     url: `/resource/deleteBatch`,
-    method: "get",
+    method: 'get',
     data
   })
 }
@@ -43,7 +43,7 @@ export function delMaterialBatch(data) {
 export function getMaterial(id) {
   return request({
     url: `/resource/get/${id}`,
-    method: "get",
+    method: 'get'
   })
 }
 
@@ -54,7 +54,7 @@ export function getMaterial(id) {
 export function updateMaterial(data) {
   return request({
     url: `/resource/update`,
-    method: "put",
+    method: 'put',
     data
   })
 }
@@ -68,6 +68,6 @@ export function getMaterialPageInfo(current, pageSize) {
   return request({
     url: `/resource/page/${current}/${pageSize}`,
     // method: "post",
-    method: "get",
+    method: 'get'
   })
 }

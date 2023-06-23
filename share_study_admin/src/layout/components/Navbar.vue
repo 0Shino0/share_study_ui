@@ -12,12 +12,12 @@
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
           <default-avater
+            v-if="userInfo.avatar === ''"
             width="40px"
             height="40px"
-            :avaterName="userInfo.name.split('')[0]"
-            v-if="userInfo.avatar === ''"
-          ></default-avater>
-          <img :src="userInfo.avatar" class="user-avatar" v-else />
+            :avater-name="userInfo.name.split('')[0]"
+          />
+          <img v-else :src="userInfo.avatar" class="user-avatar">
           <!-- <img
             :src="userInfo.avatar + '?imageView2/1/w/80/h/80'"
             class="user-avatar"
@@ -47,37 +47,37 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import { getToken } from "@/utils/auth";
-import Breadcrumb from "@/components/Breadcrumb";
-import Hamburger from "@/components/Hamburger";
-import DefaultAvater from "@/layout/components/DefaultAvater";
+import { mapGetters } from 'vuex'
+import { getToken } from '@/utils/auth'
+import Breadcrumb from '@/components/Breadcrumb'
+import Hamburger from '@/components/Hamburger'
+import DefaultAvater from '@/layout/components/DefaultAvater'
 
 export default {
   components: {
     Breadcrumb,
     Hamburger,
-    DefaultAvater,
+    DefaultAvater
   },
   computed: {
     // ...mapGetters(["sidebar", "userInfo"]),
-    ...mapGetters(["sidebar"]),
+    ...mapGetters(['sidebar']),
     userInfo: () => {
-      let token = getToken();
-      let data = JSON.parse(token);
-      return data;
-    },
+      const token = getToken()
+      const data = JSON.parse(token)
+      return data
+    }
   },
   methods: {
     toggleSideBar() {
-      this.$store.dispatch("app/toggleSideBar");
+      this.$store.dispatch('app/toggleSideBar')
     },
     async logout() {
-      await this.$store.dispatch("user/logout");
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`);
-    },
-  },
-};
+      await this.$store.dispatch('user/logout')
+      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

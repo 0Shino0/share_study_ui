@@ -8,16 +8,16 @@
 
 <script>
 export default {
-  name: "AppMain",
+  name: 'AppMain',
   computed: {
     cachedViews() {
-      return this.$store.state.tagsView.cachedViews;
+      return this.$store.state.tagsView.cachedViews
     },
     key() {
-      return this.$route.path;
-    },
-  },
-};
+      return this.$route.path
+    }
+  }
+}
 </script>
 
 <style scoped>

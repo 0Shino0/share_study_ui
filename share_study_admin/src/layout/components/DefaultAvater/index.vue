@@ -6,38 +6,38 @@
 
 <script>
 export default {
-  name: "DefaultAvater",
+  name: 'DefaultAvater',
   props: {
     avaterName: {
       // 标识emit
       require: true,
-      type: String,
+      type: String
     },
     width: {
       // 标识emit
       require: true,
-      type: String,
+      type: String
     },
     height: {
       // 标识emit
       require: true,
-      type: String,
-    },
+      type: String
+    }
   },
   data() {
-    return {};
+    return {}
   },
   computed: {
     avaterSize() {
-      return `width:${this.width};height:${this.height}`;
+      return `width:${this.width};height:${this.height}`
     },
     fontSize() {
       // console.log(this.width.split("px")[0]);
-      let styleFont = `fontSize:${this.width.split("px")[0] / 2}px;`;
-      return styleFont;
-    },
-  },
-};
+      const styleFont = `fontSize:${this.width.split('px')[0] / 2}px;`
+      return styleFont
+    }
+  }
+}
 </script>
 
 <style lang="scss">

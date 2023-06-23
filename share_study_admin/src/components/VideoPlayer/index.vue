@@ -6,68 +6,68 @@
     width="600"
     height="400"
   >
-    <source :src="src" />
+    <source :src="src">
   </video>
 </template>
 
 <script>
 export default {
-  props: ["volume", "src"],
+  props: ['volume', 'src'],
   data() {
     return {
       player: null,
-      volumeVideo: this.volume,
-    };
+      volumeVideo: this.volume
+    }
+  },
+  mounted() {
+    const _this = this
+    this.player = this.$video(this.$refs.video, this.options, function() {
+      this.on('volumechange', () => {
+        // 存储音量
+        _this.volumeVideo = this.volume()
+        window.localStorage.volume = this.volume()
+      })
+      this.on('play', () => {
+        this.volume(this.volumeVideo)
+      })
+    })
   },
   methods: {
     // 封装播放器方法
     play() {
-      this.player.src({ src: this.src });
-      this.player.load(this.src);
-      this.player.play(this.volumeVideo);
+      this.player.src({ src: this.src })
+      this.player.load(this.src)
+      this.player.play(this.volumeVideo)
     },
     stop() {
-      this.player.pause();
+      this.player.pause()
     },
     reload() {
-      this.stop();
-      this.player.load({});
-      this.play();
+      this.stop()
+      this.player.load({})
+      this.play()
     },
     forward() {
-      const currentTime = this.player.currentTime();
-      this.player.currentTime(currentTime + 5);
+      const currentTime = this.player.currentTime()
+      this.player.currentTime(currentTime + 5)
     },
     back() {
-      const currentTime = this.player.currentTime();
-      this.player.currentTime(currentTime - 5);
+      const currentTime = this.player.currentTime()
+      this.player.currentTime(currentTime - 5)
     },
     volumeUp() {
-      this.player.volume(this.volumeVideo + 0.1);
+      this.player.volume(this.volumeVideo + 0.1)
     },
     volumeDown() {
-      this.player.volume(this.volumeVideo - 0.1);
+      this.player.volume(this.volumeVideo - 0.1)
     },
     toggleTv(obj) {
-      this.player.src(obj.src);
-      this.player.load(obj.load);
-      this.player.play(this.volumeVideo);
-    },
-  },
-  mounted() {
-    const _this = this;
-    this.player = this.$video(this.$refs.video, this.options, function () {
-      this.on("volumechange", () => {
-        // 存储音量
-        _this.volumeVideo = this.volume();
-        window.localStorage.volume = this.volume();
-      });
-      this.on("play", () => {
-        this.volume(this.volumeVideo);
-      });
-    });
-  },
-};
+      this.player.src(obj.src)
+      this.player.load(obj.load)
+      this.player.play(this.volumeVideo)
+    }
+  }
+}
 </script>
 
 <style>

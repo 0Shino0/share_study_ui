@@ -5,91 +5,91 @@
 <script>
 // import echarts from 'echarts'
 // require("echarts/theme/macarons"); // echarts theme
-import resize from "./mixins/resize";
+import resize from './mixins/resize'
 import {
   getCollegeMap,
   getResourceCollectTop,
   getCollegeScoreTop,
-  getTeacherScoreTop,
-} from "@/api/chart.js";
+  getTeacherScoreTop
+} from '@/api/chart.js'
 
 export default {
   mixins: [resize],
   props: {
     className: {
       type: String,
-      default: "chart",
+      default: 'chart'
     },
     width: {
       type: String,
-      default: "100%",
+      default: '100%'
     },
     height: {
       type: String,
-      default: "300px",
-    },
+      default: '300px'
+    }
   },
   data() {
     return {
       chart: null,
       collegeScoreList: [],
-      collegeNameList: [],
-    };
+      collegeNameList: []
+    }
   },
   mounted() {
-    this.getCollegeScoreTopInfo();
+    this.getCollegeScoreTopInfo()
   },
   beforeDestroy() {
     if (!this.chart) {
-      return;
+      return
     }
-    this.chart.dispose();
-    this.chart = null;
+    this.chart.dispose()
+    this.chart = null
   },
   methods: {
     async getCollegeScoreTopInfo() {
-      const { data } = await getCollegeScoreTop();
+      const { data } = await getCollegeScoreTop()
       this.collegeScoreList = data.map((c) => {
-        return { value: c.score, name: c.name };
-      });
+        return { value: c.score, name: c.name }
+      })
       this.collegeNameList = data.map((c) => {
-        return c.name;
-      });
-      console.log(this.collegeScoreList);
-      this.initChart();
+        return c.name
+      })
+      console.log(this.collegeScoreList)
+      this.initChart()
     },
     initChart() {
-      this.chart = this.$echarts.init(this.$el, "macarons");
+      this.chart = this.$echarts.init(this.$el, 'macarons')
 
       this.chart.setOption({
         title: {
-          text: "高校总贡献比",
+          text: '高校总贡献比',
           right: 10,
-          top: -2,
+          top: -2
         },
         tooltip: {
-          trigger: "item",
-          formatter: "{a} <br/>{b} : {c} ({d}%)",
+          trigger: 'item',
+          formatter: '{a} <br/>{b} : {c} ({d}%)'
         },
         legend: {
-          left: "center",
-          bottom: "10",
-          data: this.collegeNameList,
+          left: 'center',
+          bottom: '10',
+          data: this.collegeNameList
         },
         series: [
           {
-            name: "总贡献",
-            type: "pie",
-            roseType: "radius",
+            name: '总贡献',
+            type: 'pie',
+            roseType: 'radius',
             radius: [15, 95],
-            center: ["50%", "38%"],
+            center: ['50%', '38%'],
             data: this.collegeScoreList,
-            animationEasing: "cubicInOut",
-            animationDuration: 2600,
-          },
-        ],
-      });
-    },
-  },
-};
+            animationEasing: 'cubicInOut',
+            animationDuration: 2600
+          }
+        ]
+      })
+    }
+  }
+}
 </script>

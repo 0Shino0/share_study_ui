@@ -1,6 +1,5 @@
 /* 图表类 接口 */
 
-
 import request from '@/utils/request'
 
 /** 获取高校坐标信息
@@ -10,7 +9,7 @@ import request from '@/utils/request'
 export function getCollegeMap() {
   return request({
     url: `/chart/college_location_number`,
-    method: "get",
+    method: 'get'
   })
 }
 
@@ -21,7 +20,7 @@ export function getCollegeMap() {
 export function getResourceCollectTop() {
   return request({
     url: `/chart/resource_collect`,
-    method: "get",
+    method: 'get'
   })
 }
 
@@ -32,7 +31,7 @@ export function getResourceCollectTop() {
 export function getCollegeScoreTop() {
   return request({
     url: `/chart/college_score`,
-    method: "get",
+    method: 'get'
   })
 }
 
@@ -43,6 +42,6 @@ export function getCollegeScoreTop() {
 export function getTeacherScoreTop() {
   return request({
     url: `/chart/teacher_score`,
-    method: "get",
+    method: 'get'
   })
 }

@@ -9,7 +9,7 @@ import request from '@/utils/request'
 export function getCollegeName(id) {
   return request({
     url: `/college/get/${id}`,
-    method: "get",
+    method: 'get'
   })
 }
 
@@ -23,7 +23,7 @@ export function getCollegePageInfo(current, page) {
   return request({
     url: `/college/page/${current}/${page}`,
     // method: "post",
-    method: "get",
+    method: 'get'
   })
 }
 
@@ -35,8 +35,7 @@ export function getCollegePageInfo(current, page) {
 export function getCollegeList() {
   return request({
     url: `/college/list`,
-    method: "get",
-    data
+    method: 'get'
   })
 }
 
@@ -48,7 +47,7 @@ export function getCollegeList() {
 export function addCollegeName(data) {
   return request({
     url: `/college/add`,
-    method: "post",
+    method: 'post',
     data
   })
 }
@@ -61,7 +60,7 @@ export function addCollegeName(data) {
 export function delCollege(id) {
   return request({
     url: `/college/delete/${id}`,
-    method: "delete",
+    method: 'delete'
   })
 }
 
@@ -73,7 +72,7 @@ export function delCollege(id) {
 export function delCollegeBatch(data) {
   return request({
     url: `/college/deleteBatch`,
-    method: "delete",
+    method: 'delete',
     data
   })
 }
@@ -86,7 +85,7 @@ export function delCollegeBatch(data) {
 export function updateCollege(data) {
   return request({
     url: `/college/update`,
-    method: "put",
+    method: 'put',
     data
   })
 }
@@ -99,7 +98,7 @@ export function updateCollege(data) {
 export function getCollegeExcel() {
   return request({
     url: `/college/download`,
-    method: "get",
+    method: 'get'
   })
 }
 

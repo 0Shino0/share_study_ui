@@ -1,6 +1,5 @@
 /* 待审批接口 */
-import request from "@/utils/request"
-
+import request from '@/utils/request'
 
 /** 待审批资料 删除接口
  * @param {string} id
@@ -9,10 +8,9 @@ import request from "@/utils/request"
 export function delAudit(id) {
   return request({
     url: `/resource_censor/delete/${id}`,
-    method: "delete",
+    method: 'delete'
   })
 }
-
 
 /** 待审批资料 分页查询接口
  * @param {number} current
@@ -22,7 +20,7 @@ export function delAudit(id) {
 export function getAuditPageInfo(current, pageSize) {
   return request({
     url: `/resource_censor/page/${current}/${pageSize}`,
-    method: "get",
+    method: 'get'
   })
 }
 
@@ -33,7 +31,7 @@ export function getAuditPageInfo(current, pageSize) {
 export function updateAuditResource(data) {
   return request({
     url: `/resource_censor/update`,
-    method: "put",
+    method: 'put',
     data
   })
 }
@@ -45,7 +43,7 @@ export function updateAuditResource(data) {
 export function publishAuditResource(id) {
   return request({
     url: `/resource_censor/publish/${id}`,
-    method: "post",
+    method: 'post'
   })
 }
 
@@ -59,7 +57,7 @@ export function publishAuditResource(id) {
 export function getRegisterAuditPageInfo(current, pageSize) {
   return request({
     url: `/teacher_censor/page/${current}/${pageSize}`,
-    method: "get",
+    method: 'get'
   })
 }
 
@@ -70,7 +68,7 @@ export function getRegisterAuditPageInfo(current, pageSize) {
 export function updateRegisterAudit(data) {
   return request({
     url: `/teacher_censor/update`,
-    method: "put",
+    method: 'put',
     data
   })
 }
@@ -82,7 +80,7 @@ export function updateRegisterAudit(data) {
 export function publishRegisterAudit(id) {
   return request({
     url: `/teacher_censor/publish/${id}`,
-    method: "post",
+    method: 'post'
   })
 }
 
@@ -93,7 +91,7 @@ export function publishRegisterAudit(id) {
 export function delRegisterAudit(id) {
   return request({
     url: `/teacher_censor/delete/${id}`,
-    method: "delete",
+    method: 'delete'
   })
 }
 
@@ -104,7 +102,7 @@ export function delRegisterAudit(id) {
 export function deleteBatchRegisterAudit(idList) {
   return request({
     url: `/teacher_censor/deleteBatch/`,
-    method: "delete",
+    method: 'delete',
     idList
   })
 }

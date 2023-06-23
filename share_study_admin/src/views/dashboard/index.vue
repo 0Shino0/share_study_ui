@@ -7,7 +7,7 @@
       class="map-charts"
       style="margin-bottom: 32px; border-radius: 10px; overflow: hidden"
     >
-      <map-chart></map-chart>
+      <map-chart />
     </el-row>
 
     <!-- bar pie 图 -->
@@ -40,46 +40,46 @@
         overflow: hidden;
       "
     >
-      <line-chart></line-chart>
+      <line-chart />
     </el-row>
   </div>
 </template>
 
 <script>
-import MapChart from "./components/MapChart.vue";
-import RaddarChart from "./components/RaddarChart.vue";
-import PieChart from "./components/PieChart.vue";
-import BarChart from "./components/BarChart.vue";
-import BarChartLeft from "./components/BarChartLeft.vue";
-import LineChart from "./components/LineChart.vue";
+import MapChart from './components/MapChart.vue'
+import RaddarChart from './components/RaddarChart.vue'
+import PieChart from './components/PieChart.vue'
+import BarChart from './components/BarChart.vue'
+import BarChartLeft from './components/BarChartLeft.vue'
+import LineChart from './components/LineChart.vue'
 
 import {
   getCollegeMap,
   getResourceCollectTop,
   getCollegeScoreTop,
-  getTeacherScoreTop,
-} from "@/api/chart.js";
+  getTeacherScoreTop
+} from '@/api/chart.js'
 
-const lineChartData = {};
+const lineChartData = {}
 export default {
+  name: 'Dashboard',
   components: {
     MapChart,
     RaddarChart,
     PieChart,
     BarChart,
     BarChartLeft,
-    LineChart,
+    LineChart
   },
-  name: "Dashboard",
   data() {
     return {
-      collegeMapList: [],
-    };
+      collegeMapList: []
+    }
   },
   created() {},
   mounted() {},
-  methods: {},
-};
+  methods: {}
+}
 </script>
 
 <style lang="scss" scoped>

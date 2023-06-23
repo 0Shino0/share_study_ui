@@ -8,18 +8,17 @@
         type="success"
         size="mini"
         @click="handleAdd()"
-        >新增</el-button
-      >
+      >新增</el-button>
       <el-button
         class="export-btn"
         type="success"
         size="mini"
         @click="handleExportExcel()"
-        >导出Excel</el-button
-      >
+      >导出Excel</el-button>
     </div>
     <div class="table-container">
       <el-table
+        v-loading="loading"
         :data="
           tableMaterialData.filter(
             (data) =>
@@ -28,7 +27,6 @@
         "
         stripe
         style="width: 100%"
-        v-loading="loading"
       >
         <el-table-column
           v-for="item in tableMaterialCol"
@@ -36,8 +34,7 @@
           :prop="item.prop"
           :label="item.label"
           :width="tableColumnWidth"
-        >
-        </el-table-column>
+        />
         <el-table-column align="right">
           <template slot="header" slot-scope="scope">
             <el-input
@@ -47,20 +44,20 @@
             />
           </template>
           <template slot-scope="scope">
-            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
-              >编辑</el-button
-            >
+            <el-button
+              size="mini"
+              @click="handleEdit(scope.$index, scope.row)"
+            >编辑</el-button>
             <el-button
               size="mini"
               type="danger"
               @click="handleDelete(scope.$index, scope.row)"
-              >删除</el-button
-            >
+            >删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <!-- 分页 -->
-      <Pagination :total="total" :emitName="$options.name"></Pagination>
+      <Pagination :total="total" :emit-name="$options.name" />
 
       <el-dialog
         title="标题"
@@ -69,14 +66,14 @@
         :top="dialogTop"
         :before-close="dialogCancel"
       >
-        <el-form :model="dialogForm" ref="queryForm" :rules="dialogFormRules">
+        <el-form ref="queryForm" :model="dialogForm" :rules="dialogFormRules">
           <!-- <el-form-item label="资料ID" :label-width="formLabelWidth">
             <el-input v-model="dialogForm.id" autocomplete="off"></el-input>
           </el-form-item> -->
           <el-form-item label="资料状态" :label-width="formLabelWidth">
             <el-select v-model="dialogForm.status" placeholder="请选择">
-              <el-option label="正常" value="正常"></el-option>
-              <el-option label="禁用" value="禁用"></el-option>
+              <el-option label="正常" value="正常" />
+              <el-option label="禁用" value="禁用" />
             </el-select>
           </el-form-item>
           <!-- <el-form-item label="所属老师id" :label-width="formLabelWidth">
@@ -101,11 +98,11 @@ import {
   getMaterial,
   updateMaterial,
   delMaterial,
-  getMaterialExcel,
-} from "@/api/material";
+  getMaterialExcel
+} from '@/api/material'
 
 export default {
-  name: "Material",
+  name: 'Material',
   data() {
     return {
       // 后台数据
@@ -115,29 +112,29 @@ export default {
         //   label: "资料ID",
         // },
         {
-          prop: "name",
-          label: "资料名",
+          prop: 'name',
+          label: '资料名'
         },
         {
-          prop: "score",
-          label: "收藏数",
+          prop: 'score',
+          label: '收藏数'
         },
         {
-          prop: "commentNumber",
-          label: "评论数",
+          prop: 'commentNumber',
+          label: '评论数'
         },
         {
-          prop: "belongName",
-          label: "所属老师",
+          prop: 'belongName',
+          label: '所属老师'
         },
         {
-          prop: "status",
-          label: "资料状态",
+          prop: 'status',
+          label: '资料状态'
         },
         {
-          prop: "createTime",
-          label: "录入时间",
-        },
+          prop: 'createTime',
+          label: '录入时间'
+        }
         // {
         //   prop: "update_time",
         //   label: "修改时间",
@@ -163,200 +160,200 @@ export default {
       ], */
       tableMaterialData: [],
       // 表格相关
-      search: "",
+      search: '',
       dialogShow: false,
       // 表单相关
       dialogForm: {
         id: undefined,
-        status: undefined,
+        status: undefined
       },
       dialogFormRules: {
-        id: [{ required: true, trigger: "blur" }],
-        status: [{ required: true, trigger: "blur" }],
+        id: [{ required: true, trigger: 'blur' }],
+        status: [{ required: true, trigger: 'blur' }]
       },
-      formLabelWidth: "120px",
+      formLabelWidth: '120px',
       // 对话框dialog相关
-      dialogWidth: "600px",
-      dialogTop: "30px",
+      dialogWidth: '600px',
+      dialogTop: '30px',
       isAdd: true, // 标识新增操作 | true表示新增 - false表示编辑
       loading: true,
       // 分页相关
       currentPage: 1,
       pageSize: 10,
-      total: 10,
-    };
+      total: 10
+    }
   },
   mounted() {
     // if (this.tableMaterialData) {
-    this.getMaterialPage(1, 10);
+    this.getMaterialPage(1, 10)
     // }
     this.$bus.$on(`pagination${this.$options.name}`, ({ page, limit }) => {
       // console.log(page, limit);
-      this.currentPage = page;
-      this.pageSize = limit;
-      this.getMaterialPage(page, limit);
-    });
+      this.currentPage = page
+      this.pageSize = limit
+      this.getMaterialPage(page, limit)
+    })
   },
   methods: {
     /* 请求数据 */
     // 管理员分页查询
     async getMaterialPage(current, pageSize) {
-      this.loading = true;
+      this.loading = true
       try {
-        const { data } = await getMaterialPageInfo(current, pageSize);
+        const { data } = await getMaterialPageInfo(current, pageSize)
         // console.log(data.records);
         data.records.forEach((current) => {
-          current.status = current.status === 0 ? "正常" : "禁用";
-        });
-        this.total = data.total;
-        this.tableMaterialData = data.records;
-        this.resetLoading(300);
+          current.status = current.status === 0 ? '正常' : '禁用'
+        })
+        this.total = data.total
+        this.tableMaterialData = data.records
+        this.resetLoading(300)
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
     },
     /* 表格相关 */
     // 编辑操作
     async handleEdit(index, row) {
       // 标识编辑操作
-      this.isAdd = false;
+      this.isAdd = false
       // 展示信息
       // console.log(index, row);
-      const id = row.id;
-      const result = await getMaterial(id);
+      const id = row.id
+      const result = await getMaterial(id)
       // console.log(result.data);
-      result.data.status = result.data.status === 0 ? "正常" : "禁用";
-      this.dialogForm = result.data;
-      this.dialogShow = true;
+      result.data.status = result.data.status === 0 ? '正常' : '禁用'
+      this.dialogForm = result.data
+      this.dialogShow = true
     },
     // 新增操作
     handleAdd() {
       // 标识新增操作
-      this.isAdd = true;
+      this.isAdd = true
       // 显示对话框
-      this.dialogShow = true;
+      this.dialogShow = true
       // 获取数据
       // 调用新增接口
     },
     // 删除操作
     handleDelete(index, row) {
       // 获取id
-      console.log(index, row);
-      const id = row.id;
-      this.$confirm("此操作将删除教学资源, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
+      console.log(index, row)
+      const id = row.id
+      this.$confirm('此操作将删除教学资源, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
         .then(() => {
           // 调用删除接口
           delMaterial(id)
             .then((response) => {
               this.$message({
-                type: "success",
-                message: "删除成功!",
-              });
-              this.getMaterialPage(1, 10);
+                type: 'success',
+                message: '删除成功!'
+              })
+              this.getMaterialPage(1, 10)
             })
             .catch((error) => {
               this.$message({
-                type: "success",
-                message: "删除失败!" + error.message,
-              });
-            });
+                type: 'success',
+                message: '删除失败!' + error.message
+              })
+            })
         })
         .catch(() => {
           this.$message({
-            type: "info",
-            message: "已取消删除",
-          });
-        });
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
     },
     // dialog对话框相关
     // 提交按钮
     dialogSubmit() {
-      this.$refs["queryForm"].validate((valid) => {
+      this.$refs['queryForm'].validate((valid) => {
         if (valid) {
           if (this.dialogForm.id != null) {
             /* 对字符文字转义 */
             // 状态
-            this.dialogForm.status = this.dialogForm.status === "正常" ? 0 : 1;
+            this.dialogForm.status = this.dialogForm.status === '正常' ? 0 : 1
 
             // 编辑操作
             updateMaterial(this.dialogForm).then((response) => {
-              this.dialogShow = false;
+              this.dialogShow = false
               this.$message({
-                type: "info",
-                message: "编辑成功",
-              });
+                type: 'info',
+                message: '编辑成功'
+              })
               // console.log(response);
-              this.getMaterialPage(1, 10);
-              this.reset();
-            });
+              this.getMaterialPage(1, 10)
+              this.reset()
+            })
           } else {
             // 新增操作
             // addCollegeName(this.dialogForm).then((response) => {
             // });
-            this.dialogShow = false;
+            this.dialogShow = false
             this.$message({
-              type: "info",
-              message: "新增成功",
-            });
-            this.getMaterialPage(1, 10);
-            this.reset();
+              type: 'info',
+              message: '新增成功'
+            })
+            this.getMaterialPage(1, 10)
+            this.reset()
           }
         }
-      });
+      })
     },
 
     // 取消按钮
     dialogCancel() {
-      this.dialogShow = false;
-      this.reset();
+      this.dialogShow = false
+      this.reset()
     },
     // 表单重置
     reset() {
       this.dialogForm = {
         id: undefined,
-        status: undefined,
+        status: undefined
         // name: undefined,
         // belong: undefined,
         // score: undefined,
         // role: undefined,
         // create_time: undefined,
         // update_time: undefined,
-      };
-      this.resetForm("queryForm");
+      }
+      this.resetForm('queryForm')
     },
     // 导出excel
     handleExportExcel() {
       // 调用接口
 
       this.$axios({
-        url: "/api/resource/download",
-        method: "get",
-        responseType: "blob",
+        url: '/api/resource/download',
+        method: 'get',
+        responseType: 'blob'
       }).then(
         (response) => {
           const blob = new Blob([response.data], {
-            type: "application/vnd.ms-excel",
-          });
-          const link = document.createElement("a");
-          link.href = window.URL.createObjectURL(blob);
+            type: 'application/vnd.ms-excel'
+          })
+          const link = document.createElement('a')
+          link.href = window.URL.createObjectURL(blob)
           // 这里也可以自己从headers中获取文件名.
-          link.download = "教学资料.xlsx";
-          link.click();
+          link.download = '教学资料.xlsx'
+          link.click()
           // document.body.removeChild(link);
-          this.$message.success("导出成功");
+          this.$message.success('导出成功')
         },
         (error) => {
-          this.$message.error("导出excel出错!");
-          console.log("导出excel出错" + error);
+          this.$message.error('导出excel出错!')
+          console.log('导出excel出错' + error)
         }
-      );
-    },
-  },
-};
+      )
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

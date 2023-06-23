@@ -55,18 +55,16 @@ service.interceptors.response.use(
     const res = response.data
 
     // if the custom code is not 20000, it is judged as an error.
-    if (res.code !== "00000") {
+    if (res.code !== '00000') {
       // if (res.code !== 20000) {
 
       // 未登录
-      if (res.code === "D0112") {
-
-        console.log("未登录");
+      if (res.code === 'D0112') {
+        console.log('未登录')
         // 清除token
         removeToken('adminLoginstate')
         // 未登录跳转至登录页
-        router.push(`/login?redirect=${window.location.hash.replace(/#/, "")}`);
-
+        router.push(`/login?redirect=${window.location.hash.replace(/#/, '')}`)
       } else {
         Message({
           message: res.message || 'Error',
@@ -75,7 +73,7 @@ service.interceptors.response.use(
         })
 
         // 50008:非法令牌;50012:已登录的其他客户端;50014:令牌过期;
-        if (res.code === "50008" || res.code === "50012" || res.code === "50014") {
+        if (res.code === '50008' || res.code === '50012' || res.code === '50014') {
           // to re-login
           MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
             confirmButtonText: 'Re-Login',
@@ -90,9 +88,8 @@ service.interceptors.response.use(
         }
         return Promise.reject(new Error(res.message || 'Error'))
       }
-
     } else {
-      return res;
+      return res
     }
   },
   error => {

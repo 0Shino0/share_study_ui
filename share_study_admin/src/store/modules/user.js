@@ -46,7 +46,7 @@ const actions = {
         }
 
         // token鉴权
-        console.log(data);
+        console.log(data)
         commit('SET_TOKEN', JSON.stringify(data))
         setToken(JSON.stringify(data))
         commit('SET_USERINFO', JSON.stringify(data))
@@ -78,7 +78,6 @@ const actions = {
   //     })
   //   })
   // },
-
 
   // 管理员登出
   logout({ commit, state }) {

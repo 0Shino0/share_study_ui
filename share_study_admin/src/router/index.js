@@ -54,8 +54,6 @@ export const constantRoutes = [
     hidden: true
   },
 
-
-
   {
     path: '/',
     component: Layout,
@@ -115,6 +113,30 @@ export const constantRoutes = [
       }
     ]
   },
+  {
+    path: '/materialTag',
+    component: Layout,
+    children: [
+      {
+        path: 'materialTag',
+        name: 'MaterialTag',
+        component: () => import('@/views/materialTag/index'),
+        meta: { title: '资料标签管理', icon: 'tab' }
+      }
+    ]
+  },
+  // {
+  //   path: '/comment',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'comment',
+  //       name: 'Comment',
+  //       component: () => import('@/views/comment/index'),
+  //       meta: { title: '资料管理', icon: 'form' }
+  //     }
+  //   ]
+  // },
   { // 审核
     path: '/',
     component: Layout,
@@ -140,21 +162,21 @@ export const constantRoutes = [
     ]
   },
 
-  {
-    path: '/example',
-    component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'el-icon-s-help' },
-    children: [
-      {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: '菜单管理', icon: 'tree' }
-      }
-    ]
-  },
+  // {
+  //   path: '/example',
+  //   component: Layout,
+  //   redirect: '/example/table',
+  //   name: 'Example',
+  //   meta: { title: 'Example', icon: 'el-icon-s-help' },
+  //   children: [
+  //     {
+  //       path: 'tree',
+  //       name: 'Tree',
+  //       component: () => import('@/views/tree/index'),
+  //       meta: { title: '菜单管理', icon: 'tree' }
+  //     }
+  //   ]
+  // },
 
   {
     path: '/about',

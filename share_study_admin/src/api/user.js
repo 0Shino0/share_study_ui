@@ -25,7 +25,7 @@ export function login(data) {
 export function logout() {
   return request({
     url: '/admin/logout',
-    method: 'post',
+    method: 'post'
   })
 }
 
@@ -107,7 +107,7 @@ export function getAdminPageInfo(current, pageSize) {
   return request({
     url: `/admin/page/${current}/${pageSize}`,
     // method: 'post',
-    method: 'get',
+    method: 'get'
 
     // params: {
     //   current,
@@ -115,8 +115,6 @@ export function getAdminPageInfo(current, pageSize) {
     // }
   })
 }
-
-
 
 /** 管理员信息Excel导出
  * get
@@ -137,7 +135,7 @@ export function getAdminExcel() {
 export function getTeacherExcel() {
   return request({
     url: `/teacher/download`,
-    method: 'get',
+    method: 'get'
   })
 }
 
@@ -148,7 +146,7 @@ export function getTeacherExcel() {
 export function deleteOneTeacher(id) {
   return request({
     url: `/teacher/delete/${id}`,
-    method: 'delete',
+    method: 'delete'
   })
 }
 
@@ -171,7 +169,7 @@ export function deleteTeacher(data) {
 export function getTeacherInfo(id) {
   return request({
     url: `/teacher/get/${id}`,
-    method: 'get',
+    method: 'get'
   })
 }
 
@@ -188,17 +186,19 @@ export function updateTeacherInfo(data) {
 }
 
 /** 教师分页查询
- * id
- * post
+ * @param {number} current
+ * @param {number} pageSize
+ * @param {object} body
+ *
 */
-export function getTeacherPageInfo(current, pageSize) {
+export function getTeacherPageInfo(current, pageSize, body = {}) {
   return request({
-    url: `/teacher/page/${current}/${pageSize}`,
-    method: 'get',
+    url: `/teacher/page/${current}/${pageSize}?name=${'关'}`,
+    // data: { name: 123 },
+    method: 'get'
     // method: 'post',
   })
 }
-
 
 // 测试
 /* export function login(data) {

@@ -4,108 +4,108 @@
 
 <script>
 // import echarts from "echarts";
-import resize from "./mixins/resize";
+import resize from './mixins/resize'
 
-import { getTeacherScoreTop } from "@/api/chart.js";
-const animationDuration = 6000;
+import { getTeacherScoreTop } from '@/api/chart.js'
+const animationDuration = 6000
 
 export default {
   mixins: [resize],
   props: {
     className: {
       type: String,
-      default: "chart",
+      default: 'chart'
     },
     width: {
       type: String,
-      default: "100%",
+      default: '100%'
     },
     height: {
       type: String,
-      default: "300px",
-    },
+      default: '300px'
+    }
   },
   data() {
     return {
       chart: null,
       teacherScoreList: [], // echart数据格式
-      teacherNameList: [], // 教师姓名
-    };
+      teacherNameList: [] // 教师姓名
+    }
   },
   mounted() {
-    this.getTeacherScoreTopInfo();
+    this.getTeacherScoreTopInfo()
   },
   beforeDestroy() {
     if (!this.chart) {
-      return;
+      return
     }
-    this.chart.dispose();
-    this.chart = null;
+    this.chart.dispose()
+    this.chart = null
   },
   methods: {
     // 获取数据
     async getTeacherScoreTopInfo() {
-      const { data } = await getTeacherScoreTop();
+      const { data } = await getTeacherScoreTop()
 
       this.teacherScoreList = data.map((c) => {
-        return [c.name, c.score];
-      });
+        return [c.name, c.score]
+      })
       this.teacherNameList = data.map((c) => {
-        return c.name;
-      });
-      console.log(this.teacherScoreList);
+        return c.name
+      })
+      console.log(this.teacherScoreList)
       // 初始化
-      this.initChart();
+      this.initChart()
     },
     initChart() {
-      this.chart = this.$echarts.init(this.$el, "macarons");
+      this.chart = this.$echarts.init(this.$el, 'macarons')
 
       this.chart.setOption({
         title: {
-          text: "教师贡献TOP5",
-          right: "10",
-          top: "-2",
+          text: '教师贡献TOP5',
+          right: '10',
+          top: '-2'
         },
         dataset: [
           {
-            dimensions: ["name", "贡献度"],
-            source: this.teacherScoreList,
+            dimensions: ['name', '贡献度'],
+            source: this.teacherScoreList
           },
           {
             transform: {
-              type: "sort",
-              config: { dimension: "贡献度", order: "desc" },
-            },
-          },
+              type: 'sort',
+              config: { dimension: '贡献度', order: 'desc' }
+            }
+          }
         ],
         tooltip: {
-          trigger: "axis",
+          trigger: 'axis',
           axisPointer: {
             // 坐标轴指示器，坐标轴触发有效
-            type: "shadow", // 默认为直线，可选为：'line' | 'shadow'
-          },
+            type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+          }
         },
         grid: {
           top: 25,
-          left: "2%",
-          right: "2%",
-          bottom: "3%",
-          containLabel: true,
+          left: '2%',
+          right: '2%',
+          bottom: '3%',
+          containLabel: true
         },
         xAxis: {
-          type: "category",
+          type: 'category',
           // data: this.teacherNameList,
           // axisTick: {
           //   alignWithLabel: true,
           // },
           axisLabel: {
-            interval: 0,
-          },
+            interval: 0
+          }
         },
 
         yAxis: {
           // type: "category",
-          type: "value",
+          type: 'value'
           // data: ["super", "admin", "user1", "user2", "user3", "user4"],
           // axisTick: {
           //   show: false,
@@ -113,12 +113,12 @@ export default {
         },
 
         series: {
-          type: "bar",
+          type: 'bar',
           // encode: { x: "name", y: "score" },
-          datasetIndex: 1,
-        },
-      });
-    },
-  },
-};
+          datasetIndex: 1
+        }
+      })
+    }
+  }
+}
 </script>
