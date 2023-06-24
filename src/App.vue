@@ -63,9 +63,16 @@ a {
  高宽分别对应横竖滚动条的尺寸*/
 ::-webkit-scrollbar {
   width: 8px;
-  height: 16px;
+  height: 8px;
   background-color: #f5f5f5;
   // display: none;
+}
+
+// <= 991
+@media screen and (max-width: 991px) {
+  ::-webkit-scrollbar {
+    height: 4px;
+  }
 }
 
 /*定义滚动条轨道

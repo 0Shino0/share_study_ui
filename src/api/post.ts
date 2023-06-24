@@ -5,12 +5,13 @@ import request from '@/utils/request'
 /** 用户帖子分页查询
  * @param {number} current
  * @param {number} pageSize
+ * @param {string} name
  * @method post
  * @returns {object}
   */
-export function getPostPage(current: number, pageSize: number) {
+export function getPostPage(current: number, pageSize: number, name = '') {
   return request({
-    url: `/post/page/${current}/${pageSize}`,
+    url: `/post/page/${current}/${pageSize}?name=${name}`,
     method: "get",
   })
 }

@@ -14,6 +14,7 @@ import $bus from "@libs/eventBus";
 
 import DefaultAvatar from "@/components/DefaultAvatar/index.vue";
 import CollegeTags from "./components/CollegeTags.vue";
+import CollegeTagsTop from "./components/CollegeTagsTop.vue";
 import PostTag from "./components/PostTag.vue";
 import { getPostPage } from "@/api/post";
 import { UserInfoMember } from "@/store/user";
@@ -39,6 +40,7 @@ export default defineComponent({
   components: {
     DefaultAvatar,
     CollegeTags,
+    CollegeTagsTop,
     PostTag,
   },
   setup(props, context) {
@@ -113,21 +115,27 @@ export default defineComponent({
     // console.log(this.isLogin);
 
     // 传递
-    function tranSearchInfoEvent(val: any) {
+    async function tranSearchInfoEvent(val: any) {
       console.log(val);
       searchInfo.value = val;
       // var reg = new RegExp("^[0-9]+"+param+"[a-z]+$","g");
 
-      filterPostList.value = totalPostList.value.filter(
-        (data) => {
-          return data.resourceName
-            .toLowerCase()
-            .includes(searchInfo.value.toLowerCase());
-        }
-        // data.resourceName
-        //   .toLowerCase()
-        //   .includes(this.resourceName.toLowerCase())
-      );
+      // 后端模糊查询
+      const result: any = await getPostPage(1, 100, searchInfo.value);
+      filterPostList.value = result.data.records;
+      console.log(result.data.records);
+
+      // 前端过滤
+      // filterPostList.value = totalPostList.value.filter(
+      //   (data) => {
+      //     return data.resourceName
+      //       .toLowerCase()
+      //       .includes(searchInfo.value.toLowerCase());
+      //   }
+      //   // data.resourceName
+      //   //   .toLowerCase()
+      //   //   .includes(this.resourceName.toLowerCase())
+      // );
     }
     // 传递searchInfo
     $bus.on("tranSearchInfo", tranSearchInfoEvent);
@@ -358,7 +366,8 @@ export default defineComponent({
 <template>
   <!-- style="overflow: auto" -->
   <!-- 顶部标签 -->
-  <PostTag class="top-tag-container"></PostTag>
+  <!-- <PostTag class="top-tag-container"></PostTag> -->
+  <CollegeTagsTop class="main-tags" @getTagNameChild="getTagNameChild" ></CollegeTagsTop>
   <div
     class="main"
     ref="mainRef"
@@ -369,10 +378,11 @@ export default defineComponent({
   >
     <div class="main-container">
       <!-- 左侧标签 -->
-      <CollegeTags
+      <!-- <CollegeTags
         class="main-tags"
         @getTagNameChild="getTagNameChild"
-      ></CollegeTags>
+      ></CollegeTags> -->
+
       <!-- 骨架屏 -->
       <el-skeleton
         animated
@@ -671,11 +681,25 @@ export default defineComponent({
 /*1200>=pc>=992 大屏，字体红色，背景黑色*/
 @media screen and (min-width: 992px) and (max-width: 1199px) {
 }
-/*768<=pad<992 中屏，字体黄色，背景红色*/
+
+// <= 991
+@media screen and (max-width: 991px) {
+  // .main{
+  //   margin-top: 70px;
+  // }
+
+  // .main-tags{
+  //   // 左侧标签
+  //   display: none;
+  // }
+}
+
+/*768<=pad<992 中屏*/
 @media screen and (min-width: 768px) and (max-width: 991px) {
   .main {
     // max-height: 730px;
     .main-container {
+
       // max-height: 730px;
 
       // .main-left {
@@ -753,12 +777,13 @@ export default defineComponent({
 .main {
   // min-height: 730px;
   height: 100%;
+  margin-top: 10px;
 
   .main-container {
     // min-height: 730px;
     position: relative;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
     // padding-top: 70px;
     margin: 0 auto;

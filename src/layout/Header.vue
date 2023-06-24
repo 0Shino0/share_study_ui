@@ -342,18 +342,27 @@ export default defineComponent({
     }
 
     // 防抖
-    const searchInfoDebounce = debounce(
-      (that: any, newVal: string) => $bus.emit("tranSearchInfo", newVal),
-      // () => console.log(1),
-      300
-    );
+    // 前端过滤使用它
+    // const searchInfoDebounce = debounce(
+    //   (that: any, newVal: string) => $bus.emit("tranSearchInfo", newVal),
+    //   // () => console.log(1),
+    //   300
+    // );
 
     // watch
     watch(searchInfo, (newVal) => {
       // console.log(2);
       // console.log(newVal);
-      searchInfoDebounce(this, newVal);
+      // searchInfoDebounce(this, newVal);
+      if (newVal === '') { // 清空搜索栏时触发，模糊查询
+        $bus.emit("tranSearchInfo", searchInfo.value);
+      }
     });
+
+    // 调用后端模糊查询 使用它
+    const handleSearch = () => {
+      $bus.emit("tranSearchInfo", searchInfo.value);
+    };
 
     return {
       // 需要给 `<template />` 用的数据或函数，在这里 `return` 出去
@@ -376,6 +385,7 @@ export default defineComponent({
       commentReadAll,
       login,
       register,
+      handleSearch,
 
       // 计算属性
       aboutPath,
@@ -414,8 +424,16 @@ export default defineComponent({
       <!-- 登录注册 用户信息 -->
       <div class="user-info-panel">
         <div class="input-search">
-          <input class="input-text" placeholder="搜索" v-model="searchInfo" />
-          <span class="iconfont icon-fenxiang search-icon"></span>
+          <input
+            class="input-text"
+            placeholder="按Enter搜索"
+            v-model="searchInfo"
+            @keyup.enter.native="handleSearch"
+          />
+          <span
+            class="iconfont icon-fenxiang search-icon"
+            @click="handleSearch()"
+          ></span>
         </div>
         <div class="op-btn">
           <!-- <el-button
@@ -595,6 +613,16 @@ export default defineComponent({
 
   .dropdown-card {
     width: 110px;
+  }
+
+  .header .header-content .user-info-panel .op-btn button {
+    font-size: 8px;
+    width: 55px !important;
+    padding: 4px 8px !important;
+
+    span {
+      font-size: 4px;
+    }
   }
 }
 /* 超小屏，字体黑色，背景蓝色*/

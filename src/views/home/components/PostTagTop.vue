@@ -4,11 +4,8 @@ import { defineComponent, onMounted, ref, nextTick } from "vue";
 import { register, getCollegeList } from "@/api/login";
 import { CollegeMember } from "@/views/register/index.vue";
 
-import PostTagLeft from "./PostTagTop.vue";
-
 export default defineComponent({
   emits: ["getTagNameChild"],
-  components:{PostTagLeft},
   setup(props, context) {
     // 在这里声明数据，或者编写函数并在这里执行它
     // 在使用 setup 的情况下，请牢记一点：不能再用 this 来获取 Vue 实例
@@ -21,34 +18,29 @@ export default defineComponent({
     const collegeList = ref<object[]>([]);
     const testCollegeList = ref<CollegeMember[]>([
       {
-        id: "1",
-        name: "综合",
-        code: "11111",
+        id: "1427935141213123341",
+        name: "大学计算机基础",
+        code: "22222",
       },
       {
-        id: "1627965942293053441",
-        name: "哈尔滨商业大学",
+        id: "1527935942213023441",
+        name: "大学计算机程序设计(Python)",
+        code: "11011",
+      },
+      {
+        id: "162796594229305344133",
+        name: "操作系统",
         code: "10240",
       },
       {
         id: "1640264651585437697",
-        name: "哈尔滨金融学院",
+        name: "习近平新时代中国特色社会主义思想概论",
         code: "10245",
       },
       {
         id: "1640265176313839617",
-        name: "黑龙江工程学院",
+        name: "思想道德与法治",
         code: "13304",
-      },
-      {
-        id: "1640265378022113282",
-        name: "齐齐哈尔大学",
-        code: "10232",
-      },
-      {
-        id: "1640265023729254401",
-        name: "黑河学院",
-        code: "13744",
       },
     ]);
     // 生命周期钩子
@@ -71,17 +63,8 @@ export default defineComponent({
     };
 
     const handleClick = (currentItem: CollegeMember, index: number) => {
-      // 单击函数
-      // console.log(currentItem);
-      // console.log(emits);
-      // emits("getTagNameChild", currentItem);
       context.emit("getTagNameChild", currentItem.name);
       selectRadio.value = currentItem.name;
-      // nextTick(() => {
-      //   console.log(index - 1);
-      //   console.log(radios.value[index - 1]);
-      //   radios.value[index - 1].checked = true;
-      // });
     };
 
     // 计算方法 computed
@@ -102,43 +85,56 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="tags-container">
-    <div class="radio-inputs">
+    <div class="post-tag-top-inputs">
       <label
-        class="radio"
+        class="post-tag-top"
         ref="radios"
         v-for="(collegeItem, index) in testCollegeList"
         :key="collegeItem.code"
       >
         <input
           type="radio"
-          name="radio"
+          name="post-tag-top"
           :value="collegeItem.name"
           v-model="selectRadio"
           @click="handleClick(collegeItem, index)"
         />
-        <span class="name">{{ collegeItem.name }}</span>
+        <span class="post-tag-top-name">{{ collegeItem.name }}</span>
       </label>
     </div>
-  </div>
 </template>
 
 <style lang="scss">
 
-.tags-container{
-  display: flex;
+// <= 991
+@media screen and (max-width: 991px) {
+  .tags-container{
+    .post-tag-top-inputs{
+      justify-content: start;
+    }
+  }
+
+  .post-tag-top-inputs .post-tag-top .post-tag-top-name {
+    font-size: 5px;
+  }
 }
 
-.radio-inputs {
+.post-tag-top-inputs {
   // 补充
   // margin: 0 auto;
   // width: 120px;
-  flex-direction: column;
+  // width: 1000px;
+  // position: fixed;
+  flex-direction: row;
   flex-wrap: nowrap;
-  overflow-x: auto;
+  // margin-bottom: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  justify-content: center;
+  overflow: auto;
 }
 
-.radio-inputs {
+.post-tag-top-inputs {
   position: relative;
   display: flex;
   // flex-wrap: wrap;
@@ -153,20 +149,16 @@ export default defineComponent({
   font-size: 14px;
 }
 
-.radio-inputs .radio {
+.post-tag-top-inputs .post-tag-top {
   // flex: 1 1 auto;
   text-align: center;
 }
 
-.radio{
-  position: relative;
-}
-
-.radio-inputs .radio input {
+.post-tag-top-inputs .post-tag-top input {
   display: none;
 }
 
-.radio-inputs .radio .name {
+.post-tag-top-inputs .post-tag-top .post-tag-top-name {
   display: flex;
   cursor: pointer;
   align-items: center;
@@ -175,50 +167,32 @@ export default defineComponent({
   border-radius: 0.2rem;
   border: none;
   // padding: 0.5rem 0;
-  padding: 10px 17px;
+  padding: 5px 15px;
   // color: rgba(51, 65, 85, 1);
   transition: all 0.15s ease-in-out;
 }
 
-.name {
+.post-tag-top-name {
   // 补充
-  font-size: 18px;
+  font-size: 14px;
   color: #515767;
 }
 
-.radio-inputs .radio input:hover + .name {
+.post-tag-top-inputs .post-tag-top input:hover + .post-tag-top-name {
   // background-color: #fff;
   background-color: #e9ecef;
   color: #409eff;
 }
 
-.radio-inputs .radio input:checked + .name {
+.post-tag-top-inputs .post-tag-top input:checked + .post-tag-top-name {
   // background-color: #fff;
   background-color: #eaf2ff;
   color: #409eff;
   font-weight: 600;
-  
 }
 
-  // 判断radio下是否存在input:checked, 有则添加::after | 相当于选中选中父元素的效果
-  .radio:has(input:checked){
-
-    ::after{
-      content: '';
-      position: absolute;
-      top:50%;
-      transform:translateY(-50%);
-      right: 0;
-      width: 0;
-      height: 0;
-      border-top: 8px solid transparent;
-      border-left: 8px solid transparent;
-      border-right: 8px solid #409eff;
-      border-bottom: 8px solid transparent;
-      
-    }
-    
-  }
-
-  
+// 补充
+.post-tag-top{
+  flex-shrink: 0; // 不收缩
+}
 </style>

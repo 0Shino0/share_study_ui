@@ -4,17 +4,17 @@ import { defineComponent, onMounted, ref, nextTick } from "vue";
 import { register, getCollegeList } from "@/api/login";
 import { CollegeMember } from "@/views/register/index.vue";
 
-import PostTagLeft from "./PostTagTop.vue";
+import PostTagTop from "./PostTagTop.vue";
 
 export default defineComponent({
   emits: ["getTagNameChild"],
-  components:{PostTagLeft},
+  components:{PostTagTop},
   setup(props, context) {
     // 在这里声明数据，或者编写函数并在这里执行它
     // 在使用 setup 的情况下，请牢记一点：不能再用 this 来获取 Vue 实例
 
     // dom
-    const radios = ref<HTMLElement[]>([]);
+    const radiosTop = ref<HTMLElement[]>([]);
     const selectRadio = ref<string>("哈尔滨商业大学");
 
     // 高校名 + 高校代码
@@ -79,8 +79,8 @@ export default defineComponent({
       selectRadio.value = currentItem.name;
       // nextTick(() => {
       //   console.log(index - 1);
-      //   console.log(radios.value[index - 1]);
-      //   radios.value[index - 1].checked = true;
+      //   console.log(radiosTop.value[index - 1]);
+      //   radiosTop.value[index - 1].checked = true;
       // });
     };
 
@@ -92,7 +92,7 @@ export default defineComponent({
       // 需要给 `<template />` 用的数据或函数，在这里 `return` 出去
       collegeList,
       testCollegeList,
-      radios,
+      radiosTop,
       selectRadio,
 
       handleClick,
@@ -103,10 +103,10 @@ export default defineComponent({
 
 <template>
   <div class="tags-container">
-    <div class="radio-inputs">
+    <div class="radios-top-inputs">
       <label
-        class="radio"
-        ref="radios"
+        class="radios-top"
+        ref="radiosTop"
         v-for="(collegeItem, index) in testCollegeList"
         :key="collegeItem.code"
       >
@@ -120,25 +120,46 @@ export default defineComponent({
         <span class="name">{{ collegeItem.name }}</span>
       </label>
     </div>
+    <PostTagTop />
   </div>
 </template>
 
 <style lang="scss">
 
-.tags-container{
-  display: flex;
+// <= 991
+@media screen and (max-width: 991px) {
+  .tags-container{
+    .radios-top-inputs{
+      justify-content: start;
+    }
+  }
+
+  // 字体缩小
+  .tags-container .radios-top-inputs .radios-top .name {
+      // 补充
+      font-size: 14px;
+      // padding: 4px 12px;
+      color: #515767;
+    }
 }
 
-.radio-inputs {
+.tags-container{
+  display: flex;
+  flex-direction: column;
+  margin-top: 60px;
+}
+
+.radios-top-inputs {
   // 补充
   // margin: 0 auto;
   // width: 120px;
-  flex-direction: column;
+  flex-direction: row;
   flex-wrap: nowrap;
   overflow-x: auto;
+  justify-content: center;
 }
 
-.radio-inputs {
+.radios-top-inputs {
   position: relative;
   display: flex;
   // flex-wrap: wrap;
@@ -153,20 +174,22 @@ export default defineComponent({
   font-size: 14px;
 }
 
-.radio-inputs .radio {
+.radios-top-inputs .radios-top {
   // flex: 1 1 auto;
   text-align: center;
 }
 
-.radio{
+.radios-top{
   position: relative;
+  // 下面为补充
+  flex-shrink: 0;
 }
 
-.radio-inputs .radio input {
+.radios-top-inputs .radios-top input {
   display: none;
 }
 
-.radio-inputs .radio .name {
+.radios-top-inputs .radios-top .name {
   display: flex;
   cursor: pointer;
   align-items: center;
@@ -175,7 +198,7 @@ export default defineComponent({
   border-radius: 0.2rem;
   border: none;
   // padding: 0.5rem 0;
-  padding: 10px 17px;
+  padding: 8px 17px;
   // color: rgba(51, 65, 85, 1);
   transition: all 0.15s ease-in-out;
 }
@@ -186,13 +209,13 @@ export default defineComponent({
   color: #515767;
 }
 
-.radio-inputs .radio input:hover + .name {
+.radios-top-inputs .radios-top input:hover + .name {
   // background-color: #fff;
   background-color: #e9ecef;
   color: #409eff;
 }
 
-.radio-inputs .radio input:checked + .name {
+.radios-top-inputs .radios-top input:checked + .name {
   // background-color: #fff;
   background-color: #eaf2ff;
   color: #409eff;
@@ -201,21 +224,22 @@ export default defineComponent({
 }
 
   // 判断radio下是否存在input:checked, 有则添加::after | 相当于选中选中父元素的效果
-  .radio:has(input:checked){
+  .radios-top:has(input:checked){
 
     ::after{
       content: '';
       position: absolute;
-      top:50%;
-      transform:translateY(-50%);
-      right: 0;
+      transform:translateX(-50%);
+      // top:50%;
+      bottom: 0;
+      // right: 50%;
+      left: 50%;
       width: 0;
       height: 0;
       border-top: 8px solid transparent;
       border-left: 8px solid transparent;
-      border-right: 8px solid #409eff;
-      border-bottom: 8px solid transparent;
-      
+      border-right: 8px solid transparent;
+      border-bottom: 8px solid #409eff;
     }
     
   }
