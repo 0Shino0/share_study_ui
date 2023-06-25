@@ -158,7 +158,7 @@ export default defineComponent({
         placeholder="请输入标题"
         v-model="wangEditorForm.postTitle"
       />
-      <el-button type="primary" @click="handleSubmit" v-if="postId === '1'"
+      <el-button class="wangeditor-publish-post-btn" type="primary" @click="handleSubmit" v-if="postId === '1'"
         >发布</el-button
       >
       <el-button
@@ -205,7 +205,7 @@ export default defineComponent({
       font-size: 20px;
       font-weight: bold;
     }
-    .wangeditor-update-post-btn {
+    .wangeditor-update-post-btn,.wangeditor-publish-post-btn {
       flex: 20%;
       height: 56px;
     }

@@ -21,19 +21,11 @@ import { addPost, getPostInfo, updatePost as updatePostInfo } from "@/api/post";
 import Loading from "@/components/Loading/index.vue";
 import WangEditor from "@/components/WangEditor/index.vue";
 
-export interface FormMember {
-  name: string;
-  info: string;
-  belong: string;
-  url: string;
-}
+import { FormMember, UpdateFormMember } from '@/views/addPost/index.vue'
 
-export interface UpdateFormMember {
-  name: string;
-  info: string;
-  id: string;
-  url: string;
-}
+import { getTagList } from "@/api/tag";
+
+import { TagListMember } from '@/views/home/components/CollegeTagsTop.vue'
 
 export default defineComponent({
   components: {
@@ -85,8 +77,10 @@ export default defineComponent({
       info: "",
       belong: "",
       url: "",
+      tags: []
     });
 
+    const tagList = ref<TagListMember[]>([]); // 标签数据
     const formRef = ref<FormInstance>();
 
     const formRules = ref<FormRules>({
@@ -94,6 +88,7 @@ export default defineComponent({
       info: [{ required: true, trigger: "blur" }],
       belong: [{ required: true, trigger: "blur" }],
       url: [{ required: false, trigger: "blur" }],
+      tags: [{ required: false, trigger: "blur" }],
     });
     const updateForm = ref<UpdateFormMember>({
       name: "",
@@ -142,7 +137,7 @@ export default defineComponent({
       resetAddPost(formRef.value);
     };
 
-    const tranHtmlFromEditorEvent = (WangEditorForm) => {
+    const tranHtmlFromEditorEvent = (WangEditorForm:any) => {
       console.log("info=>", WangEditorForm.html);
       console.log("title=>", WangEditorForm.postTitle);
 
@@ -154,7 +149,7 @@ export default defineComponent({
       // console.log(this.$refs.test);
     };
 
-    const updateHtmlFromEditorEvent = (WangEditorForm) => {
+    const updateHtmlFromEditorEvent = (WangEditorForm:any) => {
       console.log("info=>", WangEditorForm.html);
       console.log("title=>", WangEditorForm.postTitle);
 
@@ -175,6 +170,7 @@ export default defineComponent({
       getParams(); // 获取路由中的参数
       updatePost(postId.value);
       noToken(); // 未登录
+      getTagListInfo() // 获取标签信息
 
       $bus.on("resetFormFromHeader", resetFormFromHeaderEvent);
       // 提交 发布
@@ -192,7 +188,12 @@ export default defineComponent({
     });
 
     // 方法 methods
-    // 方法 methods
+    // 获取标签信息
+    const getTagListInfo = async () => {
+      const result = await getTagList();
+      const data: TagListMember[] = result.data;
+      tagList.value = data;
+    }
     const noToken = () => {
       // console.log("getTokenData=>", this.getTokenData());
       const token = getTokenData();
@@ -542,6 +543,7 @@ export default defineComponent({
       fileUrl,
       propTitle,
       propInfo,
+      tagList,
 
       // 方法
       onSubmit,
@@ -559,7 +561,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="add-post-container">
+  <div class="send-post-container">
     <Loading v-show="submitLoading"></Loading>
     <el-upload
       class="upload-file"
@@ -586,6 +588,11 @@ export default defineComponent({
       :rules="formRules"
       label-width="40px"
     >
+    <el-form-item class="send-post-form-item send-post-checkbox" label="标签" label-width="120px">
+        <el-checkbox-group v-model="form.tags" >
+          <el-checkbox v-for="tag in tagList" :key="tag.id" :label="tag.id" >{{ tag.name }}</el-checkbox>
+        </el-checkbox-group>
+      </el-form-item>
       <!-- WangEditor -->
       <wang-editor
         v-if="propTitle !== '' || postId === '1'"
@@ -653,7 +660,7 @@ export default defineComponent({
 @media screen and (max-width: 480px) {
 }
 
-.add-post-container {
+.send-post-container {
   padding-top: 62px;
   text-align: center;
   margin: 0 auto;
@@ -686,6 +693,19 @@ export default defineComponent({
 
     .el-upload__tip {
       margin-top: 0;
+    }
+  }
+
+  // 多选框
+  .send-post-checkbox{
+    background-color: #fff;
+    margin-bottom: 0px;
+    padding: 10px 20px;
+    // padding-right: 20px;
+
+    .el-form-item__label{
+      font-size: 20px;
+      justify-content: center;
     }
   }
 

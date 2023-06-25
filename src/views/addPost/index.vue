@@ -1,31 +1,34 @@
 <script lang="ts">
 // 这是一个基于 TypeScript 的 Vue 组件
 import { defineComponent, onMounted, ref, inject } from "vue";
-
 import { useRoute, useRouter } from "vue-router";
-import $bus from "@/libs/eventBus";
-
-import { delOssFile, ossFileUpload } from "@/api/oss";
-import { addPost, getPostInfo, updatePost as updatePostInfo } from "@/api/post";
-import { getToken } from "@/utils/auth";
-import Loading from "@/components/Loading/index.vue";
-
+import { ElMessageBox } from "element-plus";
 import type {
   FormInstance,
   FormRules,
   UploadProps,
   UploadUserFile,
 } from "element-plus";
-import { ElMessageBox } from "element-plus";
+import Loading from "@/components/Loading/index.vue";
+
+
+import { delOssFile, ossFileUpload } from "@/api/oss";
+import { addPost, getPostInfo, updatePost as updatePostInfo } from "@/api/post";
+import { getTagList } from "@/api/tag";
+import { getToken } from "@/utils/auth";
+import $bus from "@/libs/eventBus";
+
 import { PostListMember } from "@/views/home/index.vue";
 import { UserInfoMember } from "@/store";
 import { getTokenData } from "@/utils/index";
+import { TagListMember } from '@/views/home/components/CollegeTagsTop.vue'
 
 export interface FormMember {
   name: string;
   info: string;
   belong: string;
   url: string;
+  tags: string[]
 }
 
 export interface UpdateFormMember {
@@ -33,6 +36,7 @@ export interface UpdateFormMember {
   info: string;
   id: string;
   url: string;
+  tags?: string[]
 }
 
 export default defineComponent({
@@ -78,7 +82,9 @@ export default defineComponent({
       info: "",
       belong: "",
       url: "",
+      tags: []
     });
+    const tagList = ref<TagListMember[]>([]); // 标签数据
 
     const formRef = ref<FormInstance>();
 
@@ -144,11 +150,18 @@ export default defineComponent({
       getParams(); // 获取路由中的参数
       updatePost(postId.value);
       noToken(); // 未登录
+      getTagListInfo() // 获取标签信息
 
       $bus.on("resetFormFromHeader", resetFormFromHeaderEvent);
     });
 
     // 方法 methods
+    // 获取标签信息
+    const getTagListInfo = async () => {
+      const result = await getTagList();
+      const data: TagListMember[] = result.data;
+      tagList.value = data
+    }
     const noToken = () => {
       // console.log("getTokenData=>", this.getTokenData());
       const token = getTokenData();
@@ -377,6 +390,7 @@ export default defineComponent({
         info: "",
         belong: "",
         url: "",
+        tags: []
       };
       formEl.resetFields();
     };
@@ -490,6 +504,7 @@ export default defineComponent({
       fileLimit,
       headers,
       fileUrl,
+      tagList,
 
       // 方法
       onSubmit,
@@ -528,6 +543,11 @@ export default defineComponent({
           show-word-limit
           v-model="form.info"
         ></el-input>
+      </el-form-item>
+      <el-form-item class="add-post-form-item" label="标签">
+        <el-checkbox-group v-model="form.tags" >
+          <el-checkbox v-for="tag in tagList" :key="tag.id" :label="tag.id" >{{ tag.name }}</el-checkbox>
+        </el-checkbox-group>
       </el-form-item>
 
       <!--
