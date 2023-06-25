@@ -1,70 +1,67 @@
 <script lang="ts">
 // 这是一个基于 TypeScript 的 Vue 组件
 import { defineComponent, onMounted, ref, nextTick } from "vue";
-import { register, getCollegeList } from "@/api/login";
+import type { PropType } from "vue";
+import $bus from "@libs/eventBus";
+// import { register, getCollegeList } from "@/api/login";
 import { CollegeMember } from "@/views/register/index.vue";
+import { TagListMember } from './CollegeTagsTop.vue'
+
+// import { getTagList } from '@/api/tag'
+
+// type TagListMember = {
+//   id: string
+//   belong: string
+//   name: string
+// }
 
 export default defineComponent({
-  emits: ["getTagNameChild"],
+  emits: ["getCollegeTagNameChild"],
+  props: {
+    tagList:{
+      type: Object as PropType<TagListMember[]>,
+    },
+  },
   setup(props, context) {
     // 在这里声明数据，或者编写函数并在这里执行它
     // 在使用 setup 的情况下，请牢记一点：不能再用 this 来获取 Vue 实例
 
     // dom
     const radios = ref<HTMLElement[]>([]);
-    const selectRadio = ref<string>("哈尔滨商业大学");
+    // const selectRadio = ref<string>("大学计算机程序设计(Python)");
+    const selectRadio = ref<TagListMember>({})
+    const selectName = '大学计算机程序设计(Python)'
+    // const tagList = ref<TagListMember[]>([]);
 
-    // 高校名 + 高校代码
-    const collegeList = ref<object[]>([]);
-    const testCollegeList = ref<CollegeMember[]>([
-      {
-        id: "1427935141213123341",
-        name: "大学计算机基础",
-        code: "22222",
-      },
-      {
-        id: "1527935942213023441",
-        name: "大学计算机程序设计(Python)",
-        code: "11011",
-      },
-      {
-        id: "162796594229305344133",
-        name: "操作系统",
-        code: "10240",
-      },
-      {
-        id: "1640264651585437697",
-        name: "习近平新时代中国特色社会主义思想概论",
-        code: "10245",
-      },
-      {
-        id: "1640265176313839617",
-        name: "思想道德与法治",
-        code: "13304",
-      },
-    ]);
     // 生命周期钩子
     onMounted(() => {
-      // getCollegeListInfo();
-      // handleClick(
-      //   {
-      //     id: "1627965942293053441",
-      //     name: "哈尔滨商业大学",
-      //     code: "10240",
-      //   },
-      //   2
-      // );
+      console.log(props.tagList);
+      initSelect(props.tagList, selectName)
+      // console.log(1);
     });
 
     // 方法 methods
-    const getCollegeListInfo = async () => {
-      const { data } = await getCollegeList();
-      collegeList.value = data;
-    };
+    // const getTagListInfo = async () => {
+    //   const { data } = await getTagList();
+    //   tagList.value = data;
+    // };
+    const initSelect = (tagList: TagListMember[] | undefined, tagName: string) => {
+      if (!tagList) return -1;
+      // 查找指定 索引
+      const index = tagList.findIndex((element) => {
+        return element.name === tagName
+      })
+      if (index === -1) return -1;
+      selectRadio.value = tagList[index]
+      // 传递给 爷组件
+      $bus.emit("getTagIdChild",selectRadio.value.id)
+    }
 
-    const handleClick = (currentItem: CollegeMember, index: number) => {
-      context.emit("getTagNameChild", currentItem.name);
-      selectRadio.value = currentItem.name;
+    const handleClick = (currentItem: TagListMember, index: number) => {
+      // context.emit("getCollegeTagNameChild", currentItem.name);
+      // 传递id
+      $bus.emit("getTagIdChild",currentItem.id)
+      selectRadio.value = currentItem;
     };
 
     // 计算方法 computed
@@ -73,8 +70,8 @@ export default defineComponent({
 
     return {
       // 需要给 `<template />` 用的数据或函数，在这里 `return` 出去
-      collegeList,
-      testCollegeList,
+      // tagList,
+      // testCollegeList,
       radios,
       selectRadio,
 
@@ -89,17 +86,17 @@ export default defineComponent({
       <label
         class="post-tag-top"
         ref="radios"
-        v-for="(collegeItem, index) in testCollegeList"
-        :key="collegeItem.code"
+        v-for="(tagItem, index) in tagList"
+        :key="tagItem.id"
       >
         <input
           type="radio"
           name="post-tag-top"
-          :value="collegeItem.name"
-          v-model="selectRadio"
-          @click="handleClick(collegeItem, index)"
+          :value="tagItem.name"
+          v-model="selectRadio.name"
+          @click="handleClick(tagItem, index)"
         />
-        <span class="post-tag-top-name">{{ collegeItem.name }}</span>
+        <span class="post-tag-top-name">{{ tagItem.name }}</span>
       </label>
     </div>
 </template>

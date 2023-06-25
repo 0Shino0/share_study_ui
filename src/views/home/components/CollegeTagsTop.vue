@@ -6,9 +6,17 @@ import { CollegeMember } from "@/views/register/index.vue";
 
 import PostTagTop from "./PostTagTop.vue";
 
+import { getTagList } from "@/api/tag";
+
+export type TagListMember = {
+  id: string;
+  belong: string;
+  name: string;
+};
+
 export default defineComponent({
-  emits: ["getTagNameChild"],
-  components:{PostTagTop},
+  emits: ["getCollegeTagNameChild"],
+  components: { PostTagTop },
   setup(props, context) {
     // 在这里声明数据，或者编写函数并在这里执行它
     // 在使用 setup 的情况下，请牢记一点：不能再用 this 来获取 Vue 实例
@@ -19,6 +27,8 @@ export default defineComponent({
 
     // 高校名 + 高校代码
     const collegeList = ref<object[]>([]);
+    const tagList = ref<TagListMember[]>([]); // 标签数据
+    const tagListTotal = ref<TagListMember[]>([]); // 所有标签数据
     const testCollegeList = ref<CollegeMember[]>([
       {
         id: "1",
@@ -53,6 +63,7 @@ export default defineComponent({
     ]);
     // 生命周期钩子
     onMounted(() => {
+      getTagListInfo();
       // getCollegeListInfo();
       // handleClick(
       //   {
@@ -70,18 +81,30 @@ export default defineComponent({
       collegeList.value = data;
     };
 
+    const getTagListInfo = async () => {
+      const result = await getTagList();
+      const data: TagListMember[] = result.data;
+      // 过滤
+      tagListTotal.value = data;
+      // console.log(tagListTotal.value)
+      // 更新二级标签数据
+      tagList.value = tagListTotal.value.filter((current) => {
+        return current.belong === selectRadio.value;
+      });
+      // console.log(tagList.value);
+    };
+
     const handleClick = (currentItem: CollegeMember, index: number) => {
       // 单击函数
       // console.log(currentItem);
       // console.log(emits);
-      // emits("getTagNameChild", currentItem);
-      context.emit("getTagNameChild", currentItem.name);
+      // emits("getCollegeTagNameChild", currentItem);
+      context.emit("getCollegeTagNameChild", currentItem.name);
       selectRadio.value = currentItem.name;
-      // nextTick(() => {
-      //   console.log(index - 1);
-      //   console.log(radiosTop.value[index - 1]);
-      //   radiosTop.value[index - 1].checked = true;
-      // });
+      // 更新二级标签数据
+      tagList.value = tagListTotal.value.filter((current) => {
+        return current.belong === selectRadio.value;
+      });
     };
 
     // 计算方法 computed
@@ -90,6 +113,7 @@ export default defineComponent({
 
     return {
       // 需要给 `<template />` 用的数据或函数，在这里 `return` 出去
+      tagList,
       collegeList,
       testCollegeList,
       radiosTop,
@@ -120,30 +144,29 @@ export default defineComponent({
         <span class="name">{{ collegeItem.name }}</span>
       </label>
     </div>
-    <PostTagTop />
+    <PostTagTop v-if="tagList.length !== 0" :tagList="tagList" />
   </div>
 </template>
 
 <style lang="scss">
-
 // <= 991
 @media screen and (max-width: 991px) {
-  .tags-container{
-    .radios-top-inputs{
+  .tags-container {
+    .radios-top-inputs {
       justify-content: start;
     }
   }
 
   // 字体缩小
   .tags-container .radios-top-inputs .radios-top .name {
-      // 补充
-      font-size: 14px;
-      // padding: 4px 12px;
-      color: #515767;
-    }
+    // 补充
+    font-size: 14px;
+    // padding: 4px 12px;
+    color: #515767;
+  }
 }
 
-.tags-container{
+.tags-container {
   display: flex;
   flex-direction: column;
   margin-top: 60px;
@@ -179,7 +202,7 @@ export default defineComponent({
   text-align: center;
 }
 
-.radios-top{
+.radios-top {
   position: relative;
   // 下面为补充
   flex-shrink: 0;
@@ -220,29 +243,24 @@ export default defineComponent({
   background-color: #eaf2ff;
   color: #409eff;
   font-weight: 600;
-  
 }
 
-  // 判断radio下是否存在input:checked, 有则添加::after | 相当于选中选中父元素的效果
-  .radios-top:has(input:checked){
-
-    ::after{
-      content: '';
-      position: absolute;
-      transform:translateX(-50%);
-      // top:50%;
-      bottom: 0;
-      // right: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-top: 8px solid transparent;
-      border-left: 8px solid transparent;
-      border-right: 8px solid transparent;
-      border-bottom: 8px solid #409eff;
-    }
-    
+// 判断radio下是否存在input:checked, 有则添加::after | 相当于选中选中父元素的效果
+.radios-top:has(input:checked) {
+  ::after {
+    content: "";
+    position: absolute;
+    transform: translateX(-50%);
+    // top:50%;
+    bottom: 0;
+    // right: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #409eff;
   }
-
-  
+}
 </style>

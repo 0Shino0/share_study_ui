@@ -7,7 +7,7 @@ import { CollegeMember } from "@/views/register/index.vue";
 import PostTagLeft from "./PostTagTop.vue";
 
 export default defineComponent({
-  emits: ["getTagNameChild"],
+  emits: ["getCollegeTagNameChild"],
   components:{PostTagLeft},
   setup(props, context) {
     // 在这里声明数据，或者编写函数并在这里执行它
@@ -74,8 +74,8 @@ export default defineComponent({
       // 单击函数
       // console.log(currentItem);
       // console.log(emits);
-      // emits("getTagNameChild", currentItem);
-      context.emit("getTagNameChild", currentItem.name);
+      // emits("getCollegeTagNameChild", currentItem);
+      context.emit("getCollegeTagNameChild", currentItem.name);
       selectRadio.value = currentItem.name;
       // nextTick(() => {
       //   console.log(index - 1);

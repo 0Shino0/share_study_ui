@@ -6,12 +6,13 @@ import request from '@/utils/request'
  * @param {number} current
  * @param {number} pageSize
  * @param {string} name
+ * @param {string} tagId
  * @method post
  * @returns {object}
   */
-export function getPostPage(current: number, pageSize: number, name = '') {
+export function getPostPage(current: number, pageSize: number, name: string = '', tagId: string = '') {
   return request({
-    url: `/post/page/${current}/${pageSize}?name=${name}`,
+    url: `/post/page/${current}/${pageSize}?name=${name}&tagId=${tagId}`,
     method: "get",
   })
 }

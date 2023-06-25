@@ -87,7 +87,8 @@ export default defineComponent({
     const activeName = ref<string>("6"); // 当前选中
     const upgrateInfo = ref<object[]>([]);
     // 子组件传递数据
-    const tagNameChild = ref<string>("");
+    const collegeTagNameChild = ref<string>("");
+    const tagIdChild = ref<string>('')
 
     // 事件
     function resetUserInfoEvent(): void {
@@ -121,7 +122,7 @@ export default defineComponent({
       // var reg = new RegExp("^[0-9]+"+param+"[a-z]+$","g");
 
       // 后端模糊查询
-      const result: any = await getPostPage(1, 100, searchInfo.value);
+      const result: any = await getPostPage(1, 1000, searchInfo.value);
       filterPostList.value = result.data.records;
       console.log(result.data.records);
 
@@ -140,10 +141,19 @@ export default defineComponent({
     // 传递searchInfo
     $bus.on("tranSearchInfo", tranSearchInfoEvent);
 
+        // 获取标签子组件传递信息
+    const getTagIdChildEvent = (tagId: any) => {
+      console.log(tagId);
+      tagIdChild.value = tagId;
+      getPostPageInfo(1,1000,'',tagId)
+    }
+    // 获取tagIdChild
+    $bus.on("getTagIdChild", getTagIdChildEvent);
+
     // 生命周期钩子
     onMounted(() => {
       // console.log(route.path);
-      getPostPageInfo(1, 100);
+      getPostPageInfo(1, 1000);
       tokenData.value = getTokenData();
 
       if (tokenData.value != null) {
@@ -159,28 +169,32 @@ export default defineComponent({
     onBeforeUnmount(() => {
       $bus.off("tranSearchInfo", tranSearchInfoEvent);
       $bus.off("resetUserInfo", resetUserInfoEvent);
+      $bus.off("getTagIdChild", getTagIdChildEvent);
     });
 
     // 方法 methods
-    // 获取子组件传递信息
-    const getTagNameChild = (collegeName: string) => {
-      tagNameChild.value = collegeName;
-      // console.log(tagNameChild.value);
+    // 获取高校子组件传递信息
+    const getCollegeTagNameChild = (collegeName: string) => {
+      collegeTagNameChild.value = collegeName;
+      // console.log(collegeTagNameChild.value);
     };
+
     // 获取帖子数
     const getPostPageInfo = async (
       current: number,
       postPageSize: number,
-      collegeName: string = "哈尔滨商业大学"
+      collegeName: string = "哈尔滨商业大学",
+      tagId: string = ''
     ) => {
       // console.log(1);
-
       skeletonLoading.value = true;
-      const result = await getPostPage(current, postPageSize);
+      const result = await getPostPage(current, postPageSize,'',tagId);
       if (!result) return;
       const data = result.data;
       // 获取所有数据
       // totalPostList.value = data.records;
+
+      // 前端过滤
       if (collegeName === "综合") {
         totalPostList.value = data.records;
       } else {
@@ -190,6 +204,7 @@ export default defineComponent({
           return data.collegeName.toLowerCase().includes(collegeName);
         });
       }
+
       // 原数组
       postLength.value = data.total;
       // this.postAveList = this.aveArr(data.records.reverse(), this.pageSize);
@@ -280,7 +295,7 @@ export default defineComponent({
     //     }
     //     console.log(currentScrollTop);
     //     initScrollTop = currentScrollTop;
-    //     if (scrollType == 1 && currentScrollTop > 100) {
+    //     if (scrollType == 1 && currentScrollTop > 1000) {
     //       // showHeader.value = false;
     //       $bus.emit("changeShowHeaderEvent", false);
     //     } else {
@@ -323,9 +338,9 @@ export default defineComponent({
     });
 
     // 监听 watch
-    watch(tagNameChild, (newVal) => {
+    watch(collegeTagNameChild, (newVal) => {
       // console.log(newVal);
-      getPostPageInfo(1, 100, newVal);
+      getPostPageInfo(1, 1000, newVal);
       count.value = 1; // 置一
     });
 
@@ -345,14 +360,14 @@ export default defineComponent({
       searchInfo,
       userInfo,
       activeName,
-      tagNameChild, // 传递高校名
+      collegeTagNameChild, // 传递高校名
       totalPostList,
 
       // 方法
       getPostPageInfo,
       aveArr,
       load,
-      getTagNameChild,
+      getCollegeTagNameChild,
 
       // 计算属性
       noMore,
@@ -367,7 +382,7 @@ export default defineComponent({
   <!-- style="overflow: auto" -->
   <!-- 顶部标签 -->
   <!-- <PostTag class="top-tag-container"></PostTag> -->
-  <CollegeTagsTop class="main-tags" @getTagNameChild="getTagNameChild" ></CollegeTagsTop>
+  <CollegeTagsTop class="main-tags" @getCollegeTagNameChild="getCollegeTagNameChild" ></CollegeTagsTop>
   <div
     class="main"
     ref="mainRef"
@@ -380,7 +395,7 @@ export default defineComponent({
       <!-- 左侧标签 -->
       <!-- <CollegeTags
         class="main-tags"
-        @getTagNameChild="getTagNameChild"
+        @getCollegeTagNameChild="getCollegeTagNameChild"
       ></CollegeTags> -->
 
       <!-- 骨架屏 -->

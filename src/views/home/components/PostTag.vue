@@ -5,7 +5,7 @@ import { register, getCollegeList } from "@/api/login";
 import { CollegeMember } from "@/views/register/index.vue";
 
 export default defineComponent({
-  emits: ["getTagNameChild"],
+  emits: ["getCollegeTagNameChild"],
   setup(props, context) {
     // 在这里声明数据，或者编写函数并在这里执行它
     // 在使用 setup 的情况下，请牢记一点：不能再用 this 来获取 Vue 实例
@@ -63,7 +63,7 @@ export default defineComponent({
     };
 
     const handleClick = (currentItem: CollegeMember, index: number) => {
-      context.emit("getTagNameChild", currentItem.name);
+      context.emit("getCollegeTagNameChild", currentItem.name);
       selectRadio.value = currentItem.name;
     };
 
