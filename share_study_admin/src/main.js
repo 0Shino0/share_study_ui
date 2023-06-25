@@ -5,6 +5,7 @@ import store from './store'
 import router from './router'
 
 import axios from 'axios'
+import videojs from 'video.js'
 
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
@@ -54,6 +55,7 @@ Vue.prototype.tableColumnWidth = '150px'
 Vue.prototype.$message = Message // 全局element
 Vue.prototype.$echarts = echarts
 Vue.prototype.$axios = axios // 请求
+Vue.prototype.$video = videojs // 请求
 Vue.prototype.$http = 'http://120.46.214.246:8080/api' // map数据相关
 
 /* 全局方法 */

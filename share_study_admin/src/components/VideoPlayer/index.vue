@@ -11,6 +11,9 @@
 </template>
 
 <script>
+import videojs from 'video.js'
+import 'video.js/dist/video-js.css'
+
 export default {
   props: ['volume', 'src'],
   data() {
@@ -21,7 +24,16 @@ export default {
   },
   mounted() {
     const _this = this
-    this.player = this.$video(this.$refs.video, this.options, function() {
+    const options = {
+      language: 'zh-CN', // 设置语言
+      controls: true, // 是否显示控制条
+      preload: 'auto', // 预加载
+      autoplay: false, // 是否自动播放
+      fluid: false, // 自适应宽高
+      src: this.src // 要嵌入的视频源的源 URL
+    }
+
+    this.player = this.$video(this.$refs.video, options, function() {
       this.on('volumechange', () => {
         // 存储音量
         _this.volumeVideo = this.volume()
@@ -31,6 +43,16 @@ export default {
         this.volume(this.volumeVideo)
       })
     })
+    // 监听父组件 关闭dialog
+    this.$bus.$on(`dialogCancel`, () => {
+      // console.log('dialogCancel')
+      this.stop()
+    })
+  },
+  beforeDestroy() {
+    if (this.player) {
+      this.player.dispose()
+    }
   },
   methods: {
     // 封装播放器方法
@@ -73,6 +95,7 @@ export default {
 <style>
 .video-js .vjs-time-control {
   display: block !important;
+  /* display: none !important; */
 }
 .video-js .vjs-remaining-time {
   display: none !important;

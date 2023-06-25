@@ -320,6 +320,7 @@
 
           <div v-else-if="fileIsVideo" class="movies-container">
             <video-player
+              style="width:600px;height:400px;text-align: center;"
               :src="previewDialogObj.url"
               :volume="volume"
             />
@@ -327,7 +328,7 @@
           </div>
 
           <div
-            v-else-if="docPreviewUrl"
+            v-else-if="fileIsDoc"
             class="doc-container"
             style="width: 100%; margin-top: 30px"
           >
@@ -564,6 +565,7 @@ export default {
     // 取消按钮
     dialogCancel() {
       this.dialogShow = false
+      // 如果
       this.reset()
     },
     // 表单重置
@@ -579,7 +581,6 @@ export default {
     // 导出excel
     handleExportExcel() {
       // 调用接口
-
       this.$axios({
         url: '/api/resource/download',
         method: 'get',
@@ -625,20 +626,31 @@ export default {
         this.$refs.inserthtml.innerHTML += this.previewDialogObj.info
       }, 1000)
 
-      this.fileSuffix = this.previewDialogObj.url
-        .split('.')
-        .reverse()[0]
-        .toLowerCase()
+      // 文件后缀处理
+      if (row.url === '') {
+        // console.log(row.url)
+        this.fileIsImg = false
+        this.fileIsVideo = false
+        this.fileIsDoc = false
+      } else {
+        this.fileSuffix = this.previewDialogObj.url
+          .split('.')
+          .reverse()[0]
+          .toLowerCase()
 
-      this.isFileType(this.fileSuffix)
-
+        // console.log(this.fileSuffix)
+        this.isFileType(this.fileSuffix)
+      }
       // 展示
       this.previewDialogShow = true
     },
     previewDialogCancel() {
       this.previewDialogShow = false
+      // 通知video组件
+      this.$bus.$emit(`dialogCancel`)
     },
     isFileType(suffix) {
+      console.log(suffix)
       // 判断文件是什么类型
       // console.log("fileIsImg=>", this.imgType.includes(suffix));
       this.fileIsImg = this.imgType.includes(suffix)

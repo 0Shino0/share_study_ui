@@ -28,11 +28,60 @@
         stripe
         style="width: 100%"
       >
-        <el-table-column
+        <!-- <el-table-column
           v-for="item in tableMaterialCol"
           :key="item.prop"
           :prop="item.prop"
           :label="item.label"
+          :width="tableColumnWidth"
+        /> -->
+        <el-table-column
+          prop="name"
+          label="资料名"
+          :width="tableColumnWidth"
+        />
+        <el-table-column
+          prop="tags"
+          label="标签"
+          :width="tableColumnWidth"
+        >
+          <template slot-scope="scope">
+            <div class="name-wrapper">
+              <el-popover trigger="hover" placement="top">
+                <div v-if="scope.row.tags.length !== 0" style="textAlign:center">
+                  <span v-for="(item,index) in scope.row.tags" :key="item" style="textAlign:center">{{ (index+1) + '：' + item }} <br> </span>
+                </div>
+                <div v-else style="textAlign:center">无</div>
+                <span slot="reference">
+                  <el-tag>标签详情</el-tag>
+                </span>
+              </el-popover>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="score"
+          label="收藏数"
+          :width="tableColumnWidth"
+        />
+        <el-table-column
+          prop="commentNumber"
+          label="评论数"
+          :width="tableColumnWidth"
+        />
+        <el-table-column
+          prop="belongName"
+          label="所属老师"
+          :width="tableColumnWidth"
+        />
+        <el-table-column
+          prop="status"
+          label="资料状态"
+          :width="tableColumnWidth"
+        />
+        <el-table-column
+          prop="createTime"
+          label="录入时间"
           :width="tableColumnWidth"
         />
         <el-table-column align="right">
