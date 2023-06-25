@@ -143,7 +143,7 @@ export default defineComponent({
 
         // 获取标签子组件传递信息
     const getTagIdChildEvent = (tagId: any) => {
-      console.log(tagId);
+      // console.log(tagId);
       tagIdChild.value = tagId;
       getPostPageInfo(1,1000,'',tagId)
     }
